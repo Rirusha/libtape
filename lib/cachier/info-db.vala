@@ -19,7 +19,7 @@
 using Gee;
 
 namespace CassetteClient {
-    public class InfoDB : Object {
+    public class InfoDB: Object {
         /**
             Класс-обёртка для базы данных
             База данных имеет таблицу additional для всякой доп инфы по типу uid пользователя приложения

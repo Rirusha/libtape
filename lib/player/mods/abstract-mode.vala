@@ -20,8 +20,8 @@ using Gee;
 /**
  * Abstract class of player mode.
  * Player can work with flow (radio), track list, local track list.
- * Every mode autoconnect to ``Player.queue_changed`` and
- * ``Player.nead_changed`` signals.
+ * Every mode autoconnect to `Player.queue_changed` and
+ * `Player.nead_changed` signals.
  */
 public abstract class CassetteClient.Player.Mode: Object {
 
@@ -100,7 +100,7 @@ public abstract class CassetteClient.Player.Mode: Object {
     /**
      * Change current track to next.
      *
-     * @param consider_repeat_mode  if ``true``, ignore repeat mode and go to next
+     * @param consider_repeat_mode  if `true`, ignore repeat mode and go to next
      *                              else consider repeat
      */
     public virtual void next (bool consider_repeat_mode) {
@@ -135,7 +135,7 @@ public abstract class CassetteClient.Player.Mode: Object {
     /**
      * Form Play object foe play feedback.
      *
-     * @return  ``CassetteClient.YaMAPI.Play`` object
+     * @return  `CassetteClient.YaMAPI.Play` object
      */
     protected abstract YaMAPI.Play form_play_obj ();
 

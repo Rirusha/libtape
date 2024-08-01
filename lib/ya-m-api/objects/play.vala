@@ -63,12 +63,12 @@ public class CassetteClient.YaMAPI.Play: YaMObject {
     public string from { get; set; default = API_FROM; }
 
     /**
-     * Контекст воспроизведения (То же что и ``Queue.context.type``)
+     * Контекст воспроизведения (То же что и `Queue.context.type`)
      */
     public string context { get; set; }
 
     /**
-     * Id контекста, (Тоже же, что и ``Queue.context.id``)
+     * Id контекста, (Тоже же, что и `Queue.context.id`)
      */
     public string context_item { get; set; }
 

@@ -25,7 +25,9 @@ namespace CassetteClient {
     }
 
     //  Класс представляющий объект для кэширования объекта ямы и его составных частей по интерфейсам
-    public class Job : Object {
+    public class Job: Object {
+
+        public Client client { get; construct; }
 
         public YaMAPI.HasTracks yam_object { get; construct; }
 
@@ -89,8 +91,8 @@ namespace CassetteClient {
         // Сделано значимое действие. Например, не проверка, сохранен ли трек, а его загрузка.
         public signal void action_done ();
 
-        public Job (YaMAPI.HasTracks yam_object) {
-            Object (yam_object: yam_object);
+        public Job (YaMAPI.HasTracks yam_object, Client client) {
+            Object (yam_object: yam_object, Client client);
         }
 
         construct {

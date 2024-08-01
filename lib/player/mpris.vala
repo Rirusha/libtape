@@ -63,7 +63,7 @@ public class Mpris: Object {
 }
 
 [DBus (name = "org.mpris.MediaPlayer2.Player")]
-public class MprisPlayer : Object {
+public class MprisPlayer: Object {
 
     DBusConnection con;
 

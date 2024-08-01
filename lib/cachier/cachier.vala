@@ -21,108 +21,44 @@ public class CassetteClient.Cachier: Object {
 
     public Client client { get; construct; }
 
-    public Storager storager { get; default = new Storager (); }
+    public Storager storager { get; construct; }
 
-    public ArrayList<Job> job_list { get; default = new ArrayList<Job> (); }
+    public Jober jober { get; construct; }
 
-    public Controller controller { get; default = new Controller (); }
-
-    public signal void job_started (Job job);
-
-    public signal void job_added (Job job);
-    public signal void job_removed (Job job);
+    public Controller controller { get; construct; }
 
     public Cachier (Client client) {
         Object (client: client);
     }
 
-    public async void uncache (YaMAPI.HasTracks yam_obj) {
-        /**
-            Удалить или переместить во временную папку объект с треками
-        */
-
-        var job = new Job (yam_obj);
-
-        yield job.unsave_async ();
+    construct {
+        storager = new Storager ();
+        controller = new Controller (client);
+        jober = new Jober (client);
     }
 
-    public Job start_cache (YaMAPI.HasTracks yam_obj) {
-        /**
-            Начать сохранение объекта с треками
-        */
+    
 
-        var job = new Job (yam_obj);
-        job_list.add (job);
-        job_added (job);
 
-        job.job_done.connect (() => {
-            job_list.remove (job);
-            job_removed (job);
-        });
 
-        job.save_async.begin ();
 
-        job_started (job);
 
-        return job;
-    }
 
-    public Job? find_job (string yam_obj_id) {
-        /**
-            Находит job в списке job'ов. Если таковой нет, возвращает null
-        */
 
-        foreach (var job in job_list) {
-            if (yam_obj_id == job.yam_object.oid) {
-                return job;
-            }
-        }
 
-        return null;
-    }
 
-    public async void check_all_cache () {
-        Logger.debug ("Started full saves check");
 
-        var objs = storager.get_saved_objects ();
 
-        foreach (var obj in objs) {
-            YaMAPI.HasTracks new_obj = null;
 
-            Threader.add (() => {
-                if (obj is YaMAPI.Playlist) {
-                    var pl_obj = (YaMAPI.Playlist) obj;
 
-                    try {
-                        new_obj = yam_talker.get_playlist_info (pl_obj.playlist_uuid);
-                    } catch (BadStatusCodeError e) { }
 
-                } else {
-                    assert_not_reached ();
-                }
 
-                Idle.add (check_all_cache.callback);
-            });
 
-            yield;
 
-            if (new_obj != null) {
-                start_cache (new_obj);
-            }
-        }
-    }
 
-    public async void uncache_all () {
-        var objs = storager.get_saved_objects ();
 
-        foreach (var job in job_list) {
-            yield job.abort_with_wait ();
-        }
 
-        foreach (var obj in objs) {
-            yield uncache (obj);
-        }
-    }
+
 
     public async static void save_track (YaMAPI.Track track_info) {
         /**
@@ -246,8 +182,6 @@ public class CassetteClient.Cachier: Object {
                     }
     
                 } else {
-                    // Непонятна причина непустого массива с null внутри
-                    // https://github.com/Rirusha/Cassette/issues/52
                     Logger.info ("Hello, send this to developer: %s, %d".printf (
                         yam_object.get_type ().to_string (),
                         cover_uris.size

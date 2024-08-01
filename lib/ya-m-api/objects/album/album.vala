@@ -17,7 +17,7 @@
 
 using Gee;
 
-public class CassetteClient.YaMAPI.Album : YaMObject, HasCover, HasID {
+public class CassetteClient.YaMAPI.Album: YaMObject, HasCover, HasID {
 
     public string oid {
         owned get {

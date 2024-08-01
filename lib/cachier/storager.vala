@@ -20,8 +20,6 @@
     */
 public class CassetteClient.Storager: Object {
 
-    public Client client { get; construct; }
-
     InfoDB? _db = null;
     public InfoDB db {
         get {
@@ -161,10 +159,6 @@ public class CassetteClient.Storager: Object {
     File temp_audio_file;
     string temp_audio_uri;
 
-    public Storager (Client client) {
-        Object (client: client);
-    }
-
     construct {
         _data_dir_file = File.new_build_filename (Environment.get_user_data_dir (), Filenames.ROOT_DIR_NAME);
 
@@ -191,13 +185,13 @@ public class CassetteClient.Storager: Object {
         Logger.debug ("Storager initialized");
     }
 
-    public async void move_loc_to_temp_async (Location loc) {
+    public async void move_loc_to_temp_async (Location loc, bool can_cache) {
         /**
             Переместить файл во временное хранилище, если он в постоянном
         */
 
         if (loc.file != null && loc.is_tmp == false) {
-            if (client.can_cache) {
+            if (can_cache) {
                 yield move_file_to_async (loc.file, true);
 
             } else {
@@ -681,7 +675,7 @@ public class CassetteClient.Storager: Object {
         return build_type.name () + "-" + oid;
     }
 
-    public async YaMAPI.HasTracks[] get_saved_object_async () {
+    public async YaMAPI.HasTracks[] get_saved_objects_async () {
         var obj_arr = new Array<YaMAPI.HasTracks> ();
 
         try {
@@ -735,7 +729,7 @@ public class CassetteClient.Storager: Object {
                             )));
                         }
 
-                        Idle.add (get_saved_object_async.callback);
+                        Idle.add (get_saved_objects_async.callback);
                     });
 
                     yield;

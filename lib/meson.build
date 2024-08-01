@@ -65,6 +65,7 @@ client_sources = files(
   'cachier/controller.vala',
   'cachier/info-db.vala',
   'cachier/job.vala',
+  'cachier/jober.vala',
   'cachier/storager.vala',
 
   'player/mods/abstract-mode.vala',
@@ -109,7 +110,7 @@ include_dir = join_paths(
   meson.project_name()
 )
 
-libcassette = library(
+libcassette = shared_library(
   meson.project_name(),
   libcassette_sources,
   dependencies: libcassette_dependencies,

@@ -419,7 +419,7 @@ public class CassetteClient.Player.Player: Object {
 
         if (mode is Flow) {
             ((Flow) mode).send_feedback.begin (
-                natural ? YaMAPI.Rotor.FeedbackType.TRACK_FINISHED : YaMAPI.Rotor.FeedbackType.SKIP,
+                natural ? YaMAPI.Rotor.FeedbackType.TRACK_FINISHED: YaMAPI.Rotor.FeedbackType.SKIP,
                 current_track.id,
                 total_played_seconds
             );

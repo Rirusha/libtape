@@ -21,12 +21,12 @@
 public class CassetteClient.YaMAPI.Rotor.Station: YaMObject {
 
     /**
-     * Station id. Doesn't work with ``_dashboard`` and ``_list`` rotor methods
+     * Station id. Doesn't work with `_dashboard` and `_list` rotor methods
      */
     public string station_id { get; set; }
 
     /**
-     * Station object. Using with ``_dashboard`` and ``_list`` rotor methods
+     * Station object. Using with `_dashboard` and `_list` rotor methods
      */
     public StationInfo station { get; set; }
 

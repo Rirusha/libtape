@@ -20,7 +20,7 @@ using Gee;
 namespace CassetteClient {
     
 
-  class ContentInfo : Object {
+  class ContentInfo: Object {
         public ContentType content_type { get; construct; }
         public string content_id { get; construct; }
 
@@ -30,7 +30,7 @@ namespace CassetteClient {
     }
 
     // Контроллер состояния кэширования треков. Все отображалки состояния привязаны к этому контроллеру
-    public class Controller : Object {
+    public class Controller: Object {
         ArrayList<ContentInfo?> loading_content = new ArrayList<ContentInfo?> ();
 
         public signal void content_cache_state_changed (

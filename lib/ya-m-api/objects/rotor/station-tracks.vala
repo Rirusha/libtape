@@ -18,7 +18,7 @@
 using Gee;
 
 /**
- * Track list returns by ``rotor`` methods
+ * Track list returns by `rotor` methods
  */
 public class CassetteClient.YaMAPI.Rotor.StationTracks: YaMObject {
 

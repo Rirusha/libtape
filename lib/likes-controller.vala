@@ -32,7 +32,7 @@ namespace CassetteClient {
     }
 
     // Контроллер лайков различного контента. Хранит в себе все лайки пользователя.
-    public class LikesController : Object {
+    public class LikesController: Object {
 
         HashSet<string> disliked_tracks_ids = new HashSet<string> ();
         HashSet<string> liked_tracks_ids = new HashSet<string> ();

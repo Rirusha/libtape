@@ -18,7 +18,7 @@
 
 using CassetteClient.YaMAPI.Rotor;
 
-public class CassetteClient.YaMAPI.YaMClient : Object {
+public class CassetteClient.YaMAPI.YaMClient: Object {
 
     const string YAM_BASE_URL = "https://api.music.yandex.net";
 
@@ -1005,7 +1005,7 @@ public class CassetteClient.YaMAPI.YaMClient : Object {
     /**
      * Метод для получения всех возможных настроек волны
      *
-     * @return  объект ``CassetteClient.YaMAPI.Rotor.Settings``, содержащий все настройки
+     * @return  объект `CassetteClient.YaMAPI.Rotor.Settings`, содержащий все настройки
      */
     public Rotor.Settings rotor_wave_settings () throws ClientError, BadStatusCodeError {
         var bytes = soup_wrapper.get_sync (
@@ -1097,10 +1097,10 @@ public class CassetteClient.YaMAPI.YaMClient : Object {
      * @param end_position_seconds  секунда, на которой закончилось прослушивание
      * @param track_length_seconds  общее количество секунд в треке
      * @param track_id              id трека
-     * @param album_id              id вльбома, может быть ``null``
+     * @param album_id              id вльбома, может быть `null`
      * @param from                  
-     * @param context               контекст воспроизведения (То же что и ``Queue.context.type``)
-     * @param context_item          id контекста, (Тоже же, что и ``Queue.context.id``)
+     * @param context               контекст воспроизведения (То же что и `Queue.context.type`)
+     * @param context_item          id контекста, (Тоже же, что и `Queue.context.id`)
      * @param radio_session_id      id сессии волны
      *
      * @return                      успех выполнения
