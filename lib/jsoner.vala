@@ -19,10 +19,10 @@
 using Gee;
 
 /**
- * Класс для сериализации и десериализации объектов ``CassetteClient.YaMObject``.
- * Умеет работать с ``CassetteClient.YaMAPI.YaMObject``, ``Gee.ArrayList<YaMObject>`` и ``GLib.Value``
+ * Класс для сериализации и десериализации объектов `CassetteClient.YaMObject`.
+ * Умеет работать с `CassetteClient.YaMAPI.YaMObject`, `Gee.ArrayList<YaMObject>` и `GLib.Value`
  */
-public class CassetteClient.Jsoner : Object {
+public class CassetteClient.Jsoner: Object {
 
     /**
      * Нейм кейс для десериализации
@@ -38,7 +38,7 @@ public class CassetteClient.Jsoner : Object {
     /**
      * Базовый конструктор класса. Выполняет инициализацию для десериализации.
      * Принимает json строку. В случе ошибки при парсинге,
-     * выбрасывает ``CassetteClient.ClientError.PARSE_ERROR``
+     * выбрасывает `CassetteClient.ClientError.PARSE_ERROR`
      *
      * @param json_string   json строка
      * @param sub_members   массив имён элементов json, по которым нужно пройти до целевой ноды
@@ -69,10 +69,10 @@ public class CassetteClient.Jsoner : Object {
 
     /**
      * Конструктор класса. Выполняет инициализацию для десериализации.
-     * Принимает json строку в виде байтов, объекта ``GLib.Bytes``. В случе ошибки при парсинге,
-     * выбрасывает ``CassetteClient.ClientError.PARSE_ERROR``
+     * Принимает json строку в виде байтов, объекта `GLib.Bytes`. В случе ошибки при парсинге,
+     * выбрасывает `CassetteClient.ClientError.PARSE_ERROR`
      *
-     * @param bytes         json строка в виде байтов, объекта ``GLib.Bytes``
+     * @param bytes         json строка в виде байтов, объекта `GLib.Bytes`
      * @param sub_members   массив имён элементов json, по которым нужно пройти до целевой ноды
      * @param names_case    нейм кейс имён элементов в json строке
      */
@@ -90,10 +90,10 @@ public class CassetteClient.Jsoner : Object {
 
     /**
      * Конструктор класса. Выполняет инициализацию для десериализации.
-     * Принимает json строку в виде байтов, массива ``uint8``. В случе ошибки при парсинге,
-     * выбрасывает ``CassetteClient.ClientError.PARSE_ERROR``
+     * Принимает json строку в виде байтов, массива `uint8`. В случе ошибки при парсинге,
+     * выбрасывает `CassetteClient.ClientError.PARSE_ERROR`
      *
-     * @param bytes         json строка в виде байтов, массива ``uint8``
+     * @param bytes         json строка в виде байтов, массива `uint8`
      * @param sub_members   массив имён элементов json, по которым нужно пройти до целевой ноды
      * @param names_case    нейм кейс имён элементов в json строке
      */
@@ -107,7 +107,7 @@ public class CassetteClient.Jsoner : Object {
 
     /**
      * Функция для выполнения перехода в переданной ноде по названиям элементов.
-     * В случае, если элемент не найден, будет выкинута ``CassetteClient.ClientError.PARSE_ERROR``
+     * В случае, если элемент не найден, будет выкинута `CassetteClient.ClientError.PARSE_ERROR`
      *
      * @param node          исходная json нода
      * @param sub_members   массив "путь" имён элементов, по которому нужно пройти
@@ -134,9 +134,9 @@ public class CassetteClient.Jsoner : Object {
     /////////////////
 
     /**
-     * Функция для сериализации ``GLib.Datalist<string>`` в json строку.
+     * Функция для сериализации `GLib.Datalist<string>` в json строку.
      *
-     * @param datalist  объект ``Glib.Datalist``, который нужно сериализовать
+     * @param datalist  объект `Glib.Datalist`, который нужно сериализовать
      *
      * @return          json строка
      */
@@ -159,9 +159,9 @@ public class CassetteClient.Jsoner : Object {
     }
 
     /**
-     * Функция для сериализации ``YaMObject`` в json строку.
+     * Функция для сериализации `YaMObject` в json строку.
      *
-     * @param datalist      объект ``YaMObject``, который нужно сериализовать
+     * @param datalist      объект `YaMObject`, который нужно сериализовать
      * @param names_case    нейм кейс имён элементов в json строке
      *
      * @return              json строка
@@ -174,17 +174,17 @@ public class CassetteClient.Jsoner : Object {
     }
 
     /**
-     * Функция для сериализации ``Gee.ArrayList``.
+     * Функция для сериализации `Gee.ArrayList`.
      * Элементы списка могут быть:
-     *  - ``CassetteClient.YaMObject`` 
-     *  - ``string`` 
-     *  - ``int32`` 
-     *  - ``int64`` 
-     *  - ``double`` 
-     *  - ``Gee.ArrayList`` 
+     *  - `CassetteClient.YaMObject` 
+     *  - `string` 
+     *  - `int32` 
+     *  - `int64` 
+     *  - `double` 
+     *  - `Gee.ArrayList` 
      *
-     * @param builder       объект ``Json.Builder``
-     * @param array_list    объект ``Gee.ArrayList``, который нужно сериализовать
+     * @param builder       объект `Json.Builder`
+     * @param array_list    объект `Gee.ArrayList`, который нужно сериализовать
      * @param element_type  тип элементов в array_list
      * @param names_case    нейм кейс имён элементов в json строке
      */
@@ -229,11 +229,11 @@ public class CassetteClient.Jsoner : Object {
     }
 
     /**
-     * Функция для сериализации ``CassetteClient.YaMAPI.YaMObject`` или ``null``.
+     * Функция для сериализации `CassetteClient.YaMAPI.YaMObject` или `null`.
      *
-     * @param builder       объект ``Json.Builder``
-     * @param yam_obj       объект ``CassetteClient.YaMAPI.YaMObject``, который нужно сериализовать.
-     *                      Может быть ``null``
+     * @param builder       объект `Json.Builder`
+     * @param yam_obj       объект `CassetteClient.YaMAPI.YaMObject`, который нужно сериализовать.
+     *                      Может быть `null`
      * @param names_case    нейм кейс имён элементов в json строке
      */
     static void serialize_object (Json.Builder builder, YaMAPI.YaMObject? yam_obj, Case names_case = Case.KEBAB) {
@@ -289,11 +289,11 @@ public class CassetteClient.Jsoner : Object {
     }
 
     /**
-     * Функция для сериализации ``GLib.Value`` или ``null``.
+     * Функция для сериализации `GLib.Value` или `null`.
      *
-     * @param builder       объект ``Json.Builder``
+     * @param builder       объект `Json.Builder`
      * @param prop_val      значение базового типа, который нужно сериализовать.
-     *                      Может содержать ``null``
+     *                      Может содержать `null`
      */
     static void serialize_value (Json.Builder builder, Value prop_val) {
         switch (prop_val.type ()) {
@@ -391,11 +391,11 @@ public class CassetteClient.Jsoner : Object {
     }
 
     /**
-     * Метод для десериализации объекта ``CassetteClient.YaMAPI.YaMObject``.
+     * Метод для десериализации объекта `CassetteClient.YaMAPI.YaMObject`.
      *
      * @param obj_type  тип объекта, по которому будет десериализован json
      * @param node      нода, которая будет десериализована. Будет использовано свойство
-     *                  root, если передан ``null``   
+     *                  root, если передан `null`   
      *
      * @return          десериализованный объект
      */
@@ -502,7 +502,7 @@ public class CassetteClient.Jsoner : Object {
      * Метод для десериализации значения.
      * 
      * @param node      нода, которая будет десериализована. Будет использовано свойство
-     *                  root, если передан ``null``   
+     *                  root, если передан `null`   
      *
      * @return          десериализованное значение
      */
@@ -522,13 +522,13 @@ public class CassetteClient.Jsoner : Object {
     }
 
     /**
-     * Метод для десериализации ``Gee.ArrayList``.
+     * Метод для десериализации `Gee.ArrayList`.
      * Поддерживает только одиночную вложенность (список в списке).
      * В сучае вложенности, массив должен содержать в себе массив с определенным типом элементов
      * 
-     * @param array_list    ссылка на ``Gee.ArrayList``, который будет заполнен значениями
+     * @param array_list    ссылка на `Gee.ArrayList`, который будет заполнен значениями
      * @param node          нода, которая будет десериализована. Будет использовано свойство
-     *                      root, если передан ``null``   
+     *                      root, если передан `null`   
      */
     public void deserialize_array (ref ArrayList array_list, Json.Node? node = null) throws ClientError {
         if (node == null) {

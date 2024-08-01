@@ -724,9 +724,21 @@ public class CassetteClient.Storager: Object {
                     simple_dencode (ref idata);
 
                     var jsoner = Jsoner.from_data (idata);
-                    var des_obj = (YaMAPI.HasTracks) jsoner.deserialize_object (obj_type);
 
-                    obj_arr.append_val (des_obj);
+                    Threader.add (() => {
+                        try {
+                            obj_arr.append_val ((YaMAPI.HasTracks) jsoner.deserialize_object (obj_type));
+
+                        } catch (ClientError e) {
+                            Logger.warning (("Can't parse object. Error message: %s".printf (
+                                e.message
+                            )));
+                        }
+
+                        Idle.add (get_saved_object_async.callback);
+                    });
+
+                    yield;
                 }
             }
 
@@ -772,16 +784,36 @@ public class CassetteClient.Storager: Object {
 
         for (int i = 0; i > 5; i++) {
             try {
-                uint8[] idata;
+                uint8[] object_data;
+
                 yield object_location.file.load_contents_async (
                     null,
-                    out idata,
+                    out object_data,
                     null
                 );
-                simple_dencode (ref idata);
 
-                var jsoner = Jsoner.from_data (idata);
-                return (YaMAPI.HasID) jsoner.deserialize_object (obj_type);
+                simple_dencode (ref object_data);
+
+                var jsoner = Jsoner.from_data (object_data);
+
+                YaMAPI.HasID? des_obj = null;
+
+                Threader.add (() => {
+                    try {
+                        des_obj = (YaMAPI.HasID) jsoner.deserialize_object (obj_type);
+
+                    } catch (ClientError e) {
+                        Logger.warning (("Can't parse object. Error message: %s".printf (
+                            e.message
+                        )));
+                    }
+
+                    Idle.add (load_object_async.callback);
+                });
+
+                yield;
+                
+                return des_obj;
 
             } catch (Error e) {
                 Logger.warning ("Can't load object '%s'. Error message: %s".printf (
@@ -803,7 +835,16 @@ public class CassetteClient.Storager: Object {
         File object_file = get_object_cache_file (yam_object.get_type (), yam_object.oid, is_tmp);
 
         try {
-            uint8[] object_data = Jsoner.serialize (yam_object).data;
+            uint8[] object_data;
+
+            Threader.add (() => {
+                object_data = Jsoner.serialize (yam_object).data;
+                
+                Idle.add (save_object_async.callback);
+            });
+
+            yield;
+
             simple_dencode (ref object_data);
 
             yield object_file.replace_contents_async (
