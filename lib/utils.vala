@@ -17,40 +17,118 @@
 
 using CassetteClient.YaMAPI;
 
-/**
- * Перечисление нейм кейсов.
- */
-public enum CassetteClient.Case {
-    SNAKE,
-    KEBAB,
-    CAMEL
-}
-
-public enum CassetteClient.ContentType {
-    TRACK,
-    PLAYLIST,
-    ALBUM,
-    IMAGE
-}
-
-public enum CassetteClient.CacheingState {
-    NONE,
-    LOADING,
-    TEMP,
-    PERM
-}
-
-/**
- * Enum with cover sizes. These values are set for
- * optimization purposes and to avoid errors with
- * obtaining images from the api.
- */
-namespace CassetteClient.CoverSize {
-    public const int SMALL = 75;
-    public const int BIG = 400;
-}
-
 namespace CassetteClient {
+
+    namespace Filenames {
+        public const string ROOT_DIR_NAME = Config.APP_NAME;
+        public const string COOKIES = Config.APP_NAME + ".cookies";
+        public const string LOG = Config.APP_NAME + ".log";
+        public const string DATABASE = Config.APP_NAME + ".db";
+        public const string IMAGES = "images";
+        public const string AUDIOS = "audios";
+        public const string OBJECTS = "objs";
+    }
+
+    /**
+     * Enum with cover sizes. These values are set for
+     * optimization purposes and to avoid errors with
+     * obtaining images from the api.
+     */
+    namespace CoverSize {
+        public const int SMALL = 75;
+        public const int BIG = 400;
+    }
+
+    public struct Location {
+
+        public bool is_tmp { get; private set; }
+
+        public File? file { get; private set; }
+
+        public Location (bool is_tmp, File? file) {
+            this.is_tmp = is_tmp;
+            this.file = file;
+        }
+
+        public Location.none () {
+            this.is_tmp = true;
+            this.file = null;
+        }
+    }
+
+    public struct HumanitySize {
+
+        public string size;
+
+        public string unit;
+    }
+
+    /**
+     * Перечисление нейм кейсов.
+     */
+    public enum Case {
+        SNAKE,
+        KEBAB,
+        CAMEL
+    }
+
+    public enum ContentType {
+        TRACK,
+        PLAYLIST,
+        ALBUM,
+        IMAGE
+    }
+
+    public enum CacheingState {
+        NONE,
+        LOADING,
+        TEMP,
+        PERM
+    }
+
+    public async void wait_async (int seconds) {
+        Threader.add (() => {
+            GLib.Thread.usleep (seconds * 1000000);
+            Idle.add (wait_async.callback);
+        });
+
+        yield;
+    }
+
+    // 253.3M -> 253.3 Megabytes
+    HumanitySize to_human (string input) {
+        string size = input[0:input.length - 1];
+        string unit;
+
+        ulong size_long = (ulong) double.parse (size);
+
+        switch (input[input.length - 1]) {
+            case 'B':
+                unit = ngettext ("Byte", "Bytes", size_long);
+                break;
+
+            case 'K':
+                unit = ngettext ("Kilobyte", "Kilobytes", size_long);
+                break;
+
+            case 'M':
+                unit = ngettext ("Megabyte", "Megabytes", size_long);
+                break;
+
+            case 'G':
+                unit = ngettext ("Gigabyte", "Gigabytes", size_long);
+                break;
+
+            case 'T':
+                unit = ngettext ("Terabyte", "Terabytes", size_long);
+                break;
+
+            default:
+                assert_not_reached ();
+        }
+
+        return {size, unit};
+    }
 
     /**
      * Getting the language code to send in api requests.
