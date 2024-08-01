@@ -104,7 +104,7 @@ public class CassetteClient.WorkManager: Object {
  */
 public class CassetteClient.Threader {
 
-    static WorkManager default_pool;
+    static WorkManager regular_pool;
     static WorkManager image_pool;
     static WorkManager audio_pool;
     static WorkManager cache_pool;
@@ -114,11 +114,11 @@ public class CassetteClient.Threader {
      * Init Threader.
      */
     public static void init (int max_thread_number) {
-        if (default_pool != null) {
+        if (regular_pool != null) {
             Logger.error (_("Threader already initted"));
         }
 
-        default_pool = new WorkManager (max_thread_number);
+        regular_pool = new WorkManager (max_thread_number * 2);
         image_pool = new WorkManager (max_thread_number);
         audio_pool = new WorkManager (max_thread_number);
         cache_pool = new WorkManager (max_thread_number / 2);
@@ -137,11 +137,11 @@ public class CassetteClient.Threader {
 
         Cancellable? cancellable = null
     ) {
-        if (default_pool == null) {
+        if (regular_pool == null) {
             Logger.error (_("Threader not initted"));
         }
 
-        default_pool.add (func, cancellable);
+        regular_pool.add (func, cancellable);
     }
 
     /**
