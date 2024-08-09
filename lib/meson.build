@@ -3,6 +3,29 @@ vapi_sources = files(
 )
 
 client_sources = files(
+  'cachier/cachier.vala',
+  'cachier/controller.vala',
+  'cachier/humanity-size.vala',
+  'cachier/info-db.vala',
+  'cachier/job.vala',
+  'cachier/jober.vala',
+  'cachier/location.vala',
+  'cachier/storager.vala',
+
+  'player/mods/abstract-mode.vala',
+  'player/mods/abstract-shufflable.vala',
+  'player/mods/empty.vala',
+  'player/mods/flow.vala',
+  'player/mods/local.vala',
+  'player/mods/track-list.vala',
+  'player/mpris.vala',
+  'player/player.vala',
+
+  'soup-wrapper/header.vala',
+  'soup-wrapper/headers.vala',
+  'soup-wrapper/post-content.vala',
+  'soup-wrapper/soup-wrapper.vala',
+
   'ya-m-api/objects/account/about.vala',
   'ya-m-api/objects/additional-info/lyrics.vala',
   'ya-m-api/objects/additional-info/lyrics-major.vala',
@@ -38,8 +61,9 @@ client_sources = files(
   'ya-m-api/objects/rotor/station-tracks.vala',
   'ya-m-api/objects/rotor/station-tracks.vala',
   'ya-m-api/objects/rotor/track-parameters.vala', 
-  'ya-m-api/objects/rotor/value.vala',
+  'ya-m-api/objects/rotor/utils.vala',
   'ya-m-api/objects/rotor/value-heap.vala',
+  'ya-m-api/objects/rotor/value.vala',
   'ya-m-api/objects/rotor/wave.vala',
   'ya-m-api/objects/track/chart.vala',
   'ya-m-api/objects/track/lyrics-info.vala',
@@ -59,34 +83,16 @@ client_sources = files(
   'ya-m-api/has-tracks.vala',
   'ya-m-api/utils.vala',
   'ya-m-api/ya-m-object.vala',
-  'ya-m-api/yam-client.vala',
-
-  'cachier/cachier.vala',
-  'cachier/controller.vala',
-  'cachier/info-db.vala',
-  'cachier/job.vala',
-  'cachier/jober.vala',
-  'cachier/storager.vala',
-
-  'player/mods/abstract-mode.vala',
-  'player/mods/abstract-shufflable.vala',
-  'player/mods/empty.vala',
-  'player/mods/flow.vala',
-  'player/mods/local.vala',
-  'player/mods/track-list.vala',
-  'player/mpris.vala',
-  'player/player.vala',
-
-  'talkers/abstract-talker.vala',
-  'talkers/yam-talker.vala',
+  'ya-m-api/ya-m-client.vala',
 
   'client.vala',
   'jsoner.vala',
   'likes-controller.vala',
   'logger.vala',
-  'soup-wrapper.vala',
+  'settings.vala',
   'threader.vala',
   'utils.vala',
+  'ya-m-talker.vala',
 )
 
 libcassette_sources = [

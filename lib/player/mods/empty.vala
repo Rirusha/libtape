@@ -17,9 +17,9 @@
 
 using Gee;
 
-public class CassetteClient.Player.Empty: Mode {
+public sealed class CassetteClient.PlayerEmpty: PlayerMode {
 
-    public Empty (Player player) {
+    public PlayerEmpty (Player player) {
         Object (player: player);
     }
 

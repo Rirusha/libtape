@@ -15,15 +15,20 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-[CCode (cprefix = "", lower_case_cprefix = "", cheader_filename = "config.h")]
-namespace Config {
-    public const string LIBRARY_NAME;
-    public const string APP_ID;
-    public const string APP_NAME;
-    public const string APP_NAME_LOWER;
-    public const string VERSION;
-    public const string G_LOG_DOMAIN;
-    public const string GETTEXT_PACKAGE;
-    public const string GNOMELOCALEDIR;
-    public const string DATADIR;
+public class CassetteClient.Headers {
+
+    Header[] headers_arr = new Header[0];
+
+    public void add (Header header) {
+        headers_arr.resize (headers_arr.length + 1);
+        headers_arr[headers_arr.length - 1] = header;
+    }
+
+    public void set_headers (Header[] headers_arr) {
+        this.headers_arr = headers_arr;
+    }
+
+    public Header[] get_headers () {
+        return headers_arr;
+    }
 }

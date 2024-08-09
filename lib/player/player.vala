@@ -15,32 +15,12 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-
 using Gee;
 
-public enum CassetteClient.Player.State {
-    NONE,
-    PLAYING,
-    PAUSED
-}
+public sealed class CassetteClient.Player: Object {
 
-public enum CassetteClient.Player.RepeatMode {
-    OFF,
-    ONE,
-    QUEUE
-}
-
-public enum CassetteClient.Player.ShuffleMode {
-    OFF,
-    ON
-}
-
-public class CassetteClient.Player.Player: Object {
-
-    public Client client { get; construct; }
-
-    State _state = State.NONE;
-    public State state {
+    PlayerState _state = PlayerState.NONE;
+    public PlayerState state {
         get {
             return _state;
         }
@@ -48,13 +28,13 @@ public class CassetteClient.Player.Player: Object {
             _state = value;
 
             switch (_state) {
-                case State.NONE:
+                case PlayerState.NONE:
                     playbin.set_state (Gst.State.NULL);
                     break;
-                case State.PLAYING:
+                case PlayerState.PLAYING:
                     playbin.set_state (Gst.State.PLAYING);
                     break;
-                case State.PAUSED:
+                case PlayerState.PAUSED:
                     playbin.set_state (Gst.State.PAUSED);
                     break;
             }
@@ -71,7 +51,7 @@ public class CassetteClient.Player.Player: Object {
         set {
             _shuffle_mode = value;
 
-            var shufflable_mode = mode as Shufflable;
+            var shufflable_mode = mode as PlayerShufflable;
 
             if (shufflable_mode != null) {
                 switch (_shuffle_mode) {
@@ -202,17 +182,13 @@ public class CassetteClient.Player.Player: Object {
 
     public signal void mode_inited ();
 
-    public Mode mode { get; private set; }
+    public PlayerMode mode { get; private set; }
 
     const double PLAY_CALLBACK_STEP = 1.0;
 
     string play_id { get; set; default = ""; }
 
     Gst.Element playbin;
-
-    public Player (Client client) {
-        Object (client: client);
-    }
 
     construct {
         init (null);

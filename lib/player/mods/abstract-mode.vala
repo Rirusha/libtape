@@ -23,7 +23,7 @@ using Gee;
  * Every mode autoconnect to `Player.queue_changed` and
  * `Player.nead_changed` signals.
  */
-public abstract class CassetteClient.Player.Mode: Object {
+public abstract class CassetteClient.PlayerMode: Object {
 
     /**
      * Parent player object.
@@ -161,8 +161,8 @@ public abstract class CassetteClient.Player.Mode: Object {
             play_obj.track_length_seconds
         ));
 
-        threader.add_single (() => {
-            yam_talker.send_play ({play_obj});
+        Threader.add_single (() => {
+            player.client.yam_talker.send_play ({play_obj});
 
             Idle.add (send_play_async.callback);
         });

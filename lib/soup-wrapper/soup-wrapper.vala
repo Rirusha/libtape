@@ -17,90 +17,7 @@
 
 using Soup;
 
-namespace CassetteClient {
-
-    /**
-     * Timeout for all requests.
-     */
-    public const int TIMEOUT = 10;
-
-    public errordomain BadStatusCodeError {
-
-        BAD_REQUEST = 400,
-
-        NOT_FOUND = 404,
-
-        UNAUTHORIZE_ERROR = 403,
-
-        UNKNOWN = 0
-    }
-
-    public enum PostContentType {
-        X_WWW_FORM_URLENCODED,
-        JSON
-    }
-
-    public struct Header {
-        string name;
-        string value;
-    }
-}
-
-protected class CassetteClient.Headers {
-
-    Header[] headers_arr = new Header[0];
-
-    public void add (Header header) {
-        headers_arr.resize (headers_arr.length + 1);
-        headers_arr[headers_arr.length - 1] = header;
-    }
-
-    public void set_headers (Header[] headers_arr) {
-        this.headers_arr = headers_arr;
-    }
-
-    public Header[] get_headers () {
-        return headers_arr;
-    }
-}
-
-    
-
-public struct CassetteClient.PostContent {
-
-    PostContentType content_type;
-    string content;
-
-    public string get_content_type_string () {
-        switch (content_type) {
-            case X_WWW_FORM_URLENCODED:
-                return "application/x-www-form-urlencoded";
-            case JSON:
-                return "application/json";
-            default:
-                assert_not_reached ();
-        }
-    }
-
-    public Bytes get_bytes () {
-        return new Bytes (content.data);
-    }
-
-    public void set_datalist (Datalist<string> datalist) {
-        switch (content_type) {
-            case X_WWW_FORM_URLENCODED:
-                content = Soup.Form.encode_datalist (datalist);
-                break;
-            case JSON:
-                content = Jsoner.serialize_datalist (datalist);
-                break;
-            default:
-                assert_not_reached ();
-        }
-    }
-}
-
-public class CassetteClient.SoupWrapper: Object {
+public sealed class CassetteClient.SoupWrapper: Object {
 
     Gee.HashMap<string, Headers> presets_table = new Gee.HashMap<string, Headers> ();
 
@@ -116,51 +33,59 @@ public class CassetteClient.SoupWrapper: Object {
         }
     }
 
-    public File? cookies_file {
-        construct set {
-            if (value == null) {
-                return;
-            }
+    string? _cookies_file_path;
+    public string? cookies_file_path {
+        private get {
+            return _cookies_file_path;
+        }
+        construct {
+            _cookies_file_path = value;
 
-            reload_cookies (value);
+            reload_cookies ();
         }
     }
 
-    public SoupWrapper (string? user_agent, File? cookies_file) {
-        Object (user_agent: user_agent, cookies_file: cookies_file);
+    public SoupWrapper (string? user_agent = null, string? cookies_file_path = null) {
+        Object (user_agent: user_agent, cookies_file_path: cookies_file_path);
     }
 
     construct {
         if (Logger.include_devel) {
             var logger = new Soup.Logger (Soup.LoggerLogLevel.BODY);
+
             logger.set_printer ((logger, level, direction, data) => {
                 switch (direction) {
                     case '<':
                         Logger.net_in (level, data);
                         break;
+
                     case '>':
                         Logger.net_out (level, data);
                         break;
+
                     default:
                         Logger.time ();
                         break;
                 }
             });
+
             session.add_feature (logger);
         }
     }
 
-    public void reload_cookies (File cookies_file) {
+    public void reload_cookies () {
         if (session.has_feature (typeof (Soup.CookieJarDB))) {
             session.remove_feature_by_type (typeof (Soup.CookieJarDB));
         }
 
-        var cookie_jar = new Soup.CookieJarDB (cookies_file.peek_path (), true);
-        session.add_feature (cookie_jar);
-
-        Logger.debug ("Cookies was reloaded. New cookiess file %s".printf (
-            cookies_file.peek_path ()
-        ));
+        if (cookies_file_path != null) {
+            var cookie_jar = new Soup.CookieJarDB (cookies_file_path, true);
+            session.add_feature (cookie_jar);
+    
+            Logger.debug (_("Cookies updated. New cookies file: '%s'").printf (
+                cookies_file_path
+            ));
+        }
     }
 
     public void add_headers_preset (string preset_name, Header[] headers_arr) {
@@ -298,12 +223,13 @@ public class CassetteClient.SoupWrapper: Object {
 
     async Bytes? run_async (
         Message msg,
-        int priority
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
     ) throws ClientError, BadStatusCodeError {
         Bytes bytes = null;
 
         try {
-            bytes = yield session.send_and_read_async (msg, priority, null);
+            bytes = yield session.send_and_read_async (msg, priority, cancellable);
 
         } catch (Error e) {
             throw new ClientError.SOUP_ERROR ("%s %s: %s".printf (
@@ -334,11 +260,12 @@ public class CassetteClient.SoupWrapper: Object {
         string[]? header_preset_names = null,
         string[,]? parameters = null,
         Header[]? headers = null,
-        int priority = 0
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
     ) throws ClientError, BadStatusCodeError {
         var msg = message_get (uri, header_preset_names, parameters, headers);
 
-        return yield run_async (msg, priority);
+        return yield run_async (msg, priority, cancellable);
     }
 
     public Bytes post_sync (
@@ -359,10 +286,11 @@ public class CassetteClient.SoupWrapper: Object {
         PostContent? post_content = null,
         string[,]? parameters = null,
         Header[]? headers = null,
-        int priority = Priority.DEFAULT
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
     ) throws ClientError, BadStatusCodeError {
         var msg = message_post (uri, header_preset_names, post_content, parameters, headers);
 
-        return yield run_async (msg, priority);
+        return yield run_async (msg, priority, cancellable);
     }
 }

@@ -22,7 +22,7 @@ using Gee;
  * Класс для сериализации и десериализации объектов `CassetteClient.YaMObject`.
  * Умеет работать с `CassetteClient.YaMAPI.YaMObject`, `Gee.ArrayList<YaMObject>` и `GLib.Value`
  */
-public class CassetteClient.Jsoner: Object {
+public sealed class CassetteClient.Jsoner: Object {
 
     /**
      * Нейм кейс для десериализации
@@ -399,7 +399,7 @@ public class CassetteClient.Jsoner: Object {
      *
      * @return          десериализованный объект
      */
-    public YaMAPI.YaMObject? deserialize_object (GLib.Type obj_type, Json.Node? node = null) throws ClientError {
+    public YaMAPI.YaMObject deserialize_object (GLib.Type obj_type, Json.Node? node = null) throws ClientError {
         if (node == null) {
             node = root;
         }
@@ -506,7 +506,7 @@ public class CassetteClient.Jsoner: Object {
      *
      * @return          десериализованное значение
      */
-    public Value? deserialize_value (Json.Node? node = null) throws ClientError {
+    public Value deserialize_value (Json.Node? node = null) throws ClientError {
         if (node == null) {
             node = root;
         }

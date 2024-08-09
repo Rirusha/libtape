@@ -17,7 +17,7 @@
 
 using Gee;
 
-public class CassetteClient.Player.Flow: Mode {
+public sealed class CassetteClient.PlayerFlow: PlayerMode {
 
     public string station_id { get; construct; }
 
@@ -27,7 +27,7 @@ public class CassetteClient.Player.Flow: Mode {
 
     string radio_session_id;
 
-    public Flow (
+    public PlayerFlow (
         Player player,
         string station_id,
         ArrayList<YaMAPI.Track> queue
@@ -44,8 +44,8 @@ public class CassetteClient.Player.Flow: Mode {
     public async bool init_async () {
         YaMAPI.Rotor.StationTracks? station_tracks = null;
 
-        threader.add (() => {
-            station_tracks = yam_talker.start_new_session (station_id);
+        Threader.add (() => {
+            station_tracks = player.client.yam_talker.start_new_session (station_id);
 
             Idle.add (init_async.callback);
         });
@@ -75,8 +75,8 @@ public class CassetteClient.Player.Flow: Mode {
         string? track_id = null,
         double total_played_seconds = 0.0
     ) {
-        threader.add_single (() => {
-            yam_talker.send_rotor_feedback (
+        Threader.add_single (() => {
+            player.client.yam_talker.send_rotor_feedback (
                 radio_session_id,
                 last_station_tracks.batch_id,
                 feedback_type,
@@ -96,14 +96,14 @@ public class CassetteClient.Player.Flow: Mode {
     async YaMAPI.Track? get_next_track_async () {
         YaMAPI.Track? next_track = null;
 
-        threader.add (() => {
+        Threader.add (() => {
             ArrayList<string> track_ids = new ArrayList<string> ();
 
             foreach (var track_info in queue) {
                 track_ids.add (track_info.id);
             }
 
-            last_station_tracks = yam_talker.get_session_tracks (radio_session_id, track_ids);
+            last_station_tracks = player.client.yam_talker.get_session_tracks (radio_session_id, track_ids);
             next_track = last_station_tracks.sequence[0].track;
 
             Idle.add (get_next_track_async.callback);

@@ -15,10 +15,9 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-
 using CassetteClient.YaMAPI.Rotor;
 
-public class CassetteClient.YaMAPI.YaMClient: Object {
+public sealed class CassetteClient.YaMAPI.YaMClient: Object {
 
     const string YAM_BASE_URL = "https://api.music.yandex.net";
 
@@ -26,7 +25,11 @@ public class CassetteClient.YaMAPI.YaMClient: Object {
 
     public Account.About? me { get; private set; default = null; }
 
-    public bool is_init_complete { get; set; default = false; }
+    public bool is_init_complete {
+        get {
+            return me != null;
+        }
+    }
 
     public YaMClient (SoupWrapper soup_wrapper) {
         Object (soup_wrapper: soup_wrapper);
@@ -64,24 +67,30 @@ public class CassetteClient.YaMAPI.YaMClient: Object {
         );
         var jsoner = Jsoner.from_bytes (bytes, {"access_token"}, Case.SNAKE);
 
-        string token = jsoner.deserialize_value ().get_string ();
+        var val = jsoner.deserialize_value ();
 
-        soup_wrapper.add_headers_preset (
-            "default",
-            {
-                {"Authorization", @"OAuth $token"},
-                {"X-Yandex-Music-Client", "YandexMusicAndroid/24023231"}
-            }
-        );
-        soup_wrapper.add_headers_preset (
-            "auth",
-            {
-                {"Authorization", @"OAuth $token"}
-            }
-        );
+        if (val.type () == Type.STRING) {
+            string token = val.get_string ();
 
-        me = account_about ();
-        is_init_complete = true;
+            soup_wrapper.add_headers_preset (
+                "default",
+                {
+                    {"Authorization", @"OAuth $token"},
+                    {"X-Yandex-Music-Client", "YandexMusicAndroid/24023231"}
+                }
+            );
+            soup_wrapper.add_headers_preset (
+                "auth",
+                {
+                    {"Authorization", @"OAuth $token"}
+                }
+            );
+    
+            me = account_about ();
+
+        } else {
+            throw new ClientError.AUTH_ERROR (_("No token provided"));
+        }
     }
 
     /**
@@ -100,31 +109,39 @@ public class CassetteClient.YaMAPI.YaMClient: Object {
      */
     void check_uid (ref string? uid) throws ClientError {
         if (uid == null) {
-            if (me == null) {
-                throw new ClientError.AUTH_ERROR ("Auth Error");
+            if (me != null) {
+                return;
             }
 
             uid = me.uid;
-            if (uid == null) {
-                throw new ClientError.AUTH_ERROR ("Auth Error");
+            if (uid != null) {
+                return;
             }
+
+            throw new ClientError.AUTH_ERROR (_("Authorization not completed"));
         }
     }
 
     /**
      *
      */
-    public void account_experiments () throws ClientError, BadStatusCodeError { }
+    public void account_experiments () throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
-    public void account_experiments_details () throws ClientError, BadStatusCodeError { }
+    public void account_experiments_details () throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
-    public void account_settings () throws ClientError, BadStatusCodeError { }
+    public void account_settings () throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      * Получение информации о текущем пользователе
@@ -146,7 +163,9 @@ public class CassetteClient.YaMAPI.YaMClient: Object {
     public void albums_with_tracks (
         string album_id,
         bool rich_tracks
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
@@ -172,70 +191,90 @@ public class CassetteClient.YaMAPI.YaMClient: Object {
     /**
      *
      */
-    public void playlists () throws ClientError, BadStatusCodeError { }
+    public void playlists () throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void artists_tracks (
         string artist_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void artists_track_ids (
         string artist_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void artists_safe_direct_albums (
         string artist_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void artists_brief_info (
         string artist_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void artists_similar (
         string artist_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void artists_discography_albums (
         string artist_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void artists_direct_albums (
         string artist_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void artists_also_albums (
         string artist_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void artists_concerts (
         string artist_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
@@ -889,54 +928,70 @@ public class CassetteClient.YaMAPI.YaMClient: Object {
     /**
      *
      */
-    public void landing3_metatags () throws ClientError, BadStatusCodeError { }
+    public void landing3_metatags () throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void metatags_metatag (
         string metatag
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void metatags_albums (
         string metatag
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void metatags_artists (
         string metatag
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void metatags_playlists (
         string metatag
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void top_category (
         string category
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void rotor_station_info (
         string station_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
-    public void rotor_station_stream () throws ClientError, BadStatusCodeError { }
+    public void rotor_station_stream () throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
@@ -1082,12 +1137,16 @@ public class CassetteClient.YaMAPI.YaMClient: Object {
     /**
      *
      */
-    public void search_feedback () throws ClientError, BadStatusCodeError { }
+    public void search_feedback () throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
-    public void search_instant_mixed () throws ClientError, BadStatusCodeError { }
+    public void search_instant_mixed () throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      * Метод отправки фидбека о прослушивании трека.
@@ -1135,61 +1194,79 @@ public class CassetteClient.YaMAPI.YaMClient: Object {
     /**
      *
      */
-    public void rewind_slides_user () throws ClientError, BadStatusCodeError { }
+    public void rewind_slides_user () throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void rewind_slides_artist (
         string artist_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
-    public void pins () throws ClientError, BadStatusCodeError { }
+    public void pins () throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void pins_albums (
         bool pin
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void pins_playlist (
         bool pin
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void pins_artist (
         bool pin
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void pins_wave (
         bool pin
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void tags_playlist_ids (
         string tag_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     /**
      *
      */
     public void feed_promotions_promo (
         string promo_id
-    ) throws ClientError, BadStatusCodeError { }
+    ) throws ClientError, BadStatusCodeError {
+        assert_not_reached ();
+    }
 
     public Gee.ArrayList<Track> tracks (
         string[] id_list,

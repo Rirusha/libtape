@@ -19,11 +19,66 @@ using CassetteClient.YaMAPI;
 
 namespace CassetteClient {
 
+    public delegate void NetFunc () throws ClientError, BadStatusCodeError;
+
+    /**
+     * Timeout for all requests.
+     */
+    public const int TIMEOUT = 10;
+
+    /**
+     * Client errors.
+     */
+    public errordomain ClientError {
+
+        /**
+         * Error while parsing json.
+         */
+        PARSE_ERROR,
+
+        /**
+         * Error while trying send request.
+         */
+        SOUP_ERROR,
+
+        /**
+         * Error while geting error from api.
+         */
+        ANSWER_ERROR,
+
+        /**
+         * Error while trying authorize.
+         */
+        AUTH_ERROR
+    }
+
+    public errordomain BadStatusCodeError {
+
+        BAD_REQUEST = 400,
+
+        NOT_FOUND = 404,
+
+        UNAUTHORIZE_ERROR = 403,
+
+        UNKNOWN = 0
+    }
+
+    /**
+     * Errors containing reasons why using the client is not possible
+     */
+    public errordomain CantUseError {
+
+        /**
+         * User hasn't Plus Subscription
+         */
+        NO_PLUS
+    }
+
     namespace Filenames {
-        public const string ROOT_DIR_NAME = Config.APP_NAME;
-        public const string COOKIES = Config.APP_NAME + ".cookies";
-        public const string LOG = Config.APP_NAME + ".log";
-        public const string DATABASE = Config.APP_NAME + ".db";
+        public const string ROOT_DIR_NAME = Config.APP_NAME_LOWER;
+        public const string COOKIES = Config.APP_NAME_LOWER + ".cookies";
+        public const string LOG = Config.APP_NAME_LOWER + ".log";
+        public const string DATABASE = Config.APP_NAME_LOWER + ".db";
         public const string IMAGES = "images";
         public const string AUDIOS = "audios";
         public const string OBJECTS = "objs";
@@ -39,28 +94,26 @@ namespace CassetteClient {
         public const int BIG = 400;
     }
 
-    public struct Location {
-
-        public bool is_tmp { get; private set; }
-
-        public File? file { get; private set; }
-
-        public Location (bool is_tmp, File? file) {
-            this.is_tmp = is_tmp;
-            this.file = file;
-        }
-
-        public Location.none () {
-            this.is_tmp = true;
-            this.file = null;
-        }
+    public enum PlayerState {
+        NONE,
+        PLAYING,
+        PAUSED
+    }
+    
+    public enum RepeatMode {
+        OFF,
+        ONE,
+        QUEUE
+    }
+    
+    public enum ShuffleMode {
+        OFF,
+        ON
     }
 
-    public struct HumanitySize {
-
-        public string size;
-
-        public string unit;
+    public enum PostContentType {
+        X_WWW_FORM_URLENCODED,
+        JSON
     }
 
     /**
@@ -93,6 +146,105 @@ namespace CassetteClient {
         });
 
         yield;
+    }
+
+    public static void check_client_initted () {
+        if (Client.player == null ||
+            Client.cachier == null ||
+            Client.ya_m_talker == null
+        ) {
+            Logger.error (_("Client not initted"));
+        }
+    }
+
+    /**
+     * Переключить режим перемешивания на следующий.
+     * ON -> OFF
+     * OFF -> ON
+     */
+    public static void roll_shuffle_mode () {
+        check_client_initted ();
+
+        switch (Client.player.shuffle_mode) {
+            case ShuffleMode.OFF:
+                Client.player.shuffle_mode = ShuffleMode.ON;
+                break;
+
+            case ShuffleMode.ON:
+                Client.player.shuffle_mode = ShuffleMode.OFF;
+                break;
+        }
+    }
+
+    /**
+     * Переключить режим повтора на следующий.
+     * OFF -> REPEAT_ALL
+     * REPEAT_ALL -> REPEAT_ONE
+     * REPEAT_ONE -> OFF
+     */
+    public static void roll_repeat_mode () {
+        check_client_initted ();
+
+        switch (Client.player.repeat_mode) {
+            case RepeatMode.OFF:
+                if (Client.player.mode is PlayerFlow) {
+                    Client.player.repeat_mode = RepeatMode.ONE;
+
+                } else {
+                    Client.player.repeat_mode = RepeatMode.QUEUE;
+                }
+                break;
+
+            case RepeatMode.QUEUE:
+                Client.player.repeat_mode = RepeatMode.ONE;
+                break;
+
+            case RepeatMode.ONE:
+                Client.player.repeat_mode = RepeatMode.OFF;
+                break;
+        }
+    }
+
+    public string get_share_link (YaMAPI.YaMObject yam_obj) {
+        if (yam_obj is YaMAPI.Track) {
+            var track_info = (YaMAPI.Track) yam_obj;
+
+            if (track_info.albums.size == 0) {
+                Logger.warning (_("User owned tracks can't be shared"));
+                return "";
+
+            } else {
+                return "https://music.yandex.ru/album/%s/track/%s?utm_medium=copy_link".printf (
+                    track_info.albums[0].id, track_info.id
+                );
+            }
+
+        } else if (yam_obj is YaMAPI.Playlist) {
+            var playlist_info = (YaMAPI.Playlist) yam_obj;
+
+            return "https://music.yandex.ru/users/%s/playlists/%s?utm_medium=copy_link".printf (
+                playlist_info.owner.login, playlist_info.kind
+            );
+
+        } else if (yam_obj is YaMAPI.Album) {
+            var album_info = (YaMAPI.Album) yam_obj;
+
+            return "https://music.yandex.ru/albums/%s?utm_medium=copy_link".printf (
+                album_info.oid
+            );
+
+        } else if (yam_obj is YaMAPI.Artist) {
+            var artist_info = (YaMAPI.Artist) yam_obj;
+
+            return "https://music.yandex.ru/artist/%s?utm_medium=copy_link".printf (
+                artist_info.oid
+            );
+
+        } else {
+            Logger.error (_("Can't share '%s' object").printf (
+                yam_obj.get_type ().name ()
+            ));
+        }
     }
 
     // 253.3M -> 253.3 Megabytes
@@ -222,43 +374,6 @@ namespace CassetteClient {
      */
     public static string get_timestamp () {
         return new DateTime.now_utc ().format_iso8601 ();
-    }
-
-    /**
-     * Client errors.
-     */
-     public errordomain ClientError {
-
-        /**
-         * Error while parsing json.
-         */
-        PARSE_ERROR,
-
-        /**
-         * Error while trying send request.
-         */
-        SOUP_ERROR,
-
-        /**
-         * Error while geting error from api.
-         */
-        ANSWER_ERROR,
-
-        /**
-         * Error while truing authorize.
-         */
-        AUTH_ERROR
-    }
-
-    /**
-     * Errors containing reasons why using the client is not possible
-     */
-    public errordomain CantUseError {
-
-        /**
-         * User hasn't Plus Subscription
-         */
-        NO_PLUS
     }
 
     /**

@@ -330,7 +330,7 @@ public class CassetteClient.Storager: Object {
     /**
      * Delete file with error handle.
      */
-    public async void remove_file_async (File target_file) {
+    public async static void remove_file_async (File target_file) {
         try {
             yield target_file.delete_async();
 
@@ -342,7 +342,7 @@ public class CassetteClient.Storager: Object {
         }
     }
 
-    public async void remove_async (string file_path) {
+    public async static void remove_async (string file_path) {
         yield remove_file_async (File.new_for_path (file_path));
     }
 

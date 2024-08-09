@@ -15,10 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-/**
- * Class print logs in log file.
- */
-public class CassetteClient.Logger {
+public sealed class CassetteClient.Logger: Object {
 
     const string TIME_PREFIX = "*TIME*   ";
     const string SYSTEM_PREFIX = "*SYSTEM* ";
@@ -67,7 +64,7 @@ public class CassetteClient.Logger {
                 try {
                     value.create (FileCreateFlags.PRIVATE);
 
-                    Logger.info ("Logger file created");
+                    Logger.info ("Log file created");
 
                 } catch (Error e) {
                     GLib.warning ("Can't create log file on %s. Error message: %s".printf (

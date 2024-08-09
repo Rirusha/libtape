@@ -20,7 +20,7 @@ public delegate void CassetteClient.ThreadFunc ();
 /**
  * Thread information that should be run.
  */
-public class CassetteClient.ThreadInfo {
+public sealed class CassetteClient.ThreadInfo {
 
     weak ThreadFunc func;
     Cancellable cancellable;
@@ -43,7 +43,7 @@ public class CassetteClient.ThreadInfo {
 /**
  * Thread queue realization.
  */
-public class CassetteClient.WorkManager: Object {
+public sealed class CassetteClient.WorkManager: Object {
 
     AsyncQueue<ThreadInfo> thread_datas = new AsyncQueue<ThreadInfo> ();
 
@@ -102,7 +102,7 @@ public class CassetteClient.WorkManager: Object {
 /**
  * Thread manager.
  */
-public class CassetteClient.Threader {
+public sealed class CassetteClient.Threader {
 
     static WorkManager regular_pool;
     static WorkManager image_pool;

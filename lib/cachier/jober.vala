@@ -19,17 +19,11 @@ using Gee;
 
 public class CassetteClient.Jober: Object {
 
-    public Client client { get; construct; }
-
     public ArrayList<Job> job_list { get; default = new ArrayList<Job> (); }
 
     public signal void job_created (Job job);
 
     public signal void job_removed (Job job);
-
-    public Jober (Client client) {
-        Object (client: client);
-    }
 
     /**
      * Находит job в списке job'ов. Если таковой нет, возвращает null

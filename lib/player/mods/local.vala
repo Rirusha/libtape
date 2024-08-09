@@ -18,7 +18,7 @@
 /**
  * WIP
  */
-public class CassetteClient.Player.Local: Mode {
+public sealed class CassetteClient.PlayerLocal: PlayerMode {
 
     public override int get_prev_index () {
         return -1;
@@ -36,5 +36,7 @@ public class CassetteClient.Player.Local: Mode {
         string play_id,
         double end_position_seconds = 0.0,
         double total_played_seconds = 0.0
-    ) { }
+    ) {
+        return;
+    }
 }

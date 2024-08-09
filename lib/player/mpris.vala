@@ -26,7 +26,7 @@ public static void init () {
 
     Bus.own_name (
         BusType.SESSION,
-        "org.mpris.MediaPlayer2.%s".printf (Config.APP_ID_DYN),
+        "org.mpris.MediaPlayer2.%s".printf (Config.APP_ID),
         BusNameOwnerFlags.ALLOW_REPLACEMENT,
         on_bus_aquired
     );
@@ -47,7 +47,7 @@ static void on_bus_aquired (DBusConnection con, string name) {
 public class Mpris: Object {
     public bool can_quit { get; set; default = true; }
     public bool can_raise { get; set; default = true; }
-    public string desktop_entry { get; set; default = Config.APP_ID_DYN; }
+    public string desktop_entry { get; set; default = Config.APP_ID; }
     public string identity { get; set; default = Config.APP_NAME; }
 
     public signal void quit_triggered ();
@@ -75,42 +75,42 @@ public class MprisPlayer: Object {
 
     public bool can_go_next {
         get {
-            return player.can_go_next;
+            return Client.player.can_go_next;
         }
     }
 
     public bool can_go_previous {
         get {
-            return player.can_go_prev;
+            return Client.player.can_go_prev;
         }
     }
 
     public bool can_pause {
         get {
-            return !player.current_track_loading;
+            return !Client.player.current_track_loading;
         }
     }
 
     public bool can_seek {
         get {
-            return !player.current_track_loading;
+            return !Client.player.current_track_loading;
         }
     }
 
     public bool can_play {
         get {
-            return !(player.mode is Player.Empty);
+            return !(Client.player.mode is PlayerEmpty);
         }
     }
 
     public string playback_status {
         get {
-            switch (player.state) {
-                case Player.State.PLAYING:
+            switch (Client.player.state) {
+                case PlayerState.PLAYING:
                     return "Playing";
-                case Player.State.PAUSED:
+                case PlayerState.PAUSED:
                     return "Paused";
-                case Player.State.NONE:
+                case PlayerState.NONE:
                     return "Stopped";
                 default:
                     assert_not_reached ();
@@ -120,43 +120,43 @@ public class MprisPlayer: Object {
 
     public int64 position {
         get {
-            return player.playback_pos_ms * 1000;
+            return Client.player.playback_pos_ms * 1000;
         }
     }
 
     public double volume {
         get {
-            return player.volume;
+            return Client.player.volume;
         }
         set {
-            player.volume = value;
+            Client.player.volume = value;
         }
     }
 
     public bool shuffle {
         get {
-            return player.shuffle_mode == Player.ShuffleMode.ON;
+            return Client.player.shuffle_mode == ShuffleMode.ON;
         }
         set {
             if (value) {
-                player.shuffle_mode = Player.ShuffleMode.ON;
+                Client.player.shuffle_mode = ShuffleMode.ON;
 
             } else {
-                player.shuffle_mode = Player.ShuffleMode.OFF;
+                Client.player.shuffle_mode = ShuffleMode.OFF;
             }
         }
     }
 
     public string loop_status {
         get {
-            switch (player.repeat_mode) {
-                case Player.RepeatMode.OFF:
+            switch (Client.player.repeat_mode) {
+                case RepeatMode.OFF:
                     return "None";
 
-                case Player.RepeatMode.ONE:
+                case RepeatMode.ONE:
                     return "Track";
 
-                case Player.RepeatMode.QUEUE:
+                case RepeatMode.QUEUE:
                     return "Playlist";
 
                 default:
@@ -166,15 +166,15 @@ public class MprisPlayer: Object {
         set {
             switch (value) {
                 case "None":
-                    player.repeat_mode = Player.RepeatMode.OFF;
+                    Client.player.repeat_mode = RepeatMode.OFF;
                     break;
 
                 case "Track":
-                    player.repeat_mode = Player.RepeatMode.ONE;
+                    Client.player.repeat_mode = RepeatMode.ONE;
                     break;
 
                 case "Playlist":
-                    player.repeat_mode = Player.RepeatMode.QUEUE;
+                    Client.player.repeat_mode = RepeatMode.QUEUE;
                     break;
             }
         }
@@ -191,47 +191,47 @@ public class MprisPlayer: Object {
     public MprisPlayer (DBusConnection con) {
         this.con = con;
 
-        player.current_track_start_loading.connect (send_can_properties);
-        player.current_track_finish_loading.connect (send_can_properties);
-        player.played.connect (() => {
+        Client.player.current_track_start_loading.connect (send_can_properties);
+        Client.player.current_track_finish_loading.connect (send_can_properties);
+        Client.player.played.connect (() => {
             send_property_change ("Metadata", _get_metadata ());
         });
 
-        player.notify["mode"].connect (() => {
+        Client.player.notify["mode"].connect (() => {
             send_can_properties ();
         });
 
-        player.notify["volume"].connect (() => {
+        Client.player.notify["volume"].connect (() => {
             send_property_change ("Volume", volume);
         });
 
-        player.notify["shuffle-mode"].connect (() => {
+        Client.player.notify["shuffle-mode"].connect (() => {
             send_property_change ("Shuffle", shuffle);
         });
 
-        player.notify["repeat-mode"].connect (() => {
+        Client.player.notify["repeat-mode"].connect (() => {
             send_property_change ("LoopStatus", loop_status);
         });
 
-        player.notify["state"].connect (() => {
+        Client.player.notify["state"].connect (() => {
             send_property_change ("PlaybackStatus", playback_status);
         });
 
-        player.notify["can-go-prev"].connect (() => {
+        Client.player.notify["can-go-prev"].connect (() => {
             send_property_change ("CanGoPrevious", can_go_previous);
         });
 
-        player.notify["can-go-next"].connect (() => {
+        Client.player.notify["can-go-next"].connect (() => {
             send_property_change ("CanGoNext", can_go_next);
         });
 
-        player.playback_callback.connect (() => {
+        Client.player.playback_callback.connect (() => {
             send_property_change ("Position", position);
         });
 
-        settings.bind ("volume", this, "volume", SettingsBindFlags.DEFAULT);
+        Client.player.bind_property ("volume", this, "volume", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
 
-        player.playback_callback.connect ((position) => {
+        Client.player.playback_callback.connect ((position) => {
             seeked ((int64) position);
         });
     }
@@ -246,7 +246,7 @@ public class MprisPlayer: Object {
     HashTable<string,Variant> _get_metadata () {
         HashTable<string,Variant> metadata = new HashTable<string, Variant> (null, null);
 
-        var current_track = player.mode.get_current_track_info ();
+        var current_track = Client.player.mode.get_current_track_info ();
         if (current_track == null) {
             metadata.insert ("mpris:trackid", new ObjectPath ("/io/github/Rirusha/Cassette/Track/0"));
         } else {
@@ -307,49 +307,49 @@ public class MprisPlayer: Object {
 
     public void next (BusName sender) throws Error {
         if (can_go_next) {
-            player.next ();
+            Client.player.next ();
         }
     }
 
     public void previous (BusName sender) throws Error {
         if (can_go_previous) {
-            player.prev ();
+            Client.player.prev ();
         }
     }
 
     public void play (BusName sender) throws Error {
         if (can_control) {
-            player.play ();
+            Client.player.play ();
         }
     }
 
     public void pause (BusName sender) throws Error {
         if (can_control) {
-            player.pause ();
+            Client.player.pause ();
         }
     }
 
     public void play_pause (BusName sender) throws Error {
         if (can_control) {
-            player.play_pause ();
+            Client.player.play_pause ();
         }
     }
 
     public void stop (BusName sender) throws Error {
         if (can_control) {
-            player.clear_mode ();
+            Client.player.clear_mode ();
         }
     }
 
     public void seek (int64 offset, BusName sender) throws Error {
         if (can_seek) {
-            player.seek ((position + offset) / 1000);
+            Client.player.seek ((position + offset) / 1000);
         }
     }
 
     public void set_position (ObjectPath track_id, int64 position, BusName sender) throws Error {
         if (can_seek) {
-            player.seek ((position) / 1000);
+            Client.player.seek ((position) / 1000);
         }
     }
 }

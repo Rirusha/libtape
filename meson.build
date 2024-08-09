@@ -39,6 +39,8 @@ library_name = 'libcassette'
 conf = configuration_data()
 conf.set_quoted('LIBRARY_NAME', library_name)
 conf.set_quoted('APP_NAME', get_option('app_name'))
+conf.set_quoted('APP_NAME_LOWER', get_option('app_name').to_lower())
+conf.set_quoted('APP_ID', get_option('app_id'))
 conf.set_quoted('G_LOG_DOMAIN', library_name)
 conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
 conf.set_quoted('DATADIR', join_paths(get_option('prefix'), get_option('datadir')))

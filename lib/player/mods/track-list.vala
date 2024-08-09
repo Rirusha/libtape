@@ -17,9 +17,9 @@
 
 using Gee;
 
-public class CassetteClient.Player.TrackList: Shufflable {
+public sealed class CassetteClient.PlayerTrackList: PlayerShufflable {
 
-    public TrackList (
+    public PlayerTrackList (
         Player player,
         ArrayList<YaMAPI.Track> queue,
         string context_type,

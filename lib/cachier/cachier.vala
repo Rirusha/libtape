@@ -17,25 +17,16 @@
 
 using Gee;
 
-public class CassetteClient.Cachier: Object {
+[SingleInstance]
+public sealed class CassetteClient.Cachier: Object {
 
-    public Client client { get; construct; }
+    public Storager storager { get; default = new Storager (); }
 
-    public Storager storager { get; construct; }
+    public Controller controller { get; default = new Controller (); }
 
-    public Jober jober { get; construct; }
+    public Jober jober { get; default = new Jober (); }
 
-    public Controller controller { get; construct; }
 
-    public Cachier (Client client) {
-        Object (client: client);
-    }
-
-    construct {
-        storager = new Storager ();
-        controller = new Controller (client);
-        jober = new Jober (client);
-    }
 
     
 

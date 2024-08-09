@@ -15,15 +15,19 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-[CCode (cprefix = "", lower_case_cprefix = "", cheader_filename = "config.h")]
-namespace Config {
-    public const string LIBRARY_NAME;
-    public const string APP_ID;
-    public const string APP_NAME;
-    public const string APP_NAME_LOWER;
-    public const string VERSION;
-    public const string G_LOG_DOMAIN;
-    public const string GETTEXT_PACKAGE;
-    public const string GNOMELOCALEDIR;
-    public const string DATADIR;
+public struct CassetteClient.Location {
+
+    public bool is_tmp { get; private set; }
+
+    public File? file { get; private set; }
+
+    public Location (bool is_tmp, File? file) {
+        this.is_tmp = is_tmp;
+        this.file = file;
+    }
+
+    public Location.none () {
+        this.is_tmp = true;
+        this.file = null;
+    }
 }
