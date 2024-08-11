@@ -1,2 +1,2 @@
-# libcassette
-Library for Cassette application
+# libtape
+This is a Tape for your Cassette.
