@@ -15,9 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-using Soup;
-
-public sealed class CassetteClient.SoupWrapper: Object {
+public sealed class CassetteClient.SoupWrapper : Object {
 
     Gee.HashMap<string, Headers> presets_table = new Gee.HashMap<string, Headers> ();
 
@@ -81,10 +79,8 @@ public sealed class CassetteClient.SoupWrapper: Object {
         if (cookies_file_path != null) {
             var cookie_jar = new Soup.CookieJarDB (cookies_file_path, true);
             session.add_feature (cookie_jar);
-    
-            Logger.debug (_("Cookies updated. New cookies file: '%s'").printf (
-                cookies_file_path
-            ));
+
+            Logger.debug (_("Cookies updated. New cookies file: '%s'").printf (cookies_file_path));
         }
     }
 
@@ -94,33 +90,31 @@ public sealed class CassetteClient.SoupWrapper: Object {
         presets_table.set (preset_name, headers);
     }
 
-    void append_headers_with_preset_to (Message msg, string preset_name) {
+    void append_headers_with_preset_to (Soup.Message msg, string preset_name) {
         Headers? headers = presets_table.get (preset_name);
         if (headers != null) {
             append_headers_to (msg, headers.get_headers ());
         }
     }
 
-    void append_headers_to (Message msg, Header[] headers_arr) {
+    void append_headers_to (Soup.Message msg, Header[] headers_arr) {
         foreach (Header header in headers_arr) {
             msg.request_headers.append (header.name, header.value);
         }
     }
 
-    void add_params_to_uri (string[,]? parameters, ref string uri) {
+    void add_params_to_uri (string[, ]? parameters, ref string uri) {
         string[] parameters_pairs = new string[parameters.length[0]];
         for (int i = 0; i < parameters.length[0]; i++) {
-            parameters_pairs[i] = parameters[i,0] + "=" + Uri.escape_string (parameters[i,1]);
+            parameters_pairs[i] = parameters[i, 0] + "=" + Uri.escape_string (parameters[i, 1]);
         }
         uri += "?" + string.joinv ("&", parameters_pairs);
     }
 
-    Message message_get (
-        owned string uri,
-        string[]? header_preset_names = null,
-        string[,]? parameters = null,
-        Header[]? headers = null
-    ) {
+    Soup.Message message_get (owned string uri,
+                              string[]? header_preset_names = null,
+                              string[, ]? parameters = null,
+                              Header[]? headers = null) {
         if (parameters != null) {
             add_params_to_uri (parameters, ref uri);
         }
@@ -139,13 +133,11 @@ public sealed class CassetteClient.SoupWrapper: Object {
         return msg;
     }
 
-    Message message_post (
-        owned string uri,
-        string[]? header_preset_names = null,
-        PostContent? post_content = null,
-        string[,]? parameters = null,
-        Header[]? headers = null
-    ) {
+    Soup.Message message_post (owned string uri,
+                               string[]? header_preset_names = null,
+                               PostContent? post_content = null,
+                               string[, ]? parameters = null,
+                               Header[]? headers = null) {
         if (parameters != null) {
             add_params_to_uri (parameters, ref uri);
         }
@@ -154,8 +146,8 @@ public sealed class CassetteClient.SoupWrapper: Object {
 
         if (post_content != null) {
             msg.set_request_body_from_bytes (
-                post_content.get_content_type_string (),
-                post_content.get_bytes ()
+                                             post_content.get_content_type_string (),
+                                             post_content.get_bytes ()
             );
         }
 
@@ -171,7 +163,7 @@ public sealed class CassetteClient.SoupWrapper: Object {
         return msg;
     }
 
-    void check_status_code (Message msg, Bytes bytes) throws ClientError, BadStatusCodeError {
+    void check_status_code (Soup.Message msg, Bytes bytes) throws ClientError, BadStatusCodeError {
         if (msg.status_code == Soup.Status.OK) {
             return;
         }
@@ -179,41 +171,38 @@ public sealed class CassetteClient.SoupWrapper: Object {
         YaMAPI.ApiError error = new YaMAPI.ApiError ();
 
         try {
-            var jsoner = Jsoner.from_bytes (bytes, {"error"}, Case.CAMEL);
+            var jsoner = Jsoner.from_bytes (bytes, { "error" }, Case.CAMEL);
             if (jsoner.root.get_node_type () == Json.NodeType.OBJECT) {
                 error = (YaMAPI.ApiError) jsoner.deserialize_object (typeof (YaMAPI.ApiError));
             } else {
                 jsoner = Jsoner.from_bytes (bytes, null, Case.SNAKE);
                 error = (YaMAPI.ApiError) jsoner.deserialize_object (typeof (YaMAPI.ApiError));
             }
-        } catch (ClientError e) { }
+        } catch (ClientError e) {}
 
         error.status_code = msg.status_code;
 
         switch (msg.status_code) {
-            case Soup.Status.BAD_REQUEST:
-                throw new BadStatusCodeError.BAD_REQUEST (error.msg);
-            case Soup.Status.NOT_FOUND:
-                throw new BadStatusCodeError.NOT_FOUND (error.msg);
-            case Soup.Status.FORBIDDEN:
-                throw new BadStatusCodeError.UNAUTHORIZE_ERROR (error.msg);
-            default:
-                throw new BadStatusCodeError.UNKNOWN (msg.status_code.to_string () + ": " + error.msg);
+        case Soup.Status.BAD_REQUEST :
+            throw new BadStatusCodeError.BAD_REQUEST (error.msg);
+        case Soup.Status.NOT_FOUND :
+            throw new BadStatusCodeError.NOT_FOUND (error.msg);
+        case Soup.Status.FORBIDDEN :
+            throw new BadStatusCodeError.UNAUTHORIZE_ERROR (error.msg);
+            default :
+            throw new BadStatusCodeError.UNKNOWN (msg.status_code.to_string () + ": " + error.msg);
         }
     }
 
-    Bytes run_sync (Message msg) throws ClientError, BadStatusCodeError {
+    Bytes run_sync (Soup.Message msg) throws ClientError, BadStatusCodeError {
         Bytes bytes = null;
 
         try {
             bytes = session.send_and_read (msg);
-
         } catch (Error e) {
-            throw new ClientError.SOUP_ERROR ("%s %s: %s".printf (
-                msg.method,
-                msg.uri.to_string (),
-                e.message
-            ));
+            throw new ClientError.SOUP_ERROR ("%s %s: %s".printf (msg.method,
+                                                                  msg.uri.to_string (),
+                                                                  e.message));
         }
 
         check_status_code (msg, bytes);
@@ -221,21 +210,18 @@ public sealed class CassetteClient.SoupWrapper: Object {
         return bytes;
     }
 
-    async Bytes? run_async (
-        Message msg,
-        int priority = Priority.DEFAULT,
-        Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    async Bytes ? run_async (Soup.Message msg,
+                             int priority = Priority.DEFAULT,
+                             Cancellable? cancellable = null) throws ClientError, BadStatusCodeError {
         Bytes bytes = null;
 
         try {
             bytes = yield session.send_and_read_async (msg, priority, cancellable);
-
         } catch (Error e) {
             throw new ClientError.SOUP_ERROR ("%s %s: %s".printf (
-                msg.method,
-                msg.uri.to_string (),
-                e.message
+                                                                  msg.method,
+                                                                  msg.uri.to_string (),
+                                                                  e.message
             ));
         }
 
@@ -244,51 +230,43 @@ public sealed class CassetteClient.SoupWrapper: Object {
         return bytes;
     }
 
-    public Bytes get_sync (
-        owned string uri,
-        string[]? header_preset_names = null,
-        string[,]? parameters = null,
-        Header[]? headers = null
-    ) throws ClientError, BadStatusCodeError {
+    public Bytes get_sync (owned string uri,
+                           string[]? header_preset_names = null,
+                           string[, ]? parameters = null,
+                           Header[]? headers = null) throws ClientError, BadStatusCodeError {
         var msg = message_get (uri, header_preset_names, parameters, headers);
 
         return run_sync (msg);
     }
 
-    public async Bytes get_async (
-        owned string uri,
-        string[]? header_preset_names = null,
-        string[,]? parameters = null,
-        Header[]? headers = null,
-        int priority = Priority.DEFAULT,
-        Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    public async Bytes get_async (owned string uri,
+                                  string[]? header_preset_names = null,
+                                  string[, ]? parameters = null,
+                                  Header[]? headers = null,
+                                  int priority = Priority.DEFAULT,
+                                  Cancellable? cancellable = null) throws ClientError, BadStatusCodeError {
         var msg = message_get (uri, header_preset_names, parameters, headers);
 
         return yield run_async (msg, priority, cancellable);
     }
 
-    public Bytes post_sync (
-        owned string uri,
-        string[]? header_preset_names = null,
-        PostContent? post_content = null,
-        string[,]? parameters = null,
-        Header[]? headers = null
-    ) throws ClientError, BadStatusCodeError {
+    public Bytes post_sync (owned string uri,
+                            string[]? header_preset_names = null,
+                            PostContent? post_content = null,
+                            string[, ]? parameters = null,
+                            Header[]? headers = null) throws ClientError, BadStatusCodeError {
         var msg = message_post (uri, header_preset_names, post_content, parameters, headers);
 
         return run_sync (msg);
     }
 
-    public async Bytes post_async (
-        owned string uri,
-        string[]? header_preset_names = null,
-        PostContent? post_content = null,
-        string[,]? parameters = null,
-        Header[]? headers = null,
-        int priority = Priority.DEFAULT,
-        Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    public async Bytes post_async (owned string uri,
+                                   string[]? header_preset_names = null,
+                                   PostContent? post_content = null,
+                                   string[, ]? parameters = null,
+                                   Header[]? headers = null,
+                                   int priority = Priority.DEFAULT,
+                                   Cancellable? cancellable = null) throws ClientError, BadStatusCodeError {
         var msg = message_post (uri, header_preset_names, post_content, parameters, headers);
 
         return yield run_async (msg, priority, cancellable);
