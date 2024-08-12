@@ -17,24 +17,22 @@
 
 using Gee;
 
-public class CassetteClient.YaMAPI.InsertOperation: Object {
+public class Tape.YaMAPI.InsertOperation : Object {
 
     public int at { get; construct; }
 
     public ArrayList<Track> tracks { get; set; }
 
-    public InsertOperation (
-        int at,
-        Track[] tracks
-    ) {
+    public InsertOperation (int at,
+        Track[] tracks) {
         Object (
-            at: at,
-            tracks: new ArrayList<Track>.wrap (tracks)
+                at: at,
+                tracks: new ArrayList<Track>.wrap (tracks)
         );
     }
 }
 
-public class CassetteClient.YaMAPI.DeleteOperation: Object {
+public class Tape.YaMAPI.DeleteOperation : Object {
 
     public int from { get; construct; }
 
@@ -45,7 +43,7 @@ public class CassetteClient.YaMAPI.DeleteOperation: Object {
     }
 }
 
-public class CassetteClient.YaMAPI.DifferenceBuilder: Object {
+public class Tape.YaMAPI.DifferenceBuilder : Object {
 
     ArrayList<DeleteOperation> delete_operations = new ArrayList<DeleteOperation> ();
     ArrayList<InsertOperation> insert_operations = new ArrayList<InsertOperation> ();

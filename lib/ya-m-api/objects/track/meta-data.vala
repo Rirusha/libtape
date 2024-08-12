@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public class CassetteClient.YaMAPI.MetaData: YaMObject {
+public class Tape.YaMAPI.MetaData : YaMObject {
 
     public string? album { get; set; }
 

@@ -17,7 +17,7 @@
 
 using Gee;
 
-public class CassetteClient.YaMAPI.Library.AllIds: YaMObject {
+public class Tape.YaMAPI.Library.AllIds : YaMObject {
 
     /**
      * Лайкнутые пользователем треки

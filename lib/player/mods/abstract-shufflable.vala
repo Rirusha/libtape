@@ -20,7 +20,7 @@ using Gee;
 /**
  *
  */
-public abstract class CassetteClient.PlayerShufflable: PlayerMode {
+public abstract class Tape.PlayerShufflable : PlayerMode {
 
     ArrayList<YaMAPI.Track> original_queue { get; set; default = new ArrayList<YaMAPI.Track> (); }
 
@@ -48,8 +48,8 @@ public abstract class CassetteClient.PlayerShufflable: PlayerMode {
 
         var new_index = shuffled_queue.index_of (current_track);
 
-        queue.add_all (shuffled_queue[new_index:shuffled_queue.size]);
-        queue.add_all (shuffled_queue[0:new_index]);
+        queue.add_all (shuffled_queue[new_index: shuffled_queue.size]);
+        queue.add_all (shuffled_queue[0 : new_index]);
 
         current_index = 0;
 
@@ -98,7 +98,6 @@ public abstract class CassetteClient.PlayerShufflable: PlayerMode {
         if (!queue.is_empty) {
             if (track_pos == current_index) {
                 player.change_track (get_current_track_info ());
-
             } else if (track_pos < current_index) {
                 current_index--;
             }

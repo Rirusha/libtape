@@ -18,7 +18,7 @@
 /**
  *
  */
-public class CassetteClient.YaMAPI.Rotor.Station: YaMObject {
+public class Tape.YaMAPI.Rotor.Station : YaMObject {
 
     /**
      * Station id. Doesn't work with `_dashboard` and `_list` rotor methods

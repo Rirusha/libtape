@@ -17,7 +17,7 @@
 
 using Gee;
 
-public class CassetteClient.YaMAPI.Playlist: YaMObject, HasCover, HasID, HasTracks {
+public class Tape.YaMAPI.Playlist : YaMObject, HasCover, HasID, HasTracks {
 
     public bool is_public {
         get {
@@ -42,21 +42,21 @@ public class CassetteClient.YaMAPI.Playlist: YaMObject, HasCover, HasID, HasTrac
         }
         set {
             switch (value) {
-                case "Мне нравится":
-                    // Translators: Playlist with liked tracks
-                    _title = _("Liked");
-                    break;
-                case "Плейлист дня":
-                    // Translators: Playlist that updates every day
-                    _title = _("Daily");
-                    break;
-                case "":
-                    // Translators: Unknown playlist
-                    _title = _("Unknown");
-                    break;
-                default:
-                    _title = value;
-                    break;
+            case "Мне нравится":
+                // Translators: Playlist with liked tracks
+                _title = _("Liked");
+                break;
+            case "Плейлист дня":
+                // Translators: Playlist that updates every day
+                _title = _("Daily");
+                break;
+            case "":
+                // Translators: Unknown playlist
+                _title = _("Unknown");
+                break;
+            default:
+                _title = value;
+                break;
             }
         }
     }
@@ -77,7 +77,7 @@ public class CassetteClient.YaMAPI.Playlist: YaMObject, HasCover, HasID, HasTrac
 
     public User owner { get; set; }
 
-    public Cover cover {get; set; default = new Cover.empty (); }
+    public Cover cover { get; set; default = new Cover.empty (); }
 
     public ArrayList<TrackShort> tracks { get; set; default = new ArrayList<TrackShort> (); }
 
@@ -113,9 +113,9 @@ public class CassetteClient.YaMAPI.Playlist: YaMObject, HasCover, HasID, HasTrac
 
     public Playlist.liked () {
         Object (
-            cover: new Cover.liked (),
-            title: _("Liked"),
-            kind: "3"
+                cover : new Cover.liked (),
+                title : _("Liked"),
+                kind : "3"
         );
     }
 
@@ -131,20 +131,18 @@ public class CassetteClient.YaMAPI.Playlist: YaMObject, HasCover, HasID, HasTrac
         tracks = new_track_list;
     }
 
-    public Gee.ArrayList<YaMAPI.Track> get_filtered_track_list (
-        bool with_explicit,
-        bool with_child,
-        string[] exception_tracks_ids = new string[0]
-    ) {
+    public Gee.ArrayList<YaMAPI.Track> get_filtered_track_list (bool with_explicit,
+                                                                bool with_child,
+                                                                string[] exception_tracks_ids = new string[0]) {
         var out_track_list = new ArrayList<Track> ();
 
         foreach (TrackShort track_short in tracks) {
             if (
                 (track_short.track.available &&
-                    (
-                        (!track_short.track.is_explicit || with_explicit) &&
-                        (!track_short.track.is_suitable_for_children || with_child)
-                    )
+                 (
+                  (!track_short.track.is_explicit || with_explicit) &&
+                  (!track_short.track.is_suitable_for_children || with_child)
+                 )
                 ) || track_short.id in exception_tracks_ids
             ) {
                 out_track_list.add (track_short.track);

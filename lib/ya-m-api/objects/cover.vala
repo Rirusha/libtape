@@ -17,12 +17,12 @@
 
 using Gee;
 
-public class CassetteClient.YaMAPI.Cover: YaMObject {
+public class Tape.YaMAPI.Cover : YaMObject {
 
     public ArrayList<string> uris {
         owned get {
             if (uri != null) {
-                return new ArrayList<string>.wrap ({uri});
+                return new ArrayList<string>.wrap ({ uri });
             } else {
                 return items_uri;
             }

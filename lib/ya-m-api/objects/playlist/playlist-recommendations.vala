@@ -17,7 +17,7 @@
 
 using Gee;
 
-public class CassetteClient.YaMAPI.PlaylistRecommendations: YaMObject {
+public class Tape.YaMAPI.PlaylistRecommendations : YaMObject {
 
     public ArrayList<Track> tracks { get; set; default = new ArrayList<Track> (); }
 

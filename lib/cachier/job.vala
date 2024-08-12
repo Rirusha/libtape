@@ -16,7 +16,7 @@
  */
 
 
-namespace CassetteClient {
+namespace Tape {
 
     public enum JobDoneStatus {
         SUCCESS,
@@ -24,8 +24,8 @@ namespace CassetteClient {
         FAILED
     }
 
-    //  Класс представляющий объект для кэширования объекта ямы и его составных частей по интерфейсам
-    public class Job: Object {
+    // Класс представляющий объект для кэширования объекта ямы и его составных частей по интерфейсам
+    public class Job : Object {
 
         public Client client { get; construct; }
 
@@ -55,23 +55,20 @@ namespace CassetteClient {
             }
         }
 
-        public signal void track_saving_started (
-            int saved_tracks_count,
+        public signal void track_saving_started (int saved_tracks_count,
             int total_tracks_count,
             int now_saving_tracks_count);
 
-        public signal void track_saving_ended (
-            int saved_tracks_count,
+        public signal void track_saving_ended (int saved_tracks_count,
             int total_tracks_count,
-            int now_saving_tracks_count
-        );
+            int now_saving_tracks_count);
 
         JobDoneStatus? done_status = null;
 
         public int saved_tracks_count { get; private set; default = 0; }
         public int total_tracks_count { get; private set; default = 1; }
 
-        //  Для отмены изменяется переменная should_stop, чтобы объект успел докэшировать то, что он кэширует
+        // Для отмены изменяется переменная should_stop, чтобы объект успел докэшировать то, что он кэширует
         Cancellable cancellable = new Cancellable ();
 
         public bool is_cancelled {
@@ -92,7 +89,7 @@ namespace CassetteClient {
         public signal void action_done ();
 
         public Job (YaMAPI.HasTracks yam_object, Client client) {
-            Object (yam_object: yam_object, Client client);
+            Object (yam_object : yam_object, Client client);
         }
 
         construct {
@@ -101,11 +98,9 @@ namespace CassetteClient {
             if (yam_object is YaMAPI.Playlist) {
                 object_type = ContentType.PLAYLIST;
                 object_title = ((YaMAPI.Playlist) yam_object).title;
-
             } else if (yam_object is YaMAPI.Album) {
                 object_type = ContentType.ALBUM;
                 object_title = ((YaMAPI.Album) yam_object).title;
-
             } else {
                 assert_not_reached ();
             }
@@ -121,20 +116,20 @@ namespace CassetteClient {
                 switch (status) {
                     case JobDoneStatus.SUCCESS:
                         Logger.debug ("Job %s.%s was finished with success".printf (
-                            object_type.to_string (),
-                            yam_object.oid
+                                                                                    object_type.to_string (),
+                                                                                    yam_object.oid
                         ));
                         break;
                     case JobDoneStatus.ABORTED:
                         Logger.debug ("Job %s.%s was aborted".printf (
-                            object_type.to_string (),
-                            yam_object.oid
+                                                                      object_type.to_string (),
+                                                                      yam_object.oid
                         ));
                         break;
                     case JobDoneStatus.FAILED:
                         Logger.debug ("Job %s.%s was failed".printf (
-                            object_type.to_string (),
-                            yam_object.oid
+                                                                     object_type.to_string (),
+                                                                     yam_object.oid
                         ));
                         break;
                 }
@@ -166,8 +161,8 @@ namespace CassetteClient {
             var track_list = yam_object.get_filtered_track_list (true, true);
 
             Logger.debug ("Job %s.%s was started".printf (
-                object_type.to_string (),
-                yam_object.oid
+                                                          object_type.to_string (),
+                                                          yam_object.oid
             ));
 
             threader.add (() => {
@@ -186,7 +181,6 @@ namespace CassetteClient {
                             need_uncache_tracks.add (track_info);
                         }
                     }
-
                 } else {
                     if (obj_location.file != null) {
                         storager.remove_file (obj_location.file);
@@ -196,8 +190,8 @@ namespace CassetteClient {
                 storager.save_object (yam_object, false);
 
                 Logger.debug ("Job %s.%s, object saved".printf (
-                    object_type.to_string (),
-                    yam_object.oid
+                                                                object_type.to_string (),
+                                                                yam_object.oid
                 ));
 
                 Idle.add (save_async.callback);
@@ -222,9 +216,9 @@ namespace CassetteClient {
                     }
 
                     Logger.debug ("Job %s.%s, track %s in db was fixed".printf (
-                        object_type.to_string (),
-                        yam_object.oid,
-                        track_info.form_debug_info ()
+                                                                                object_type.to_string (),
+                                                                                yam_object.oid,
+                                                                                track_info.form_debug_info ()
                     ));
                 }
             }
@@ -236,7 +230,6 @@ namespace CassetteClient {
                         var image_location = storager.image_cache_location (cover_uri);
                         if (image_location.file != null) {
                             image_location.move_to_perm ();
-
                         } else {
                             Gdk.Pixbuf? pixbuf = null;
 
@@ -260,8 +253,8 @@ namespace CassetteClient {
                     }
 
                     Logger.debug ("Job %s.%s, cover of object saved".printf (
-                        object_type.to_string (),
-                        yam_object.oid
+                                                                             object_type.to_string (),
+                                                                             yam_object.oid
                     ));
                 }
 
@@ -284,8 +277,8 @@ namespace CassetteClient {
 
         public async void unsave_async () {
             Logger.debug ("Job %s.%s, uncache object started".printf (
-                object_type.to_string (),
-                yam_object.oid
+                                                                      object_type.to_string (),
+                                                                      yam_object.oid
             ));
 
             string object_id = yam_object.oid;
@@ -304,6 +297,7 @@ namespace CassetteClient {
 
             var object_location = storager.object_cache_location (yam_object.get_type (), yam_object.oid);
             yield object_location.move_to_temp_async ();
+
             if (settings.get_boolean ("can-cache")) {
                 cachier.controller.change_state (object_type, object_id, CacheingState.TEMP);
             } else {
@@ -328,6 +322,7 @@ namespace CassetteClient {
                 if (storager.db.get_content_ref_count (track_info.id) == 0) {
                     var track_location = storager.audio_cache_location (track_info.id);
                     yield track_location.move_to_temp_async ();
+
                     if (track_location.file != null && settings.get_boolean ("can-cache")) {
                         cachier.controller.change_state (ContentType.TRACK, track_info.id, CacheingState.TEMP);
                     } else {
@@ -340,16 +335,16 @@ namespace CassetteClient {
             }
 
             Logger.debug ("Job %s.%s, uncache object finished".printf (
-                object_type.to_string (),
-                yam_object.oid
+                                                                       object_type.to_string (),
+                                                                       yam_object.oid
             ));
         }
 
         async void save_track_async (YaMAPI.Track track_info) {
             Logger.debug ("Job %s.%s, saving track %s was started".printf (
-                object_type.to_string (),
-                yam_object.oid,
-                track_info.form_debug_info ()
+                                                                           object_type.to_string (),
+                                                                           yam_object.oid,
+                                                                           track_info.form_debug_info ()
             ));
 
             threader.add_cache (() => {
@@ -361,9 +356,9 @@ namespace CassetteClient {
                 }
 
                 Logger.debug ("Job %s.%s, audio of track %s was started".printf (
-                    object_type.to_string (),
-                    yam_object.oid,
-                    track_info.form_debug_info ()
+                                                                                 object_type.to_string (),
+                                                                                 yam_object.oid,
+                                                                                 track_info.form_debug_info ()
                 ));
 
                 Idle.add (() => {
@@ -381,7 +376,6 @@ namespace CassetteClient {
                             action_done ();
                         });
                     }
-
                 } else {
                     string? track_uri = null;
 
@@ -415,15 +409,15 @@ namespace CassetteClient {
                 storager.db.set_content_ref (track_info.id, object_id);
 
                 Logger.debug ("Job %s.%s, audio of track %s was saved".printf (
-                    object_type.to_string (),
-                    yam_object.oid,
-                    track_info.form_debug_info ()
+                                                                               object_type.to_string (),
+                                                                               yam_object.oid,
+                                                                               track_info.form_debug_info ()
                 ));
 
                 Logger.debug ("Job %s.%s, cover of track %s was started".printf (
-                    object_type.to_string (),
-                    yam_object.oid,
-                    track_info.form_debug_info ()
+                                                                                 object_type.to_string (),
+                                                                                 yam_object.oid,
+                                                                                 track_info.form_debug_info ()
                 ));
 
                 var cover_items = track_info.get_cover_items_by_size (CoverSize.SMALL);
@@ -439,7 +433,6 @@ namespace CassetteClient {
                                 action_done ();
                             });
                         }
-
                     } else {
                         Gdk.Pixbuf? pixbuf = null;
 
@@ -451,7 +444,6 @@ namespace CassetteClient {
                             Idle.add_once (() => {
                                 action_done ();
                             });
-
                         } else {
                             cancellable.cancel ();
                             Idle.add (() => {
@@ -468,9 +460,9 @@ namespace CassetteClient {
                     storager.db.set_content_ref (image_cover_uri, track_info.id);
 
                     Logger.debug ("Job %s.%s, cover of track %s was saved".printf (
-                        object_type.to_string (),
-                        yam_object.oid,
-                        track_info.form_debug_info ()
+                                                                                   object_type.to_string (),
+                                                                                   yam_object.oid,
+                                                                                   track_info.form_debug_info ()
                     ));
                 }
 
@@ -478,9 +470,9 @@ namespace CassetteClient {
                     cachier.controller.stop_loading (ContentType.TRACK, track_info.id, CacheingState.PERM);
 
                     Logger.debug ("Job %s.%s, saving track %s was finished".printf (
-                        object_type.to_string (),
-                        yam_object.oid,
-                        track_info.form_debug_info ()
+                                                                                    object_type.to_string (),
+                                                                                    yam_object.oid,
+                                                                                    track_info.form_debug_info ()
                     ));
 
                     return Source.REMOVE;

@@ -15,12 +15,12 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public delegate void CassetteClient.ThreadFunc ();
+public delegate void Tape.ThreadFunc ();
 
 /**
  * Thread information that should be run.
  */
-public sealed class CassetteClient.ThreadInfo {
+public sealed class Tape.ThreadInfo {
 
     weak ThreadFunc func;
     Cancellable cancellable;
@@ -43,7 +43,7 @@ public sealed class CassetteClient.ThreadInfo {
 /**
  * Thread queue realization.
  */
-public sealed class CassetteClient.WorkManager: Object {
+public sealed class Tape.WorkManager : Object {
 
     AsyncQueue<ThreadInfo> thread_datas = new AsyncQueue<ThreadInfo> ();
 
@@ -93,8 +93,8 @@ public sealed class CassetteClient.WorkManager: Object {
      */
     public void add (ThreadFunc func, Cancellable? cancellable) {
         thread_datas.push (new ThreadInfo (
-            func,
-            cancellable != null ? cancellable : new Cancellable ()
+                                           func,
+                                           cancellable != null ? cancellable : new Cancellable ()
         ));
     }
 }
@@ -102,7 +102,7 @@ public sealed class CassetteClient.WorkManager: Object {
 /**
  * Thread manager.
  */
-public sealed class CassetteClient.Threader {
+public sealed class Tape.Threader {
 
     static WorkManager regular_pool;
     static WorkManager image_pool;
@@ -132,11 +132,9 @@ public sealed class CassetteClient.Threader {
      * @param cancellable   should function be run. Already started function
      *                      cannot be cancelled
      */
-    public static void add (
-        ThreadFunc func,
+    public static void add (ThreadFunc func,
 
-        Cancellable? cancellable = null
-    ) {
+                            Cancellable? cancellable = null) {
         if (regular_pool == null) {
             Logger.error (_("Threader not initted"));
         }
@@ -151,10 +149,8 @@ public sealed class CassetteClient.Threader {
      * @param cancellable   should function be run. Already started function
      *                      cannot be cancelled
      */
-    public static void add_image (
-        ThreadFunc func,
-        Cancellable? cancellable = null
-    ) {
+    public static void add_image (ThreadFunc func,
+                                  Cancellable? cancellable = null) {
         if (image_pool == null) {
             Logger.error (_("Threader not initted"));
         }
@@ -169,10 +165,8 @@ public sealed class CassetteClient.Threader {
      * @param cancellable   should function be run. Already started function
      *                      cannot be cancelled
      */
-    public static void add_audio (
-        ThreadFunc func,
-        Cancellable? cancellable = null
-    ) {
+    public static void add_audio (ThreadFunc func,
+                                  Cancellable? cancellable = null) {
         if (audio_pool == null) {
             Logger.error (_("Threader not initted"));
         }
@@ -187,10 +181,8 @@ public sealed class CassetteClient.Threader {
      * @param cancellable   should function be run. Already started function
      *                      cannot be cancelled
      */
-    public static void add_cache (
-        ThreadFunc func,
-        Cancellable? cancellable = null
-    ) {
+    public static void add_cache (ThreadFunc func,
+                                  Cancellable? cancellable = null) {
         if (cache_pool == null) {
             Logger.error (_("Threader not initted"));
         }
@@ -205,10 +197,8 @@ public sealed class CassetteClient.Threader {
      * @param cancellable   should function be run. Already started function
      *                      cannot be cancelled
      */
-    public static void add_single (
-        ThreadFunc func,
-        Cancellable? cancellable = null
-    ) {
+    public static void add_single (ThreadFunc func,
+                                   Cancellable? cancellable = null) {
         if (single_pool == null) {
             Logger.error (_("Threader not initted"));
         }

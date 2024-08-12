@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public sealed class CassetteClient.SoupWrapper : Object {
+public sealed class Tape.SoupWrapper : Object {
 
     Gee.HashMap<string, Headers> presets_table = new Gee.HashMap<string, Headers> ();
 

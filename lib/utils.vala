@@ -3,21 +3,21 @@
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 3
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-using CassetteClient.YaMAPI;
+using Tape.YaMAPI;
 
-namespace CassetteClient {
+namespace Tape {
 
     public delegate void NetFunc () throws ClientError, BadStatusCodeError;
 
@@ -99,13 +99,13 @@ namespace CassetteClient {
         PLAYING,
         PAUSED
     }
-    
+
     public enum RepeatMode {
         OFF,
         ONE,
         QUEUE
     }
-    
+
     public enum ShuffleMode {
         OFF,
         ON
@@ -166,13 +166,13 @@ namespace CassetteClient {
         check_client_initted ();
 
         switch (Client.player.shuffle_mode) {
-            case ShuffleMode.OFF:
-                Client.player.shuffle_mode = ShuffleMode.ON;
-                break;
+        case ShuffleMode.OFF:
+            Client.player.shuffle_mode = ShuffleMode.ON;
+            break;
 
-            case ShuffleMode.ON:
-                Client.player.shuffle_mode = ShuffleMode.OFF;
-                break;
+        case ShuffleMode.ON:
+            Client.player.shuffle_mode = ShuffleMode.OFF;
+            break;
         }
     }
 
@@ -186,22 +186,21 @@ namespace CassetteClient {
         check_client_initted ();
 
         switch (Client.player.repeat_mode) {
-            case RepeatMode.OFF:
-                if (Client.player.mode is PlayerFlow) {
-                    Client.player.repeat_mode = RepeatMode.ONE;
-
-                } else {
-                    Client.player.repeat_mode = RepeatMode.QUEUE;
-                }
-                break;
-
-            case RepeatMode.QUEUE:
+        case RepeatMode.OFF:
+            if (Client.player.mode is PlayerFlow) {
                 Client.player.repeat_mode = RepeatMode.ONE;
-                break;
+            } else {
+                Client.player.repeat_mode = RepeatMode.QUEUE;
+            }
+            break;
 
-            case RepeatMode.ONE:
-                Client.player.repeat_mode = RepeatMode.OFF;
-                break;
+        case RepeatMode.QUEUE:
+            Client.player.repeat_mode = RepeatMode.ONE;
+            break;
+
+        case RepeatMode.ONE:
+            Client.player.repeat_mode = RepeatMode.OFF;
+            break;
         }
     }
 
@@ -212,74 +211,69 @@ namespace CassetteClient {
             if (track_info.albums.size == 0) {
                 Logger.warning (_("User owned tracks can't be shared"));
                 return "";
-
             } else {
                 return "https://music.yandex.ru/album/%s/track/%s?utm_medium=copy_link".printf (
-                    track_info.albums[0].id, track_info.id
+                                                                                                track_info.albums[0].id, track_info.id
                 );
             }
-
         } else if (yam_obj is YaMAPI.Playlist) {
             var playlist_info = (YaMAPI.Playlist) yam_obj;
 
             return "https://music.yandex.ru/users/%s/playlists/%s?utm_medium=copy_link".printf (
-                playlist_info.owner.login, playlist_info.kind
+                                                                                                playlist_info.owner.login, playlist_info.kind
             );
-
         } else if (yam_obj is YaMAPI.Album) {
             var album_info = (YaMAPI.Album) yam_obj;
 
             return "https://music.yandex.ru/albums/%s?utm_medium=copy_link".printf (
-                album_info.oid
+                                                                                    album_info.oid
             );
-
         } else if (yam_obj is YaMAPI.Artist) {
             var artist_info = (YaMAPI.Artist) yam_obj;
 
             return "https://music.yandex.ru/artist/%s?utm_medium=copy_link".printf (
-                artist_info.oid
+                                                                                    artist_info.oid
             );
-
         } else {
             Logger.error (_("Can't share '%s' object").printf (
-                yam_obj.get_type ().name ()
+                                                               yam_obj.get_type ().name ()
             ));
         }
     }
 
     // 253.3M -> 253.3 Megabytes
     HumanitySize to_human (string input) {
-        string size = input[0:input.length - 1];
+        string size = input[0 : input.length - 1];
         string unit;
 
         ulong size_long = (ulong) double.parse (size);
 
         switch (input[input.length - 1]) {
-            case 'B':
-                unit = ngettext ("Byte", "Bytes", size_long);
-                break;
+        case 'B':
+            unit = ngettext ("Byte", "Bytes", size_long);
+            break;
 
-            case 'K':
-                unit = ngettext ("Kilobyte", "Kilobytes", size_long);
-                break;
+        case 'K':
+            unit = ngettext ("Kilobyte", "Kilobytes", size_long);
+            break;
 
-            case 'M':
-                unit = ngettext ("Megabyte", "Megabytes", size_long);
-                break;
+        case 'M':
+            unit = ngettext ("Megabyte", "Megabytes", size_long);
+            break;
 
-            case 'G':
-                unit = ngettext ("Gigabyte", "Gigabytes", size_long);
-                break;
+        case 'G':
+            unit = ngettext ("Gigabyte", "Gigabytes", size_long);
+            break;
 
-            case 'T':
-                unit = ngettext ("Terabyte", "Terabytes", size_long);
-                break;
+        case 'T':
+            unit = ngettext ("Terabyte", "Terabytes", size_long);
+            break;
 
-            default:
-                assert_not_reached ();
+        default:
+            assert_not_reached ();
         }
 
-        return {size, unit};
+        return { size, unit };
     }
 
     /**
@@ -334,16 +328,12 @@ namespace CassetteClient {
     public static string get_context_type (HasID yam_obj) {
         if (yam_obj is Playlist) {
             return "playlist";
-
         } else if (yam_obj is Album) {
             return "album";
-
         } else if (yam_obj is Artist) {
             return "artist";
-
         } else if (yam_obj is int) {
             return "search";
-
         } else {
             return "various";
         }
@@ -354,16 +344,13 @@ namespace CassetteClient {
      *
      * @param yam_obj   object with id
      */
-    public static string? get_context_description (HasID yam_obj) {
+    public static string ? get_context_description (HasID yam_obj) {
         if (yam_obj is Playlist) {
             return ((Playlist) yam_obj).title;
-
         } else if (yam_obj is Album) {
             return ((Album) yam_obj).title;
-
         } else if (yam_obj is Artist) {
             return ((Artist) yam_obj).name;
-
         } else {
             return null;
         }
@@ -427,7 +414,6 @@ namespace CassetteClient {
             if (camel_string[i].isupper ()) {
                 builder.append_c ('-');
                 builder.append_c (camel_string[i].tolower ());
-
             } else {
                 builder.append_c (camel_string[i]);
             }
@@ -450,7 +436,6 @@ namespace CassetteClient {
             if (kebab_string[i] == '-') {
                 i += 1;
                 builder.append_c (kebab_string[i].toupper ());
-
             } else {
                 builder.append_c (kebab_string[i]);
             }
@@ -472,7 +457,6 @@ namespace CassetteClient {
         while (i < kebab_string.length) {
             if (kebab_string[i] == '-') {
                 builder.append_c ('_');
-
             } else {
                 builder.append_c (kebab_string[i]);
             }
@@ -494,7 +478,6 @@ namespace CassetteClient {
         while (i < snake_string.length) {
             if (snake_string[i] == '_') {
                 builder.append_c ('-');
-
             } else {
                 builder.append_c (snake_string[i]);
             }

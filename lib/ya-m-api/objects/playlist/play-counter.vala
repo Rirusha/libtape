@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public class CassetteClient.YaMAPI.PlayCounter: YaMObject {
+public class Tape.YaMAPI.PlayCounter : YaMObject {
 
     public int value { get; set; }
 

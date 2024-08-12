@@ -20,7 +20,7 @@ using Gee;
 /**
  *
  */
-public class CassetteClient.YaMAPI.Rotor.SessionNew: YaMObject {
+public class Tape.YaMAPI.Rotor.SessionNew : YaMObject {
 
     /**
      *

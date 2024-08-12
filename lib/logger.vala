@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public sealed class CassetteClient.Logger: Object {
+public sealed class Tape.Logger : Object {
 
     const string TIME_PREFIX = "*TIME*   ";
     const string SYSTEM_PREFIX = "*SYSTEM* ";
@@ -56,7 +56,7 @@ public sealed class CassetteClient.Logger: Object {
                 try {
                     Logger._log_file.delete ();
                 } catch (Error e) {
-                    if (e is IOError.NOT_FOUND) { }
+                    if (e is IOError.NOT_FOUND) {}
                 }
             }
 
@@ -65,11 +65,10 @@ public sealed class CassetteClient.Logger: Object {
                     value.create (FileCreateFlags.PRIVATE);
 
                     Logger.info ("Log file created");
-
                 } catch (Error e) {
                     GLib.warning ("Can't create log file on %s. Error message: %s".printf (
-                        value.peek_path (),
-                        e.message
+                                                                                           value.peek_path (),
+                                                                                           e.message
                     ));
                 }
             }
@@ -95,16 +94,15 @@ public sealed class CassetteClient.Logger: Object {
             string final_message;
             if (message != null) {
                 final_message = "%s : %s : %s\n".printf (
-                    log_level_str,
-                    current_time,
-                    message
+                                                         log_level_str,
+                                                         current_time,
+                                                         message
                 );
             } else {
                 final_message = "\n";
             }
 
             os.write (final_message.data);
-
         } catch (Error e) {
             GLib.warning ("Can't write to log file. Error message: %s".printf (e.message));
         }
@@ -118,8 +116,8 @@ public sealed class CassetteClient.Logger: Object {
         try {
             FileOutputStream os = log_file.append_to (FileCreateFlags.NONE);
             string final_message = "%s : %s\n".printf (
-                direction,
-                data
+                                                       direction,
+                                                       data
             );
             os.write (final_message.data);
         } catch (Error e) {
@@ -160,9 +158,9 @@ public sealed class CassetteClient.Logger: Object {
 
             string current_time = new DateTime.now ().format ("%T.%f");
             stdout.printf ("%s : %s : %s\n".printf (
-                DEVEL_PREFIX,
-                current_time,
-                message
+                                                    DEVEL_PREFIX,
+                                                    current_time,
+                                                    message
             ));
         }
     }

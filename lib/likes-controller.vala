@@ -17,7 +17,7 @@
 
 using Gee;
 
-namespace CassetteClient {
+namespace Tape {
 
     public enum LikableType {
         TRACK,
@@ -32,7 +32,7 @@ namespace CassetteClient {
     }
 
     // Контроллер лайков различного контента. Хранит в себе все лайки пользователя.
-    public class LikesController: Object {
+    public class LikesController : Object {
 
         HashSet<string> disliked_tracks_ids = new HashSet<string> ();
         HashSet<string> liked_tracks_ids = new HashSet<string> ();
@@ -45,14 +45,14 @@ namespace CassetteClient {
 
         HashSet<string> get_id_array (LikableType content_type) {
             switch (content_type) {
-                case LikableType.TRACK:
-                    return liked_tracks_ids;
-                case LikableType.PLAYLIST:
-                    return liked_playlists_ids;
-                case LikableType.ALBUM:
-                    return liked_albums_ids;
-                default:
-                    assert_not_reached ();
+            case LikableType.TRACK:
+                return liked_tracks_ids;
+            case LikableType.PLAYLIST:
+                return liked_playlists_ids;
+            case LikableType.ALBUM:
+                return liked_albums_ids;
+            default:
+                assert_not_reached ();
             }
         }
 

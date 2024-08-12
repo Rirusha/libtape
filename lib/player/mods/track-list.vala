@@ -17,23 +17,21 @@
 
 using Gee;
 
-public sealed class CassetteClient.PlayerTrackList: PlayerShufflable {
+public sealed class Tape.PlayerTrackList : PlayerShufflable {
 
-    public PlayerTrackList (
-        Player player,
+    public PlayerTrackList (Player player,
         ArrayList<YaMAPI.Track> queue,
         string context_type,
         string? context_id,
         int current_index,
-        string? context_description
-    ) {
+        string? context_description) {
         Object (
-            player: player,
-            queue: queue,
-            context_type: context_type,
-            context_id: context_id,
-            current_index: current_index,
-            context_description: context_description
+                player: player,
+                queue: queue,
+                context_type: context_type,
+                context_id: context_id,
+                current_index: current_index,
+                context_description: context_description
         );
     }
 
@@ -44,11 +42,11 @@ public sealed class CassetteClient.PlayerTrackList: PlayerShufflable {
 
     void change_queue () {
         player.queue_changed (
-            queue,
-            context_type,
-            context_id,
-            current_index,
-            context_description
+                              queue,
+                              context_type,
+                              context_id,
+                              current_index,
+                              context_description
         );
     }
 
@@ -57,14 +55,13 @@ public sealed class CassetteClient.PlayerTrackList: PlayerShufflable {
 
         if (new_index != -1) {
             current_index = new_index;
-
         } else {
             player.start_flow (
-                "%s:%s".printf (
-                    context_type,
-                    context_id.replace (":", "_")
-                ),
-                queue);
+                               "%s:%s".printf (
+                                               context_type,
+                                               context_id.replace (":", "_")
+                               ),
+                               queue);
         }
     }
 
@@ -72,34 +69,31 @@ public sealed class CassetteClient.PlayerTrackList: PlayerShufflable {
         int index = current_index;
 
         switch (player.repeat_mode) {
-            case RepeatMode.OFF:
+        case RepeatMode.OFF:
+            if (index + 1 == queue.size) {
+                index = -1;
+            } else {
+                index++;
+            }
+            break;
+
+        case RepeatMode.ONE:
+            if (!consider_repeat_one) {
                 if (index + 1 == queue.size) {
                     index = -1;
-
                 } else {
                     index++;
                 }
-                break;
+            }
+            break;
 
-            case RepeatMode.ONE:
-                if (!consider_repeat_one) {
-                    if (index + 1 == queue.size) {
-                        index = -1;
-
-                    } else {
-                        index++;
-                    }
-                }
-                break;
-
-            case RepeatMode.QUEUE:
-                if (index + 1 == queue.size) {
-                    index = 0;
-
-                } else {
-                    index++;
-                }
-                break;
+        case RepeatMode.QUEUE:
+            if (index + 1 == queue.size) {
+                index = 0;
+            } else {
+                index++;
+            }
+            break;
         }
 
         return index;
@@ -109,21 +103,21 @@ public sealed class CassetteClient.PlayerTrackList: PlayerShufflable {
         int index = current_index;
 
         switch (index) {
-            case -1:
+        case -1:
+            index = -1;
+            break;
+
+        case 0:
+            if (player.repeat_mode == RepeatMode.QUEUE) {
+                index = queue.size - 1;
+            } else {
                 index = -1;
-                break;
+            }
+            break;
 
-            case 0:
-                if (player.repeat_mode == RepeatMode.QUEUE) {
-                    index = queue.size - 1;
-                } else {
-                    index = -1;
-                }
-                break;
-
-            default:
-                index--;
-                break;
+        default:
+            index--;
+            break;
         }
 
         return index;
@@ -133,11 +127,11 @@ public sealed class CassetteClient.PlayerTrackList: PlayerShufflable {
         var current_track = get_current_track_info ();
 
         return new YaMAPI.Play () {
-            track_length_seconds = ((double) current_track.duration_ms) / 1000.0,
-            track_id = current_track.id,
-            album_id = current_track.albums.size > 0 ? current_track.albums[0].id : null,
-            context = context_type,
-            context_item = context_id
+                   track_length_seconds = ((double) current_track.duration_ms) / 1000.0,
+                   track_id = current_track.id,
+                   album_id = current_track.albums.size > 0 ? current_track.albums[0].id : null,
+                   context = context_type,
+                   context_item = context_id
         };
     }
 }

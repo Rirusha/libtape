@@ -20,7 +20,7 @@ using Gee;
 /**
  * Датакласс короткого преставления трека.
  */
-public class CassetteClient.YaMAPI.TrackShort: YaMObject {
+public class Tape.YaMAPI.TrackShort : YaMObject {
 
     /**
      * Id трека.

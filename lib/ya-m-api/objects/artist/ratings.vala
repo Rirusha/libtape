@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public class CassetteClient.YaMAPI.Ratings: YaMObject {
+public class Tape.YaMAPI.Ratings : YaMObject {
 
     public int month { get; set; }
 

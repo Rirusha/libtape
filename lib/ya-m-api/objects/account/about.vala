@@ -18,7 +18,7 @@
 /**
  * Account information.
  */
-public class CassetteClient.YaMAPI.Account.About: YaMObject, HasCover, HasID {
+public class Tape.YaMAPI.Account.About : YaMObject, HasCover, HasID {
 
     public string oid {
         owned get {
@@ -63,28 +63,28 @@ public class CassetteClient.YaMAPI.Account.About: YaMObject, HasCover, HasID {
 
     string num_size_to_avatar_size (int size) {
         switch (size) {
-            case 28:
-                return "islands-small";
-            case 34:
-                return "islands-34";
-            case 42:
-                return "islands-middle";
-            case 50:
-                return "islands-50";
-            case 56:
-                return "islands-retina-small";
-            case 68:
-                return "islands-68";
-            case 75:
-                return "islands-75";
-            case 84:
-                return "islands-retina-middle";
-            case 100:
-                return "islands-retina-50";
-            case 200:
-                return "islands-200";
-            default:
-                Logger.error (_("Wrong avatar size: %d. Available values: 28, 34, 42, 50, 68, 75, 84, 100, 200").printf (size));
+        case 28:
+            return "islands-small";
+        case 34:
+            return "islands-34";
+        case 42:
+            return "islands-middle";
+        case 50:
+            return "islands-50";
+        case 56:
+            return "islands-retina-small";
+        case 68:
+            return "islands-68";
+        case 75:
+            return "islands-75";
+        case 84:
+            return "islands-retina-middle";
+        case 100:
+            return "islands-retina-50";
+        case 200:
+            return "islands-200";
+        default:
+            Logger.error (_("Wrong avatar size: %d. Available values: 28, 34, 42, 50, 68, 75, 84, 100, 200").printf (size));
         }
     }
 
@@ -95,7 +95,7 @@ public class CassetteClient.YaMAPI.Account.About: YaMObject, HasCover, HasID {
      *
      * @return      avatar uri
      */
-    public string? get_avatar_uri (int size = 200) {
+    public string ? get_avatar_uri (int size = 200) {
         if (avatar_id == null) {
             return null;
         }
@@ -103,8 +103,8 @@ public class CassetteClient.YaMAPI.Account.About: YaMObject, HasCover, HasID {
         var avatar_size = num_size_to_avatar_size (size);
 
         return "https://avatars.yandex.net/get-yapic/%s/%s".printf (
-            avatar_id,
-            avatar_size
+                                                                    avatar_id,
+                                                                    avatar_size
         );
     }
 

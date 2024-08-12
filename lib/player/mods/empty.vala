@@ -17,7 +17,7 @@
 
 using Gee;
 
-public sealed class CassetteClient.PlayerEmpty: PlayerMode {
+public sealed class Tape.PlayerEmpty : PlayerMode {
 
     public PlayerEmpty (Player player) {
         Object (player: player);
@@ -25,11 +25,11 @@ public sealed class CassetteClient.PlayerEmpty: PlayerMode {
 
     construct {
         player.queue_changed (
-            new Gee.ArrayList<YaMAPI.Track> (),
-            "various",
-            null,
-            -1,
-            null
+                              new Gee.ArrayList<YaMAPI.Track> (),
+                              "various",
+                              null,
+                              -1,
+                              null
         );
     }
 
@@ -45,9 +45,7 @@ public sealed class CassetteClient.PlayerEmpty: PlayerMode {
         assert_not_reached ();
     }
 
-    public override async void send_play_async (
-        string play_id,
-        double end_position_seconds = 0.0,
-        double total_played_seconds = 0.0
-    ) { }
+    public override async void send_play_async (string play_id,
+                                                double end_position_seconds = 0.0,
+                                                double total_played_seconds = 0.0) {}
 }

@@ -23,7 +23,7 @@ using Gee;
  * Every mode autoconnect to `Player.queue_changed` and
  * `Player.nead_changed` signals.
  */
-public abstract class CassetteClient.PlayerMode: Object {
+public abstract class Tape.PlayerMode : Object {
 
     /**
      * Parent player object.
@@ -91,7 +91,6 @@ public abstract class CassetteClient.PlayerMode: Object {
             }
 
             return queue[current_index];
-
         } else {
             return null;
         }
@@ -115,7 +114,7 @@ public abstract class CassetteClient.PlayerMode: Object {
      * Get next track index in queue.
      * Track list and Flow have different rules for this.
      *
-     * @param consider_repeat_mode  some mode ignore this.  
+     * @param consider_repeat_mode  some mode ignore this.
      *
      * @return  new index. Returns -1 if theres no next track
      */
@@ -135,15 +134,13 @@ public abstract class CassetteClient.PlayerMode: Object {
     /**
      * Form Play object foe play feedback.
      *
-     * @return  `CassetteClient.YaMAPI.Play` object
+     * @return  `Tape.YaMAPI.Play` object
      */
     protected abstract YaMAPI.Play form_play_obj ();
 
-    public virtual async void send_play_async (
-        string play_id,
-        double end_position_seconds = 0.0,
-        double total_played_seconds = 0.0
-    ) {
+    public virtual async void send_play_async (string play_id,
+                                               double end_position_seconds = 0.0,
+                                               double total_played_seconds = 0.0) {
         if (get_current_track_info () == null) {
             return;
         }
@@ -155,14 +152,14 @@ public abstract class CassetteClient.PlayerMode: Object {
         play_obj.total_played_seconds = total_played_seconds;
 
         Logger.debug ("Track id %s: end: %f; total: %f, dur: %f".printf (
-            play_obj.track_id,
-            play_obj.end_position_seconds,
-            play_obj.total_played_seconds,
-            play_obj.track_length_seconds
+                                                                         play_obj.track_id,
+                                                                         play_obj.end_position_seconds,
+                                                                         play_obj.total_played_seconds,
+                                                                         play_obj.track_length_seconds
         ));
 
         Threader.add_single (() => {
-            player.client.yam_talker.send_play ({play_obj});
+            player.client.yam_talker.send_play ({ play_obj });
 
             Idle.add (send_play_async.callback);
         });

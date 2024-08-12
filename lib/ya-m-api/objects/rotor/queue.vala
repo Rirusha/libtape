@@ -18,7 +18,7 @@
 /**
  *
  */
-public class CassetteClient.YaMAPI.Rotor.Queue: YaMObject {
+public class Tape.YaMAPI.Rotor.Queue : YaMObject {
 
     public Gee.ArrayList<string> queue { get; set; default = new Gee.ArrayList<string> (); }
 }

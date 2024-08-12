@@ -18,7 +18,7 @@
 /**
  *
  */
-public class CassetteClient.YaMAPI.Rotor.Sequence: YaMObject {
+public class Tape.YaMAPI.Rotor.Sequence : YaMObject {
 
     /**
      * Track type.

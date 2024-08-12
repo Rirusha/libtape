@@ -17,7 +17,7 @@
 
 using Gee;
 
-public class CassetteClient.YaMAPI.Album: YaMObject, HasCover, HasID {
+public class Tape.YaMAPI.Album : YaMObject, HasCover, HasID {
 
     public string oid {
         owned get {
@@ -27,7 +27,7 @@ public class CassetteClient.YaMAPI.Album: YaMObject, HasCover, HasID {
 
     public bool explicit {
         get {
-            return content_warning == "explicit"? true : false;
+            return content_warning == "explicit" ? true : false;
         }
     }
 

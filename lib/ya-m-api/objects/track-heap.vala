@@ -17,7 +17,7 @@
 
 using Gee;
 
-public class CassetteClient.YaMAPI.TrackHeap: YaMObject, HasID, HasTracks {
+public class Tape.YaMAPI.TrackHeap : YaMObject, HasID, HasTracks {
 
     public string oid {
         owned get {
@@ -27,19 +27,17 @@ public class CassetteClient.YaMAPI.TrackHeap: YaMObject, HasID, HasTracks {
 
     public ArrayList<Track> tracks { get; set; default = new ArrayList<Track> (); }
 
-    public Gee.ArrayList<YaMAPI.Track> get_filtered_track_list (
-        bool with_explicit,
-        bool with_child,
-        string[] exception_tracks_ids = new string[0]
-    ) {
+    public Gee.ArrayList<YaMAPI.Track> get_filtered_track_list (bool with_explicit,
+                                                                bool with_child,
+                                                                string[] exception_tracks_ids = new string[0]) {
         var out_track_list = new ArrayList<Track> ();
 
         foreach (Track track in tracks) {
             if (
                 (track.available && (
-                    (!track.is_explicit || with_explicit) &&
-                    (!track.is_suitable_for_children || with_child)
-                )) || track.id in exception_tracks_ids
+                                     (!track.is_explicit || with_explicit) &&
+                                     (!track.is_suitable_for_children || with_child)
+                 )) || track.id in exception_tracks_ids
             ) {
                 out_track_list.add (track);
             }

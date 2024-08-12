@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public class CassetteClient.YaMAPI.MadeFor: YaMObject {
+public class Tape.YaMAPI.MadeFor : YaMObject {
 
     public User user_info { get; set; }
 

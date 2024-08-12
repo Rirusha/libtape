@@ -18,7 +18,7 @@
 /**
  *
  */
-public class CassetteClient.YaMAPI.Rotor.Event: YaMObject {
+public class Tape.YaMAPI.Rotor.Event : YaMObject {
 
     public string timestamp { get; set; default = get_timestamp (); }
 

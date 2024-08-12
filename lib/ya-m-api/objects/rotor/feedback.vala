@@ -18,7 +18,7 @@
 /**
  * Класс Id станции
  */
-public class CassetteClient.YaMAPI.Rotor.Feedback: YaMObject {
+public class Tape.YaMAPI.Rotor.Feedback : YaMObject {
 
     public Event event { get; set; }
 

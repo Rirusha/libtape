@@ -20,7 +20,7 @@ using Gee;
 /**
  * Датакласс с фидбеками
  */
-public class CassetteClient.YaMAPI.Plays: YaMObject {
+public class Tape.YaMAPI.Plays : YaMObject {
 
     /**
      * Id сессии прослушивания

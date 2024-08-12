@@ -17,10 +17,10 @@
 
 using Gee;
 
-namespace CassetteClient {
-    
+namespace Tape {
 
-  class ContentInfo: Object {
+
+    class ContentInfo : Object {
         public ContentType content_type { get; construct; }
         public string content_id { get; construct; }
 
@@ -30,20 +30,19 @@ namespace CassetteClient {
     }
 
     // Контроллер состояния кэширования треков. Все отображалки состояния привязаны к этому контроллеру
-    public class Controller: Object {
+    public class Controller : Object {
         ArrayList<ContentInfo?> loading_content = new ArrayList<ContentInfo?> ();
 
-        public signal void content_cache_state_changed (
-            ContentType content_type,
+        public signal void content_cache_state_changed (ContentType content_type,
             string content_id,
             CacheingState state);
 
-        ContentInfo? find_content_info (ContentInfo content_info) {
+        ContentInfo ? find_content_info (ContentInfo content_info) {
             /**
                 Поиск информации о контенте в списке сохраняемого. Возвращает null, если не найдено
 
                 content_info: информация о контенте
-            */
+             */
 
             lock (loading_content) {
                 foreach (var ci in loading_content) {
@@ -61,7 +60,7 @@ namespace CassetteClient {
                 Добавить информацию о контенте в список сохраняемого
 
                 content_info: информация о контенте
-            */
+             */
 
             lock (loading_content) {
                 if (find_content_info (content_info) == null) {
@@ -75,7 +74,7 @@ namespace CassetteClient {
                 Удалить информацию о контенте в список сохраняемого
 
                 content_info: информация о контенте
-            */
+             */
 
             lock (loading_content) {
                 var ci = find_content_info (content_info);
@@ -92,7 +91,7 @@ namespace CassetteClient {
                 content_type: тип контента
                 content_id: id контента
                 content_info: информация о контенте
-            */
+             */
 
             if (state != CacheingState.LOADING) {
                 remove_content_info (new ContentInfo (content_type, content_id));
@@ -107,7 +106,7 @@ namespace CassetteClient {
 
                 content_type: тип контента
                 content_id: id контента
-            */
+             */
 
             add_content_info (new ContentInfo (content_type, content_id));
 
@@ -120,14 +119,14 @@ namespace CassetteClient {
 
                 content_type: тип контента
                 content_id: id контента
-                content_info: информация о контенте. Если null, то текущее состояние будет 
+                content_info: информация о контенте. Если null, то текущее состояние будет
                     определено самостоятельно
-            */
+             */
 
             remove_content_info (new ContentInfo (content_type, content_id));
 
             content_cache_state_changed (
-                content_type, content_id, state != null? state : get_content_cache_state (content_type, content_id));
+                                         content_type, content_id, state != null ? state : get_content_cache_state (content_type, content_id));
         }
 
         public CacheingState get_content_cache_state (ContentType content_type, string content_id) {
@@ -136,7 +135,7 @@ namespace CassetteClient {
 
                 content_type: тип контента
                 content_id: id контента
-            */
+             */
 
             if (find_content_info (new ContentInfo (content_type, content_id)) != null) {
                 return CacheingState.LOADING;
@@ -144,17 +143,17 @@ namespace CassetteClient {
 
             Location location;
             switch (content_type) {
-                case ContentType.TRACK:
-                    location = storager.audio_cache_location (content_id);
-                    break;
-                case ContentType.PLAYLIST:
-                    location = storager.object_cache_location (typeof (YaMAPI.Playlist), content_id);
-                    break;
-                case ContentType.ALBUM:
-                    location = storager.object_cache_location (typeof (YaMAPI.Album), content_id);
-                    break;
-                default:
-                    assert_not_reached ();
+            case ContentType.TRACK :
+                location = storager.audio_cache_location (content_id);
+                break;
+            case ContentType.PLAYLIST :
+                location = storager.object_cache_location (typeof (YaMAPI.Playlist), content_id);
+                break;
+            case ContentType.ALBUM:
+                location = storager.object_cache_location (typeof (YaMAPI.Album), content_id);
+                break;
+            default:
+                assert_not_reached ();
             }
 
             if (location.file != null && location.is_tmp == true) {

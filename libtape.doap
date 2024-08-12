@@ -5,16 +5,16 @@
          xmlns:gnome="http://api.gnome.org/doap-extensions#"
          xmlns="http://usefulinc.com/ns/doap#">
 
-  <name xml:lang="en">libcassette</name>
+  <name xml:lang="en">libtape</name>
 
   <shortdesc xml:lang="en">Unofficial Yandex.Music client library</shortdesc>
 
   <description>
     Library for unofficial Yandex.Music clients
   </description>
-  <homepage rdf:resource="https://github.com/Rirusha/libcassette" />
-  <download-page rdf:resource="https://github.com/Rirusha/libcassette/tags" />
-  <bug-database rdf:resource="https://github.com/Rirusha/libcassette/issues" />
+  <homepage rdf:resource="https://github.com/Rirusha/libtape" />
+  <download-page rdf:resource="https://github.com/Rirusha/libtape/tags" />
+  <bug-database rdf:resource="https://github.com/Rirusha/libtape/issues" />
 
   <programming-language>Vala</programming-language>
 

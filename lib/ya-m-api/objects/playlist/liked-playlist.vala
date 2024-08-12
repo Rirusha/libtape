@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public class CassetteClient.YaMAPI.LikedPlaylist: YaMObject {
+public class Tape.YaMAPI.LikedPlaylist : YaMObject {
 
     public Playlist playlist { get; set; }
 }

@@ -15,13 +15,13 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-using CassetteClient.YaMAPI;
+using Tape.YaMAPI;
 
 /**
- * Класс для выполнения всяких вещей, связанных с интернетом, чтобы 
+ * Класс для выполнения всяких вещей, связанных с интернетом, чтобы
  * можно было оповестить пользователя о проблемах с соединением
  */
-public sealed class CassetteClient.YaMTalker: Object {
+public sealed class Tape.YaMTalker : Object {
 
     public static YaMClient yam_client { get; private set; }
     public LikesController likes_controller { get; default = new LikesController (); }
@@ -71,8 +71,8 @@ public sealed class CassetteClient.YaMTalker: Object {
 
     public static void init () {
         yam_client = new YaMClient (new SoupWrapper (
-            "Cassette Application",
-            Cachier.storager.cookies_file.peek_path ()
+                                                     "Cassette Application",
+                                                     Cachier.storager.cookies_file.peek_path ()
         ));
     }
 
@@ -100,17 +100,16 @@ public sealed class CassetteClient.YaMTalker: Object {
 
         try {
             net_run (net_func, should_init);
-        } catch (BadStatusCodeError e) { }
+        } catch (BadStatusCodeError e) {}
     }
 
     void net_run (NetFunc net_func, bool should_init = true) throws BadStatusCodeError {
         if (should_init) {
             try {
                 init_if_not ();
-
             } catch (CantUseError e) {
                 Logger.warning ("Can't use error: %s".printf (
-                    e.message
+                                                              e.message
                 ));
                 return;
             }
@@ -120,19 +119,17 @@ public sealed class CassetteClient.YaMTalker: Object {
             net_func ();
 
             connection_established ();
-
         } catch (ClientError e) {
             Logger.warning ("%s: %s".printf (
-                e.domain.to_string (),
-                e.message
+                                             e.domain.to_string (),
+                                             e.message
             ));
 
             connection_lost ();
-
         } catch (BadStatusCodeError e) {
             Logger.warning ("%s: %s".printf (
-                e.domain.to_string (),
-                e.message
+                                             e.domain.to_string (),
+                                             e.message
             ));
 
             throw e;
@@ -168,9 +165,9 @@ public sealed class CassetteClient.YaMTalker: Object {
     }
 
     /**
-        * Update data that may have been changed by other clients.
-        * Just internet check for now.
-        */
+     * Update data that may have been changed by other clients.
+     * Just internet check for now.
+     */
     public async void update_all () {
         threader.add (() => {
             net_run_wout_code (() => {
@@ -184,7 +181,7 @@ public sealed class CassetteClient.YaMTalker: Object {
     }
 
     // TODO: remove this
-    public Playlist? get_playlist_info_old (string? uid = null, string kind = "3") throws BadStatusCodeError {
+    public Playlist ? get_playlist_info_old (string? uid = null, string kind = "3") throws BadStatusCodeError {
         Playlist? playlist_info = null;
 
         net_run (() => {
@@ -212,16 +209,16 @@ public sealed class CassetteClient.YaMTalker: Object {
             if (object_location.is_tmp && settings.get_boolean ("can-cache")) {
                 storager.save_object (playlist_info, true);
                 cachier.controller.change_state (
-                    Cachier.ContentType.PLAYLIST,
-                    playlist_info.oid,
-                    Cachier.CacheingState.TEMP);
+                                                 Cachier.ContentType.PLAYLIST,
+                                                 playlist_info.oid,
+                                                 Cachier.CacheingState.TEMP);
             }
         });
 
         return playlist_info;
     }
 
-    public Playlist? get_playlist_info (string playlist_uuid) throws BadStatusCodeError {
+    public Playlist ? get_playlist_info (string playlist_uuid) throws BadStatusCodeError {
         Playlist? playlist_info = null;
 
         net_run (() => {
@@ -249,9 +246,9 @@ public sealed class CassetteClient.YaMTalker: Object {
             if (object_location.is_tmp && settings.get_boolean ("can-cache")) {
                 storager.save_object (playlist_info, true);
                 cachier.controller.change_state (
-                    Cachier.ContentType.PLAYLIST,
-                    playlist_info.oid,
-                    Cachier.CacheingState.TEMP);
+                                                 Cachier.ContentType.PLAYLIST,
+                                                 playlist_info.oid,
+                                                 Cachier.CacheingState.TEMP);
             }
         });
 
@@ -274,63 +271,63 @@ public sealed class CassetteClient.YaMTalker: Object {
         });
     }
 
-    //  public YaMAPI.Queue? get_queue () {
-    //      YaMAPI.Queue? queue = null;
+    // public YaMAPI.Queue? get_queue () {
+    // YaMAPI.Queue? queue = null;
 
-    //      net_run_wout_code (() => {
-    //          var queues = client.queues ();
+    // net_run_wout_code (() => {
+    // var queues = client.queues ();
 
-    //          if (queues.size == 0) {
-    //              return;
-    //          }
+    // if (queues.size == 0) {
+    // return;
+    // }
 
-    //          queue = client.queue (queues[0].id);
+    // queue = client.queue (queues[0].id);
 
-    //          string[] track_ids = new string[queue.tracks.size];
-    //          for (int i = 0; i < track_ids.length; i++) {
-    //              track_ids[i] = queue.tracks[i].id;
-    //          }
-    //          queue.tracks = client.tracks (track_ids);
-    //      });
+    // string[] track_ids = new string[queue.tracks.size];
+    // for (int i = 0; i < track_ids.length; i++) {
+    // track_ids[i] = queue.tracks[i].id;
+    // }
+    // queue.tracks = client.tracks (track_ids);
+    // });
 
-    //      return queue;
-    //  }
+    // return queue;
+    // }
 
-    //  public string? create_queue (YaMAPI.Queue queue) {
-    //      string? queue_id = null;
+    // public string? create_queue (YaMAPI.Queue queue) {
+    // string? queue_id = null;
 
-    //      net_run_wout_code (() => {
-    //          queue_id = client.create_queue (queue);
-    //      });
+    // net_run_wout_code (() => {
+    // queue_id = client.create_queue (queue);
+    // });
 
-    //      return queue_id;
-    //  }
+    // return queue_id;
+    // }
 
-    //  public void update_position_queue (YaMAPI.Queue queue) {
-    //      try {
-    //          net_run (() => {
-    //              // На случай если пользователь после формирования очереди быстро
-    //              // сменит трек и id после создания не успеет придти
-    //              if (queue.id == null) {
-    //                  queue.id = create_queue (queue);
-    //              }
+    // public void update_position_queue (YaMAPI.Queue queue) {
+    // try {
+    // net_run (() => {
+    //// На случай если пользователь после формирования очереди быстро
+    //// сменит трек и id после создания не успеет придти
+    // if (queue.id == null) {
+    // queue.id = create_queue (queue);
+    // }
 
-    //              if (queue.id == null) {
-    //                  return;
-    //              }
+    // if (queue.id == null) {
+    // return;
+    // }
 
-    //              client.update_position_queue (queue.id, queue.current_index);
-    //          });
-    //      } catch (CassetteClient.BadStatusCodeError e) {
-    //          if (e is CassetteClient.BadStatusCodeError.NOT_FOUND) {
-    //              queue.id = null;
+    // client.update_position_queue (queue.id, queue.current_index);
+    // });
+    // } catch (Tape.BadStatusCodeError e) {
+    // if (e is Tape.BadStatusCodeError.NOT_FOUND) {
+    // queue.id = null;
 
-    //              update_position_queue (queue);
-    //          }
-    //      }
-    //  }
+    // update_position_queue (queue);
+    // }
+    // }
+    // }
 
-    public string? get_download_uri (string track_id, bool is_hq) {
+    public string ? get_download_uri (string track_id, bool is_hq) {
         string? track_uri = null;
 
         net_run_wout_code (() => {
@@ -340,35 +337,33 @@ public sealed class CassetteClient.YaMTalker: Object {
         return track_uri;
     }
 
-    public async void like (
-        LikableType content_type,
-        string content_id,
-        string? playlist_owner = null,
-        string? playlist_kind = null
-    ) {
+    public async void like (LikableType content_type,
+                            string content_id,
+                            string? playlist_owner = null,
+                            string? playlist_kind = null) {
         track_likes_start_change (content_id);
         bool is_ok = false;
 
         threader.add (() => {
             net_run_wout_code (() => {
                 switch (content_type) {
-                    case LikableType.TRACK:
+                    case LikableType.TRACK :
                         is_ok = client.users_likes_tracks_add (content_id) != 0;
                         break;
 
-                    case LikableType.PLAYLIST:
+                    case LikableType.PLAYLIST :
                         is_ok = client.users_likes_playlists_add (content_id, playlist_owner, playlist_kind);
                         break;
 
-                    case LikableType.ALBUM:
+                    case LikableType.ALBUM :
                         is_ok = client.users_likes_albums_add (content_id);
                         break;
 
-                    case LikableType.ARTIST:
+                    case LikableType.ARTIST :
                         is_ok = client.users_likes_artists_add (content_id);
                         break;
 
-                    default:
+                        default :
                         assert_not_reached ();
                 }
             });
@@ -398,11 +393,11 @@ public sealed class CassetteClient.YaMTalker: Object {
         threader.add (() => {
             net_run_wout_code (() => {
                 switch (content_type) {
-                    case LikableType.TRACK:
+                    case LikableType.TRACK :
                         is_ok = client.users_likes_tracks_remove (content_id) != 0;
                         break;
 
-                    case LikableType.PLAYLIST:
+                    case LikableType.PLAYLIST :
                         is_ok = client.users_likes_playlists_remove (content_id);
                         break;
 
@@ -556,7 +551,7 @@ public sealed class CassetteClient.YaMTalker: Object {
         return lyrics;
     }
 
-    public string? load_text (string uri) {
+    public string ? load_text (string uri) {
         string? text = null;
 
         net_run_wout_code (() => {
@@ -576,7 +571,7 @@ public sealed class CassetteClient.YaMTalker: Object {
             var stream = new MemoryInputStream.from_bytes (bytes);
             try {
                 image = new Gdk.Pixbuf.from_stream (stream);
-            } catch (Error e) { }
+            } catch (Error e) {}
         });
 
         return image;
@@ -589,13 +584,13 @@ public sealed class CassetteClient.YaMTalker: Object {
             Bytes? bytes = yam_client.get_content_of (image_uri);
             try {
                 image = Gdk.Texture.from_bytes (bytes);
-            } catch (Error e) { }
+            } catch (Error e) {}
         });
 
         return image;
     }
 
-    public Bytes? load_track (string track_uri) {
+    public Bytes ? load_track (string track_uri) {
         Bytes? content = null;
 
         net_run_wout_code (() => {
@@ -605,31 +600,31 @@ public sealed class CassetteClient.YaMTalker: Object {
         return content;
     }
 
-    public Playlist? add_track_to_playlist (Track track_info, Playlist playlist_info) {
-        return add_tracks_to_playlist ({track_info}, playlist_info);
+    public Playlist ? add_track_to_playlist (Track track_info, Playlist playlist_info) {
+        return add_tracks_to_playlist ({ track_info }, playlist_info);
     }
 
-    //  playlist_info.kind,
-    //  track_info,
-    //  storager.settings.get_boolean ("add-tracks-to-start") ? 0 : playlist_info.track_count,
-    //  playlist_info.revision
+    // playlist_info.kind,
+    // track_info,
+    // storager.settings.get_boolean ("add-tracks-to-start") ? 0 : playlist_info.track_count,
+    // playlist_info.revision
 
-    public Playlist? add_tracks_to_playlist (Track[] tracks, Playlist playlist_info) {
+    public Playlist ? add_tracks_to_playlist (Track[] tracks, Playlist playlist_info) {
         Playlist? new_playlist = null;
 
         var diff = new DifferenceBuilder ();
 
         diff.add_insert (
-            settings.get_boolean ("add-tracks-to-start") ? 0 : playlist_info.track_count,
-            tracks
+                         settings.get_boolean ("add-tracks-to-start") ? 0 : playlist_info.track_count,
+                         tracks
         );
 
         net_run_wout_code (() => {
             new_playlist = yam_client.users_playlists_change (
-                null,
-                playlist_info.kind,
-                diff.to_json (),
-                playlist_info.revision
+                                                              null,
+                                                              playlist_info.kind,
+                                                              diff.to_json (),
+                                                              playlist_info.revision
             );
             playlist_changed (new_playlist);
         });
@@ -637,7 +632,7 @@ public sealed class CassetteClient.YaMTalker: Object {
         return new_playlist;
     }
 
-    public async Playlist? remove_tracks_from_playlist (string kind, int position, int revision) {
+    public async Playlist ? remove_tracks_from_playlist (string kind, int position, int revision) {
         Playlist? new_playlist = null;
 
         var diff = new DifferenceBuilder ();
@@ -659,7 +654,7 @@ public sealed class CassetteClient.YaMTalker: Object {
         return new_playlist;
     }
 
-    public Playlist? change_playlist_visibility (string kind, bool is_public) {
+    public Playlist ? change_playlist_visibility (string kind, bool is_public) {
         Playlist? new_playlist = null;
 
         net_run_wout_code (() => {
@@ -670,7 +665,7 @@ public sealed class CassetteClient.YaMTalker: Object {
         return new_playlist;
     }
 
-    public Playlist? create_playlist () {
+    public Playlist ? create_playlist () {
         Playlist? new_playlist = null;
 
         net_run_wout_code (() => {
@@ -698,7 +693,7 @@ public sealed class CassetteClient.YaMTalker: Object {
         return is_success;
     }
 
-    public Playlist? change_playlist_name (string kind, string new_name) {
+    public Playlist ? change_playlist_name (string kind, string new_name) {
         Playlist? new_playlist = null;
 
         net_run_wout_code (() => {
@@ -740,7 +735,7 @@ public sealed class CassetteClient.YaMTalker: Object {
     }
 
     public Rotor.StationTracks? start_new_session (
-        string station_id
+                                                   string station_id
     ) {
         Rotor.StationTracks? station_tracks = null;
 
@@ -754,13 +749,11 @@ public sealed class CassetteClient.YaMTalker: Object {
         return station_tracks;
     }
 
-    public void send_rotor_feedback (
-        string radio_session_id,
-        string batch_id,
-        string feedback_type,
-        string? track_id = null,
-        double total_played_seconds = 0.0
-    ) {
+    public void send_rotor_feedback (string radio_session_id,
+                                     string batch_id,
+                                     string feedback_type,
+                                     string? track_id = null,
+                                     double total_played_seconds = 0.0) {
         net_run_wout_code (() => {
             var feedback_obj = new Rotor.Feedback () {
                 event = new Rotor.Event () {
@@ -772,15 +765,15 @@ public sealed class CassetteClient.YaMTalker: Object {
             };
 
             yam_client.rotor_session_feedback (
-                radio_session_id,
-                feedback_obj
+                                               radio_session_id,
+                                               feedback_obj
             );
         });
     }
 
     public Rotor.StationTracks? get_session_tracks (
-        string radio_session_id,
-        Gee.ArrayList<string> queue
+                                                    string radio_session_id,
+                                                    Gee.ArrayList<string> queue
     ) {
         Rotor.StationTracks? station_tracks = null;
 

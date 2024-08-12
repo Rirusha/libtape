@@ -18,7 +18,7 @@
 /**
  * Wave parameters
  */
-public class CassetteClient.YaMAPI.Rotor.Restrictions: YaMObject {
+public class Tape.YaMAPI.Rotor.Restrictions : YaMObject {
 
     /**
      * Wave language

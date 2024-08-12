@@ -18,7 +18,7 @@
 /**
  * Класс Id станции
  */
-public class CassetteClient.YaMAPI.Rotor.Id: YaMObject {
+public class Tape.YaMAPI.Rotor.Id : YaMObject {
 
     /**
      * Normalozation of station id.

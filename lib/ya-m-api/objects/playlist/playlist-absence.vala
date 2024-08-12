@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public class CassetteClient.YaMAPI.PlaylistAbsence: YaMObject {
+public class Tape.YaMAPI.PlaylistAbsence : YaMObject {
 
     public int kind { get; set; }
 

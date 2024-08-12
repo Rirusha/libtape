@@ -20,7 +20,7 @@ using Gee;
 /**
  * Wave settings.
  */
-public class CassetteClient.YaMAPI.Rotor.Settings: YaMObject {
+public class Tape.YaMAPI.Rotor.Settings : YaMObject {
 
     /**
      *

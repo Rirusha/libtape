@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public class CassetteClient.YaMAPI.CaseForms: YaMObject {
+public class Tape.YaMAPI.CaseForms : YaMObject {
 
     public string? nominative { get; set; }
 

@@ -17,7 +17,7 @@
 
 using Gee;
 
-public class CassetteClient.YaMAPI.DownloadInfo: YaMObject {
+public class Tape.YaMAPI.DownloadInfo : YaMObject {
 
     public string codec { get; set; }
 

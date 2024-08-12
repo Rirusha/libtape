@@ -17,7 +17,7 @@
 
 using Gee;
 
-public sealed class CassetteClient.Player: Object {
+public sealed class Tape.Player : Object {
 
     PlayerState _state = PlayerState.NONE;
     public PlayerState state {
@@ -28,15 +28,15 @@ public sealed class CassetteClient.Player: Object {
             _state = value;
 
             switch (_state) {
-                case PlayerState.NONE:
-                    playbin.set_state (Gst.State.NULL);
-                    break;
-                case PlayerState.PLAYING:
-                    playbin.set_state (Gst.State.PLAYING);
-                    break;
-                case PlayerState.PAUSED:
-                    playbin.set_state (Gst.State.PAUSED);
-                    break;
+            case PlayerState.NONE:
+                playbin.set_state (Gst.State.NULL);
+                break;
+            case PlayerState.PLAYING:
+                playbin.set_state (Gst.State.PLAYING);
+                break;
+            case PlayerState.PAUSED:
+                playbin.set_state (Gst.State.PAUSED);
+                break;
             }
         }
     }
@@ -55,13 +55,13 @@ public sealed class CassetteClient.Player: Object {
 
             if (shufflable_mode != null) {
                 switch (_shuffle_mode) {
-                    case ShuffleMode.ON:
-                        shufflable_mode.shuffle ();
-                        break;
+                case ShuffleMode.ON:
+                    shufflable_mode.shuffle ();
+                    break;
 
-                    case ShuffleMode.OFF:
-                        shufflable_mode.unshuffle ();
-                        break;
+                case ShuffleMode.OFF:
+                    shufflable_mode.unshuffle ();
+                    break;
                 }
 
                 update_player ();
@@ -81,7 +81,7 @@ public sealed class CassetteClient.Player: Object {
         }
     }
 
-    public double total_played_seconds { get; set; default = 0.0;}
+    public double total_played_seconds { get; set; default = 0.0; }
 
     public int64 playback_pos_ms {
         get {
@@ -91,13 +91,11 @@ public sealed class CassetteClient.Player: Object {
         }
     }
 
-    public signal void queue_changed (
-        ArrayList<YaMAPI.Track> queue,
+    public signal void queue_changed (ArrayList<YaMAPI.Track> queue,
         string context_type,
         string? context_id,
         int current_index,
-        string? context_description
-    );
+        string? context_description);
 
     public bool can_go_force_prev {
         get {
@@ -276,10 +274,8 @@ public sealed class CassetteClient.Player: Object {
         playbin.seek_simple (Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, ms * Gst.MSECOND);
     }
 
-    public void start_flow (
-        string station_id,
-        ArrayList<YaMAPI.Track> queue = new ArrayList<YaMAPI.Track> ()
-    ) {
+    public void start_flow (string station_id,
+                            ArrayList<YaMAPI.Track> queue = new ArrayList<YaMAPI.Track> ()) {
         stop ();
 
         if (repeat_mode == RepeatMode.QUEUE) {
@@ -295,9 +291,9 @@ public sealed class CassetteClient.Player: Object {
         }
 
         var flow = new Flow (
-            this,
-            station_id,
-            flow_queue
+                             this,
+                             station_id,
+                             flow_queue
         );
 
         mode = flow;
@@ -315,22 +311,20 @@ public sealed class CassetteClient.Player: Object {
         });
     }
 
-    public void start_track_list (
-        ArrayList<YaMAPI.Track> queue,
-        string context_type,
-        string? context_id,
-        int current_index,
-        string? context_description
-    ) {
+    public void start_track_list (ArrayList<YaMAPI.Track> queue,
+                                  string context_type,
+                                  string? context_id,
+                                  int current_index,
+                                  string? context_description) {
         stop ();
 
         mode = new TrackList (
-            this,
-            queue,
-            context_type,
-            context_id,
-            current_index,
-            context_description
+                              this,
+                              queue,
+                              context_type,
+                              context_id,
+                              current_index,
+                              context_description
         );
 
         mode_inited ();
@@ -348,15 +342,15 @@ public sealed class CassetteClient.Player: Object {
 
     public void play_pause () {
         switch (state) {
-            case State.PLAYING:
-                pause ();
-                break;
-            case State.PAUSED:
-                play ();
-                break;
-            default:
-                start_current_track.begin ();
-                break;
+        case State.PLAYING :
+            pause ();
+            break;
+        case State.PAUSED :
+            play ();
+            break;
+        default:
+            start_current_track.begin ();
+            break;
         }
     }
 
@@ -388,16 +382,16 @@ public sealed class CassetteClient.Player: Object {
         var current_track = mode.get_current_track_info ();
 
         mode.send_play_async.begin (
-            play_id,
-            natural ? ms2sec (mode.get_current_track_info ().duration_ms) : playback_pos_sec,
-            total_played_seconds
+                                    play_id,
+                                    natural ? ms2sec (mode.get_current_track_info ().duration_ms) : playback_pos_sec,
+                                    total_played_seconds
         );
 
         if (mode is Flow) {
             ((Flow) mode).send_feedback.begin (
-                natural ? YaMAPI.Rotor.FeedbackType.TRACK_FINISHED: YaMAPI.Rotor.FeedbackType.SKIP,
-                current_track.id,
-                total_played_seconds
+                                               natural ? YaMAPI.Rotor.FeedbackType.TRACK_FINISHED : YaMAPI.Rotor.FeedbackType.SKIP,
+                                               current_track.id,
+                                               total_played_seconds
             );
         }
 
@@ -445,7 +439,6 @@ public sealed class CassetteClient.Player: Object {
         if (playback_pos_sec > 3.0 && !ignore_progress) {
             seek (0);
             return;
-
         }
 
         track_stop (false);
@@ -460,7 +453,7 @@ public sealed class CassetteClient.Player: Object {
     public void change_track (YaMAPI.Track track_info) {
         /**
             Находит трек в очереди и воспроизводит его
-        */
+         */
         track_stop (false);
 
         mode.change_track (track_info);
@@ -482,8 +475,8 @@ public sealed class CassetteClient.Player: Object {
         mode.send_play_async.begin (play_id);
         if (mode is Flow) {
             ((Flow) mode).send_feedback.begin (
-                YaMAPI.Rotor.FeedbackType.TRACK_STARTED,
-                current_track.id
+                                               YaMAPI.Rotor.FeedbackType.TRACK_STARTED,
+                                               current_track.id
             );
         }
 
@@ -505,7 +498,7 @@ public sealed class CassetteClient.Player: Object {
         }
 
         if (mode.get_next_index (false) == -1) {
-            (mode as Flow)?.prepare_next_track ();
+            (mode as Flow) ? .prepare_next_track ();
         }
 
         update_player ();
@@ -548,11 +541,11 @@ public sealed class CassetteClient.Player: Object {
     public void add_many (ArrayList<YaMAPI.Track> track_list) {
         if (mode is Empty) {
             start_track_list (
-                track_list,
-                "various",
-                null,
-                0,
-                null
+                              track_list,
+                              "various",
+                              null,
+                              0,
+                              null
             );
             return;
         }
@@ -601,9 +594,9 @@ public sealed class CassetteClient.Player: Object {
     public void rotor_feedback (string feedback_type, string track_id) {
         if (mode is Flow && mode.get_current_track_info ().id == track_id) {
             ((Flow) mode).send_feedback.begin (
-                feedback_type,
-                track_id,
-                total_played_seconds
+                                               feedback_type,
+                                               track_id,
+                                               total_played_seconds
             );
         }
     }

@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public class CassetteClient.YaMAPI.LyricsMajor: YaMObject {
+public class Tape.YaMAPI.LyricsMajor : YaMObject {
 
     public string name { get; set; }
 

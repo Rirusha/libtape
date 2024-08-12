@@ -18,7 +18,7 @@
 /**
  * Value object in api.
  */
-public class CassetteClient.YaMAPI.Rotor.Value: YaMObject {
+public class Tape.YaMAPI.Rotor.Value : YaMObject {
 
     /**
      * Value in string format

@@ -17,7 +17,7 @@
 
 using Gee;
 
-public sealed class CassetteClient.PlayerFlow: PlayerMode {
+public sealed class Tape.PlayerFlow : PlayerMode {
 
     public string station_id { get; construct; }
 
@@ -27,17 +27,15 @@ public sealed class CassetteClient.PlayerFlow: PlayerMode {
 
     string radio_session_id;
 
-    public PlayerFlow (
-        Player player,
+    public PlayerFlow (Player player,
         string station_id,
-        ArrayList<YaMAPI.Track> queue
-    ) {
+        ArrayList<YaMAPI.Track> queue) {
         Object (
-            player: player,
-            station_id: station_id,
-            queue: queue,
-            context_id: station_id,
-            context_type: "radio"
+                player: player,
+                station_id: station_id,
+                queue: queue,
+                context_id: station_id,
+                context_type: "radio"
         );
     }
 
@@ -64,24 +62,21 @@ public sealed class CassetteClient.PlayerFlow: PlayerMode {
             send_feedback.begin (YaMAPI.Rotor.FeedbackType.RADIO_STARTED);
 
             return true;
-
         } else {
             return false;
         }
     }
 
-    public async void send_feedback (
-        string feedback_type,
-        string? track_id = null,
-        double total_played_seconds = 0.0
-    ) {
+    public async void send_feedback (string feedback_type,
+                                     string? track_id = null,
+                                     double total_played_seconds = 0.0) {
         Threader.add_single (() => {
             player.client.yam_talker.send_rotor_feedback (
-                radio_session_id,
-                last_station_tracks.batch_id,
-                feedback_type,
-                track_id,
-                total_played_seconds
+                                                          radio_session_id,
+                                                          last_station_tracks.batch_id,
+                                                          feedback_type,
+                                                          track_id,
+                                                          total_played_seconds
             );
 
             Idle.add (send_feedback.callback);
@@ -118,14 +113,14 @@ public sealed class CassetteClient.PlayerFlow: PlayerMode {
         int index = current_index;
 
         switch (index) {
-            case -1:
-            case 0:
-                index = -1;
-                break;
+        case -1 :
+        case 0 :
+            index = -1;
+            break;
 
-            default:
-                index--;
-                break;
+            default :
+            index--;
+            break;
         }
 
         return index;
@@ -135,29 +130,27 @@ public sealed class CassetteClient.PlayerFlow: PlayerMode {
         var index = current_index;
 
         switch (player.repeat_mode) {
-            case RepeatMode.OFF:
+        case RepeatMode.OFF:
+            if (index + 1 == queue.size) {
+                index = -1;
+            } else {
+                index++;
+            }
+            break;
+
+        case RepeatMode.ONE:
+            if (!consider_repeat_mode) {
                 if (index + 1 == queue.size) {
                     index = -1;
-
                 } else {
                     index++;
                 }
-                break;
+            }
+            break;
 
-            case RepeatMode.ONE:
-                if (!consider_repeat_mode) {
-                    if (index + 1 == queue.size) {
-                        index = -1;
-
-                    } else {
-                        index++;
-                    }
-                }
-                break;
-
-            default:
-                Logger.error ("Flow with `RepeatMode.QUEUE unsupported");
-                break;
+        default:
+            Logger.error ("Flow with `RepeatMode.QUEUE unsupported");
+            break;
         }
 
         return index;
@@ -178,12 +171,12 @@ public sealed class CassetteClient.PlayerFlow: PlayerMode {
         var current_track = get_current_track_info ();
 
         return new YaMAPI.Play () {
-            track_length_seconds = ((double) current_track.duration_ms) / 1000.0,
-            track_id = current_track.id,
-            album_id = current_track.albums.size > 0 ? current_track.albums[0].id : null,
-            context = context_type,
-            context_item = context_id,
-            radio_session_id = radio_session_id
+                   track_length_seconds = ((double) current_track.duration_ms) / 1000.0,
+                   track_id = current_track.id,
+                   album_id = current_track.albums.size > 0 ? current_track.albums[0].id : null,
+                   context = context_type,
+                   context_item = context_id,
+                   radio_session_id = radio_session_id
         };
     }
 }

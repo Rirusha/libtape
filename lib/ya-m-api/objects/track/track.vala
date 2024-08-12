@@ -17,17 +17,17 @@
 
 using Gee;
 
-public class CassetteClient.YaMAPI.Track: YaMObject, HasCover {
+public class Tape.YaMAPI.Track : YaMObject, HasCover {
 
     public bool is_explicit {
         get {
-            return content_warning == "explicit"? true : false;
+            return content_warning == "explicit" ? true : false;
         }
     }
 
     public bool is_ugc {
         get {
-            return track_source == "UGC"? true : false;
+            return track_source == "UGC" ? true : false;
         }
     }
 
@@ -53,14 +53,14 @@ public class CassetteClient.YaMAPI.Track: YaMObject, HasCover {
     public TrackType track_type {
         get {
             switch (type_) {
-                case "audiobook":
-                    return TrackType.AUDIOBOOK;
-                case "podcast-episode":
-                    return TrackType.PODCAST;
-                case "local":
-                    return TrackType.LOCAL;
-                default:
-                    return TrackType.MUSIC;
+            case "audiobook":
+                return TrackType.AUDIOBOOK;
+            case "podcast-episode":
+                return TrackType.PODCAST;
+            case "local":
+                return TrackType.LOCAL;
+            default:
+                return TrackType.MUSIC;
             }
         }
     }
@@ -133,7 +133,7 @@ public class CassetteClient.YaMAPI.Track: YaMObject, HasCover {
         if (!albums.is_empty) {
             album_title = albums[0].title;
         } else {
-            album_title = meta_data?.album;
+            album_title = meta_data ? .album;
         }
 
         return album_title != null ? album_title : "Unknown Album";

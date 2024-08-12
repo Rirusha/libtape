@@ -20,7 +20,7 @@ using Gee;
 /**
  * Dashboard with user stations
  */
-public class CassetteClient.YaMAPI.Rotor.Dashboard: YaMObject {
+public class Tape.YaMAPI.Rotor.Dashboard : YaMObject {
 
     /**
      * Dashboard id

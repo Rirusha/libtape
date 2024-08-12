@@ -18,7 +18,7 @@
 /**
  * Track parameters object
  */
-public class CassetteClient.YaMAPI.Rotor.TrackParameters: YaMObject {
+public class Tape.YaMAPI.Rotor.TrackParameters : YaMObject {
 
     /**
      * Bits per minutes.

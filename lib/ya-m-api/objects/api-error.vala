@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-public class CassetteClient.YaMAPI.ApiError: YaMObject {
+public class Tape.YaMAPI.ApiError : YaMObject {
 
     public string msg {
         owned get {

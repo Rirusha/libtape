@@ -1,5 +1,5 @@
 project(
-  'libcassette-1',
+  'libtape-1',
   ['c', 'vala'],
   version: '0.2.0',
   meson_version: '>= 0.62.0',
@@ -9,7 +9,7 @@ project(
 add_project_arguments(
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
   '-include', 'config.h',
-  language: ['c']
+  language: ['c'],
 )
 
 glib_min_version = '2.76'
@@ -18,7 +18,7 @@ add_project_arguments(
   '--hide-internal',
   '--target-glib', glib_min_version,
   '--vapidir', meson.current_source_dir(),
-  language: ['vala']
+  language: ['vala'],
 )
 
 pkgconfig = import('pkgconfig')
@@ -34,7 +34,7 @@ libxml = dependency('libxml-2.0')
 gstreamer = dependency('gstreamer-1.0')
 gio = dependency('gio-2.0', version: '>= 2.72')
 
-library_name = 'libcassette'
+library_name = 'libtape'
 
 conf = configuration_data()
 conf.set_quoted('LIBRARY_NAME', library_name)
@@ -46,7 +46,7 @@ conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
 conf.set_quoted('DATADIR', join_paths(get_option('prefix'), get_option('datadir')))
 conf.set_quoted('GNOMELOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))
 
-libcassette_dependencies = [
+libtape_dependencies = [
   threads,
   libsoup,
   jsonglib,

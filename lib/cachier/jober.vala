@@ -3,21 +3,21 @@
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 3
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
 using Gee;
 
-public class CassetteClient.Jober: Object {
+public class Tape.Jober : Object {
 
     public ArrayList<Job> job_list { get; default = new ArrayList<Job> (); }
 
@@ -28,7 +28,7 @@ public class CassetteClient.Jober: Object {
     /**
      * Находит job в списке job'ов. Если таковой нет, возвращает null
      */
-    Job? find_job (YaMAPI.HasTracks yam_obj) {
+    Job ? find_job (YaMAPI.HasTracks yam_obj) {
         foreach (var job in job_list) {
             if (yam_obj.oid == job.yam_object.oid) {
                 return job;
@@ -66,10 +66,10 @@ public class CassetteClient.Jober: Object {
      * @return          `Job` object or `null` if object already
      *                  cacheing
      */
-    public Job? start_cache_obj (YaMAPI.HasTracks yam_obj) {
+    public Job ? start_cache_obj (YaMAPI.HasTracks yam_obj) {
         /**
             Начать сохранение объекта с треками
-        */
+         */
 
         Job? job;
 
@@ -106,9 +106,7 @@ public class CassetteClient.Jober: Object {
 
                 try {
                     new_obj = yield client.yam_talker.get_playlist_info_async (pl_obj.playlist_uuid);
-
                 } catch (BadStatusCodeError e) {}
-
             } else {
                 assert_not_reached ();
             }
