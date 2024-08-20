@@ -90,7 +90,6 @@ client_sources = files(
   'likes-controller.vala',
   'logger.vala',
   'settings.vala',
-  'threader.vala',
   'utils.vala',
   'ya-m-talker.vala',
 )
