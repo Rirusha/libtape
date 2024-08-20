@@ -77,7 +77,7 @@ public sealed class Tape.SoupWrapper : Object {
         }
 
         if (cookies_file_path != null) {
-            var cookie_jar = new Soup.CookieJarDB (cookies_file_path, true);
+            var cookie_jar = new Soup.CookieJarDB (cookies_file_path, false);
             session.add_feature (cookie_jar);
 
             Logger.debug (_("Cookies updated. New cookies file: '%s'").printf (cookies_file_path));
@@ -103,7 +103,7 @@ public sealed class Tape.SoupWrapper : Object {
         }
     }
 
-    void add_params_to_uri (string[, ]? parameters, ref string uri) {
+    void add_params_to_uri (string[,]? parameters, ref string uri) {
         string[] parameters_pairs = new string[parameters.length[0]];
         for (int i = 0; i < parameters.length[0]; i++) {
             parameters_pairs[i] = parameters[i, 0] + "=" + Uri.escape_string (parameters[i, 1]);
@@ -111,10 +111,12 @@ public sealed class Tape.SoupWrapper : Object {
         uri += "?" + string.joinv ("&", parameters_pairs);
     }
 
-    Soup.Message message_get (owned string uri,
-                              string[]? header_preset_names = null,
-                              string[, ]? parameters = null,
-                              Header[]? headers = null) {
+    Soup.Message message_get (
+        owned string uri,
+        string[]? header_preset_names = null,
+        string[,]? parameters = null,
+        Header[]? headers = null
+    ) {
         if (parameters != null) {
             add_params_to_uri (parameters, ref uri);
         }
@@ -133,11 +135,13 @@ public sealed class Tape.SoupWrapper : Object {
         return msg;
     }
 
-    Soup.Message message_post (owned string uri,
-                               string[]? header_preset_names = null,
-                               PostContent? post_content = null,
-                               string[, ]? parameters = null,
-                               Header[]? headers = null) {
+    Soup.Message message_post (
+        owned string uri,
+        string[]? header_preset_names = null,
+        PostContent? post_content = null,
+        string[,]? parameters = null,
+        Header[]? headers = null
+    ) {
         if (parameters != null) {
             add_params_to_uri (parameters, ref uri);
         }
@@ -163,7 +167,10 @@ public sealed class Tape.SoupWrapper : Object {
         return msg;
     }
 
-    void check_status_code (Soup.Message msg, Bytes bytes) throws ClientError, BadStatusCodeError {
+    void check_status_code (
+        Soup.Message msg,
+        Bytes bytes
+    ) throws ClientError, BadStatusCodeError {
         if (msg.status_code == Soup.Status.OK) {
             return;
         }
@@ -185,8 +192,10 @@ public sealed class Tape.SoupWrapper : Object {
         switch (msg.status_code) {
         case Soup.Status.BAD_REQUEST :
             throw new BadStatusCodeError.BAD_REQUEST (error.msg);
+
         case Soup.Status.NOT_FOUND :
             throw new BadStatusCodeError.NOT_FOUND (error.msg);
+
         case Soup.Status.FORBIDDEN :
             throw new BadStatusCodeError.UNAUTHORIZE_ERROR (error.msg);
             default :
@@ -194,79 +203,48 @@ public sealed class Tape.SoupWrapper : Object {
         }
     }
 
-    Bytes run_sync (Soup.Message msg) throws ClientError, BadStatusCodeError {
-        Bytes bytes = null;
+    async GLib.Bytes run_async (
+        Soup.Message msg,
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws ClientError, BadStatusCodeError {
+        GLib.Bytes bytes = null;
 
         try {
-            bytes = session.send_and_read (msg);
+            bytes = yield session.send_and_read_async (msg, priority, cancellable);
         } catch (Error e) {
             throw new ClientError.SOUP_ERROR ("%s %s: %s".printf (msg.method,
                                                                   msg.uri.to_string (),
                                                                   e.message));
         }
-
+ 
         check_status_code (msg, bytes);
 
         return bytes;
     }
 
-    async Bytes ? run_async (Soup.Message msg,
-                             int priority = Priority.DEFAULT,
-                             Cancellable? cancellable = null) throws ClientError, BadStatusCodeError {
-        Bytes bytes = null;
-
-        try {
-            bytes = yield session.send_and_read_async (msg, priority, cancellable);
-        } catch (Error e) {
-            throw new ClientError.SOUP_ERROR ("%s %s: %s".printf (
-                                                                  msg.method,
-                                                                  msg.uri.to_string (),
-                                                                  e.message
-            ));
-        }
-
-        check_status_code (msg, bytes);
-
-        return bytes;
-    }
-
-    public Bytes get_sync (owned string uri,
-                           string[]? header_preset_names = null,
-                           string[, ]? parameters = null,
-                           Header[]? headers = null) throws ClientError, BadStatusCodeError {
-        var msg = message_get (uri, header_preset_names, parameters, headers);
-
-        return run_sync (msg);
-    }
-
-    public async Bytes get_async (owned string uri,
-                                  string[]? header_preset_names = null,
-                                  string[, ]? parameters = null,
-                                  Header[]? headers = null,
-                                  int priority = Priority.DEFAULT,
-                                  Cancellable? cancellable = null) throws ClientError, BadStatusCodeError {
+    public async GLib.Bytes get_async (
+        owned string uri,
+        string[]? header_preset_names = null,
+        string[,]? parameters = null,
+        Header[]? headers = null,
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws ClientError, BadStatusCodeError {
         var msg = message_get (uri, header_preset_names, parameters, headers);
 
         return yield run_async (msg, priority, cancellable);
     }
 
-    public Bytes post_sync (owned string uri,
-                            string[]? header_preset_names = null,
-                            PostContent? post_content = null,
-                            string[, ]? parameters = null,
-                            Header[]? headers = null) throws ClientError, BadStatusCodeError {
-        var msg = message_post (uri, header_preset_names, post_content, parameters, headers);
-
-        return run_sync (msg);
-    }
-
-    public async Bytes post_async (owned string uri,
-                                   string[]? header_preset_names = null,
-                                   PostContent? post_content = null,
-                                   string[, ]? parameters = null,
-                                   Header[]? headers = null,
-                                   int priority = Priority.DEFAULT,
-                                   Cancellable? cancellable = null) throws ClientError, BadStatusCodeError {
+    public async GLib.Bytes post_async (
+        owned string uri,
+        string[]? header_preset_names = null,
+        PostContent? post_content = null,
+        string[,]? parameters = null,
+        Header[]? headers = null,
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws ClientError, BadStatusCodeError {
         var msg = message_post (uri, header_preset_names, post_content, parameters, headers);
 
         return yield run_async (msg, priority, cancellable);
