@@ -15,9 +15,9 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-using CassetteClient.YaMAPI.Rotor;
+using Tape.YaMAPI.Rotor;
 
-public sealed class CassetteClient.YaMAPI.YaMClient : Object {
+public sealed class Tape.YaMAPI.YaMClient : Object {
 
     const string YAM_BASE_URL = "https://api.music.yandex.net";
 
@@ -928,7 +928,7 @@ public sealed class CassetteClient.YaMAPI.YaMClient : Object {
     /**
      * Метод для получения всех возможных настроек волны
      *
-     * @return  объект `CassetteClient.YaMAPI.Rotor.Settings`, содержащий все настройки
+     * @return  объект `Tape.YaMAPI.Rotor.Settings`, содержащий все настройки
      */
     public Rotor.Settings rotor_wave_settings () throws ClientError, BadStatusCodeError {
         var bytes = soup_wrapper.get_sync (
