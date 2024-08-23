@@ -117,9 +117,11 @@ public sealed class Tape.SoupWrapper : Object {
     void add_params_to_uri (string[,]? parameters,
                             ref string uri) {
         string[] parameters_pairs = new string[parameters.length[0]];
+
         for (int i = 0; i < parameters.length[0]; i++) {
             parameters_pairs[i] = parameters[i, 0] + "=" + Uri.escape_string (parameters[i, 1]);
         }
+
         uri += "?" + string.joinv ("&", parameters_pairs);
     }
 
@@ -166,6 +168,7 @@ public sealed class Tape.SoupWrapper : Object {
                 append_headers_with_preset_to (msg, preset_name);
             }
         }
+
         if (headers != null) {
             append_headers_to (msg, headers);
         }
@@ -195,16 +198,16 @@ public sealed class Tape.SoupWrapper : Object {
         error.status_code = msg.status_code;
 
         switch (msg.status_code) {
-            case Soup.Status.BAD_REQUEST :
+            case Soup.Status.BAD_REQUEST:
                 throw new BadStatusCodeError.BAD_REQUEST (error.msg);
 
-            case Soup.Status.NOT_FOUND :
+            case Soup.Status.NOT_FOUND:
                 throw new BadStatusCodeError.NOT_FOUND (error.msg);
 
-            case Soup.Status.FORBIDDEN :
+            case Soup.Status.FORBIDDEN:
                 throw new BadStatusCodeError.UNAUTHORIZE_ERROR (error.msg);
 
-                default :
+            default:
                 throw new BadStatusCodeError.UNKNOWN (msg.status_code.to_string () + ": " + error.msg);
         }
     }
@@ -249,8 +252,7 @@ public sealed class Tape.SoupWrapper : Object {
                                         string[,]? parameters = null,
                                         Header[]? headers = null,
                                         int priority = Priority.DEFAULT,
-                                        Cancellable? cancellable = null
-                                        ) throws ClientError, BadStatusCodeError {
+                                        Cancellable? cancellable = null) throws ClientError, BadStatusCodeError {
         var msg = message_post (uri, header_preset_names, post_content, parameters, headers);
 
         return yield run_async (msg,
