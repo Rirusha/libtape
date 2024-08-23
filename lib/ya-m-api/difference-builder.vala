@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 using Gee;
@@ -24,11 +26,11 @@ public class Tape.YaMAPI.InsertOperation : Object {
     public ArrayList<Track> tracks { get; set; }
 
     public InsertOperation (int at,
-        Track[] tracks) {
+                            Track[] tracks) {
         Object (
-                at: at,
-                tracks: new ArrayList<Track>.wrap (tracks)
-        );
+            at: at,
+            tracks: new ArrayList<Track>.wrap (tracks)
+            );
     }
 }
 
@@ -38,7 +40,8 @@ public class Tape.YaMAPI.DeleteOperation : Object {
 
     public int to { get; construct; }
 
-    public DeleteOperation (int from, int to) {
+    public DeleteOperation (int from,
+                            int to) {
         Object (from: from, to: to);
     }
 }
@@ -48,11 +51,13 @@ public class Tape.YaMAPI.DifferenceBuilder : Object {
     ArrayList<DeleteOperation> delete_operations = new ArrayList<DeleteOperation> ();
     ArrayList<InsertOperation> insert_operations = new ArrayList<InsertOperation> ();
 
-    public void add_insert (int at, Track[] tracks) {
+    public void add_insert (int at,
+                            Track[] tracks) {
         insert_operations.add (new InsertOperation (at, tracks));
     }
 
-    public void add_delete (int from, int to) {
+    public void add_delete (int from,
+                            int to) {
         delete_operations.add (new DeleteOperation (from, to));
     }
 

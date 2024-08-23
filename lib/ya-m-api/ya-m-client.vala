@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 using Tape.YaMAPI.Rotor;
@@ -40,13 +42,13 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string version = Environment.get_os_info (OsInfoKey.VERSION);
 
         soup_wrapper.add_headers_preset (
-                                         "device",
-                                         { {
-                                               "X-Yandex-Music-Device",
-                                               "os=%s; os_version=%s; manufacturer=%s; model=%s; clid=; device_id=random; uuid=random".printf (
-                                                                                                                                               os, version, "Rirusha", "Yandex Music API"
-                                               )
-                                           } });
+            "device",
+            { {
+                  "X-Yandex-Music-Device",
+                  "os=%s; os_version=%s; manufacturer=%s; model=%s; clid=; device_id=random; uuid=random".printf (
+                      os, version, "Rirusha", "Yandex Music API"
+                      )
+              } });
     }
 
     public void init () throws ClientError, BadStatusCodeError {
@@ -60,10 +62,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         post_content.set_datalist (datalist);
 
         var bytes = soup_wrapper.post_sync (
-                                            "https://oauth.yandex.ru/token",
-                                            null,
-                                            post_content
-        );
+            "https://oauth.yandex.ru/token",
+            null,
+            post_content
+            );
         var jsoner = Jsoner.from_bytes (bytes, { "access_token" }, Case.SNAKE);
 
         var val = jsoner.deserialize_value ();
@@ -72,13 +74,13 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             string token = val.get_string ();
 
             soup_wrapper.add_headers_preset (
-                                             "default",
+                "default",
             {
                 { "Authorization", @"OAuth $token" },
                 { "X-Yandex-Music-Client", "YandexMusicAndroid/24023231" }
             });
             soup_wrapper.add_headers_preset (
-                                             "auth",
+                "auth",
             {
                 { "Authorization", @"OAuth $token" }
             });
@@ -144,8 +146,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
      */
     public Account.About account_about () throws ClientError, BadStatusCodeError {
         var bytes = soup_wrapper.get_sync (
-                                           @"$(YAM_BASE_URL)/account/about",
-                                           { "default" });
+            @"$(YAM_BASE_URL)/account/about",
+            { "default" });
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -167,8 +169,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
                               bool resume_stream,
                               bool rich_tracks) throws ClientError, BadStatusCodeError {
         var bytes = soup_wrapper.get_sync (
-                                           @"$(YAM_BASE_URL)/playlist/$playlist_uuid",
-                                           { "default" },
+            @"$(YAM_BASE_URL)/playlist/$playlist_uuid",
+            { "default" },
         {
             { "resumeStream", resume_stream.to_string () },
             { "richTracks", rich_tracks.to_string () }
@@ -265,12 +267,13 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     /**
      *
      */
-    public Gee.ArrayList<Playlist> users_playlists_list (owned string? uid = null) throws ClientError, BadStatusCodeError {
+    public Gee.ArrayList<Playlist> users_playlists_list (owned string? uid = null) throws ClientError,
+    BadStatusCodeError {
         check_uid (ref uid);
 
         Bytes bytes = soup_wrapper.get_sync (
-                                             @"$(YAM_BASE_URL)/users/$uid/playlists/list",
-                                             { "default" });
+            @"$(YAM_BASE_URL)/users/$uid/playlists/list",
+            { "default" });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var playlist_array = new Gee.ArrayList<Playlist> ();
@@ -288,9 +291,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.get_sync (
-                                           @"$(YAM_BASE_URL)/users/$uid/playlists/$playlist_kind",
-                                           { "default" },
-                                           { { "richTracks", rich_tracks.to_string () } });
+            @"$(YAM_BASE_URL)/users/$uid/playlists/$playlist_kind",
+            { "default" },
+            { { "richTracks", rich_tracks.to_string () } });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         return (Playlist) jsoner.deserialize_object (typeof (Playlist));
@@ -300,7 +303,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
      *
      */
     public void users_playlists_playlist_change_relative (string playlist_kind,
-                                                          owned string? uid = null) throws ClientError, BadStatusCodeError {
+                                                          owned string? uid = null) throws ClientError,
+    BadStatusCodeError {
         check_uid (ref uid);
     }
 
@@ -309,8 +313,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         Bytes bytes = soup_wrapper.post_sync (
-                                              @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/delete",
-                                              { "default" });
+            @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/delete",
+            { "default" });
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
         if (jsoner.root != null) {
@@ -334,10 +338,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         post_content.set_datalist (datalist);
 
         Bytes bytes = soup_wrapper.post_sync (
-                                              @"$(YAM_BASE_URL)/users/$(uid)/playlists/$kind/change",
-                                              { "default" },
-                                              post_content
-        );
+            @"$(YAM_BASE_URL)/users/$(uid)/playlists/$kind/change",
+            { "default" },
+            post_content
+            );
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -357,10 +361,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         post_content.set_datalist (datalist);
 
         Bytes bytes = soup_wrapper.post_sync (
-                                              @"$(YAM_BASE_URL)/users/$uid/playlists/create",
-                                              { "default" },
-                                              post_content
-        );
+            @"$(YAM_BASE_URL)/users/$uid/playlists/create",
+            { "default" },
+            post_content
+            );
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -379,10 +383,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         post_content.set_datalist (datalist);
 
         Bytes bytes = soup_wrapper.post_sync (
-                                              @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/name",
-                                              { "default" },
-                                              post_content
-        );
+            @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/name",
+            { "default" },
+            post_content
+            );
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -390,12 +394,13 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     }
 
     public PlaylistRecommendations users_playlists_recommendations (owned string? uid,
-                                                                    string kind) throws ClientError, BadStatusCodeError {
+                                                                    string kind) throws ClientError,
+    BadStatusCodeError {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.get_sync (
-                                           @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/recommendations",
-                                           { "default" });
+            @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/recommendations",
+            { "default" });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         return (PlaylistRecommendations) jsoner.deserialize_object (typeof (PlaylistRecommendations));
@@ -413,10 +418,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         post_content.set_datalist (datalist);
 
         Bytes bytes = soup_wrapper.post_sync (
-                                              @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/visibility",
-                                              { "default" },
-                                              post_content
-        );
+            @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/visibility",
+            { "default" },
+            post_content
+            );
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -442,10 +447,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED, post_builder.free_and_steal () };
 
         Bytes bytes = soup_wrapper.post_sync (
-                                              @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/cover/upload",
-                                              { "default" },
-                                              post_content
-        );
+            @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/cover/upload",
+            { "default" },
+            post_content
+            );
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -458,8 +463,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         Bytes bytes = soup_wrapper.post_sync (
-                                              @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/cover/clear",
-                                              { "default" });
+            @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/cover/clear",
+            { "default" });
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -483,12 +488,13 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     /**
      *
      */
-    public Gee.ArrayList<LikedPlaylist> users_likes_playlists (owned string? uid = null) throws ClientError, BadStatusCodeError {
+    public Gee.ArrayList<LikedPlaylist> users_likes_playlists (owned string? uid = null) throws ClientError,
+    BadStatusCodeError {
         check_uid (ref uid);
 
         Bytes bytes = soup_wrapper.get_sync (
-                                             @"$(YAM_BASE_URL)/users/$uid/likes/playlists",
-                                             { "default" });
+            @"$(YAM_BASE_URL)/users/$uid/likes/playlists",
+            { "default" });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var playlist_array = new Gee.ArrayList<LikedPlaylist> ();
@@ -504,10 +510,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/users/$uid/likes/tracks/add",
-                                            { "default" },
-                                            null,
-                                            { { "track-id", track_id } });
+            @"$(YAM_BASE_URL)/users/$uid/likes/tracks/add",
+            { "default" },
+            null,
+            { { "track-id", track_id } });
         var jsoner = Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
@@ -526,8 +532,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/users/$uid/likes/tracks/$track_id/remove",
-                                            { "default" });
+            @"$(YAM_BASE_URL)/users/$uid/likes/tracks/$track_id/remove",
+            { "default" });
         var jsoner = Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
@@ -539,13 +545,14 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     }
 
     public Gee.ArrayList<TrackShort> users_dislikes_tracks (owned string? uid,
-                                                            int if_modified_since_revision = 0) throws ClientError, BadStatusCodeError {
+                                                            int if_modified_since_revision = 0) throws ClientError,
+    BadStatusCodeError {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.get_sync (
-                                           @"$(YAM_BASE_URL)/users/$uid/dislikes/tracks",
-                                           { "default" },
-                                           { { "if_modified_since_revision", if_modified_since_revision.to_string () } });
+            @"$(YAM_BASE_URL)/users/$uid/dislikes/tracks",
+            { "default" },
+            { { "if_modified_since_revision", if_modified_since_revision.to_string () } });
         var jsoner = Jsoner.from_bytes (bytes, { "result", "library", "tracks" }, Case.CAMEL);
 
         var our_array = new Gee.ArrayList<TrackShort> ();
@@ -562,10 +569,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/users/$uid/dislikes/tracks/add",
-                                            { "default" },
-                                            null,
-                                            { { "track-id", track_id } });
+            @"$(YAM_BASE_URL)/users/$uid/dislikes/tracks/add",
+            { "default" },
+            null,
+            { { "track-id", track_id } });
         var jsoner = Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
@@ -584,8 +591,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/users/$uid/dislikes/tracks/$track_id/remove",
-                                            { "default" });
+            @"$(YAM_BASE_URL)/users/$uid/dislikes/tracks/$track_id/remove",
+            { "default" });
         var jsoner = Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
@@ -604,10 +611,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/users/$uid/likes/artists/add",
-                                            { "default" },
-                                            null,
-                                            { { "artist-id", artist_id } });
+            @"$(YAM_BASE_URL)/users/$uid/likes/artists/add",
+            { "default" },
+            null,
+            { { "artist-id", artist_id } });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
@@ -626,8 +633,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/users/$uid/likes/artists/$artist_id/remove",
-                                            { "default" });
+            @"$(YAM_BASE_URL)/users/$uid/likes/artists/$artist_id/remove",
+            { "default" });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
@@ -646,10 +653,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/users/$uid/dislikes/artists/add",
-                                            { "default" },
-                                            null,
-                                            { { "artist-id", artist_id } });
+            @"$(YAM_BASE_URL)/users/$uid/dislikes/artists/add",
+            { "default" },
+            null,
+            { { "artist-id", artist_id } });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
@@ -668,8 +675,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/users/$uid/dislikes/artists/$artist_id/remove",
-                                            { "default" });
+            @"$(YAM_BASE_URL)/users/$uid/dislikes/artists/$artist_id/remove",
+            { "default" });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
@@ -688,10 +695,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/users/$uid/likes/albums/add",
-                                            { "default" },
-                                            null,
-                                            { { "album-id", album_id } });
+            @"$(YAM_BASE_URL)/users/$uid/likes/albums/add",
+            { "default" },
+            null,
+            { { "album-id", album_id } });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
@@ -710,8 +717,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/users/$uid/likes/albums/$album_id/remove",
-                                            { "default" });
+            @"$(YAM_BASE_URL)/users/$uid/likes/albums/$album_id/remove",
+            { "default" });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
@@ -732,9 +739,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/users/$uid/likes/playlists/add",
-                                            { "default" },
-                                            null,
+            @"$(YAM_BASE_URL)/users/$uid/likes/playlists/add",
+            { "default" },
+            null,
         {
             { "playlist-uuid", playlist_uid },
             { "owner-uid", owner_uid },
@@ -758,8 +765,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         check_uid (ref uid);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/users/$uid/likes/playlists/$playlist_uid/remove",
-                                            { "default" });
+            @"$(YAM_BASE_URL)/users/$uid/likes/playlists/$playlist_uid/remove",
+            { "default" });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
@@ -803,8 +810,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
      */
     public Library.AllIds library_all_ids () throws ClientError, BadStatusCodeError {
         var bytes = soup_wrapper.get_sync (
-                                           @"$(YAM_BASE_URL)/library/all-ids",
-                                           { "default" });
+            @"$(YAM_BASE_URL)/library/all-ids",
+            { "default" });
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -877,10 +884,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         };
 
         Bytes bytes = soup_wrapper.post_sync (
-                                              @"$(YAM_BASE_URL)/rotor/session/new",
-                                              { "default" },
-                                              post_content
-        );
+            @"$(YAM_BASE_URL)/rotor/session/new",
+            { "default" },
+            post_content
+            );
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -898,10 +905,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         };
 
         Bytes bytes = soup_wrapper.post_sync (
-                                              @"$(YAM_BASE_URL)/rotor/session/$radio_session_id/tracks",
-                                              { "default" },
-                                              post_content
-        );
+            @"$(YAM_BASE_URL)/rotor/session/$radio_session_id/tracks",
+            { "default" },
+            post_content
+            );
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -919,10 +926,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         };
 
         soup_wrapper.post_sync (
-                                @"$(YAM_BASE_URL)/rotor/session/$radio_session_id/feedback",
-                                { "default" },
-                                post_content
-        );
+            @"$(YAM_BASE_URL)/rotor/session/$radio_session_id/feedback",
+            { "default" },
+            post_content
+            );
     }
 
     /**
@@ -932,9 +939,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
      */
     public Rotor.Settings rotor_wave_settings () throws ClientError, BadStatusCodeError {
         var bytes = soup_wrapper.get_sync (
-                                           @"$(YAM_BASE_URL)/rotor/wave/settings",
-                                           { "default" },
-                                           { { "language", get_language () } });
+            @"$(YAM_BASE_URL)/rotor/wave/settings",
+            { "default" },
+            { { "language", get_language () } });
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -946,9 +953,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
      */
     public Rotor.Wave rotor_wave_last () throws ClientError, BadStatusCodeError {
         var bytes = soup_wrapper.get_sync (
-                                           @"$(YAM_BASE_URL)/rotor/wave/last",
-                                           { "default" },
-                                           { { "language", get_language () } });
+            @"$(YAM_BASE_URL)/rotor/wave/last",
+            { "default" },
+            { { "language", get_language () } });
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -962,8 +969,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
      */
     public bool rotor_wave_last_reset () throws ClientError, BadStatusCodeError {
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/rotor/wave/last/reset",
-                                            { "default" });
+            @"$(YAM_BASE_URL)/rotor/wave/last/reset",
+            { "default" });
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -976,9 +983,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
 
     public Dashboard rotor_stations_dashboard () throws ClientError, BadStatusCodeError {
         var bytes = soup_wrapper.get_sync (
-                                           @"$(YAM_BASE_URL)/rotor/stations/dashboard",
-                                           { "default", "device" },
-                                           { { "language", get_language () } });
+            @"$(YAM_BASE_URL)/rotor/stations/dashboard",
+            { "default", "device" },
+            { { "language", get_language () } });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         return (Dashboard) jsoner.deserialize_object (typeof (Dashboard));
@@ -986,9 +993,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
 
     public Gee.ArrayList<Station> rotor_stations_list () throws ClientError, BadStatusCodeError {
         var bytes = soup_wrapper.get_sync (
-                                           @"$(YAM_BASE_URL)/rotor/stations/list",
-                                           { "default", "device" },
-                                           { { "language", get_language () } });
+            @"$(YAM_BASE_URL)/rotor/stations/list",
+            { "default", "device" },
+            { { "language", get_language () } });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var sl_array = new Gee.ArrayList<Station> ();
@@ -1037,10 +1044,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         };
 
         Bytes bytes = soup_wrapper.post_sync (
-                                              @"$(YAM_BASE_URL)/plays",
-                                              { "default" },
-                                              post_content,
-                                              { { "clientNow", get_timestamp () } });
+            @"$(YAM_BASE_URL)/plays",
+            { "default" },
+            post_content,
+            { { "clientNow", get_timestamp () } });
 
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
@@ -1124,10 +1131,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         post_content.set_datalist (datalist);
 
         var bytes = soup_wrapper.post_sync (
-                                            @"$(YAM_BASE_URL)/tracks",
-                                            { "default" },
-                                            post_content
-        );
+            @"$(YAM_BASE_URL)/tracks",
+            { "default" },
+            post_content
+            );
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var array_list = new Gee.ArrayList<Track> ();
@@ -1153,8 +1160,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
 
     public Gee.ArrayList<DownloadInfo> tracks_download_info (string track_id) throws ClientError, BadStatusCodeError {
         Bytes bytes = soup_wrapper.get_sync (
-                                             @"$(YAM_BASE_URL)/tracks/$track_id/download-info",
-                                             { "default" });
+            @"$(YAM_BASE_URL)/tracks/$track_id/download-info",
+            { "default" });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var di_array = new Gee.ArrayList<DownloadInfo> ();
@@ -1191,7 +1198,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         return @"https://$host/get-mp3/$sign/$ts/$path";
     }
 
-    public Lyrics track_lyrics (string track_id, bool is_sync) throws ClientError, BadStatusCodeError {
+    public Lyrics track_lyrics (string track_id,
+                                bool is_sync) throws ClientError, BadStatusCodeError {
         string format = is_sync ? "LRC" : "TEXT";
         string timestamp = new DateTime.now_utc ().to_unix ().to_string ();
         string msg = @"$track_id$timestamp";
@@ -1204,8 +1212,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string sign = Base64.encode (hmac_sign);
 
         Bytes bytes = soup_wrapper.get_sync (
-                                             @"$(YAM_BASE_URL)/tracks/$track_id/lyrics",
-                                             { "default" },
+            @"$(YAM_BASE_URL)/tracks/$track_id/lyrics",
+            { "default" },
         {
             { "format", format },
             { "timeStamp", timestamp },
@@ -1221,8 +1229,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
 
     public SimilarTracks tracks_similar (string track_id) throws ClientError, BadStatusCodeError {
         Bytes bytes = soup_wrapper.get_sync (
-                                             @"$(YAM_BASE_URL)/tracks/$track_id/similar",
-                                             { "default" });
+            @"$(YAM_BASE_URL)/tracks/$track_id/similar",
+            { "default" });
         var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         return (SimilarTracks) jsoner.deserialize_object (typeof (SimilarTracks));

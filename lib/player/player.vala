@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 using Gee;
@@ -28,15 +30,17 @@ public sealed class Tape.Player : Object {
             _state = value;
 
             switch (_state) {
-            case PlayerState.NONE:
-                playbin.set_state (Gst.State.NULL);
-                break;
-            case PlayerState.PLAYING:
-                playbin.set_state (Gst.State.PLAYING);
-                break;
-            case PlayerState.PAUSED:
-                playbin.set_state (Gst.State.PAUSED);
-                break;
+                case PlayerState.NONE:
+                    playbin.set_state (Gst.State.NULL);
+                    break;
+
+                case PlayerState.PLAYING:
+                    playbin.set_state (Gst.State.PLAYING);
+                    break;
+
+                case PlayerState.PAUSED:
+                    playbin.set_state (Gst.State.PAUSED);
+                    break;
             }
         }
     }
@@ -55,13 +59,13 @@ public sealed class Tape.Player : Object {
 
             if (shufflable_mode != null) {
                 switch (_shuffle_mode) {
-                case ShuffleMode.ON:
-                    shufflable_mode.shuffle ();
-                    break;
+                    case ShuffleMode.ON:
+                        shufflable_mode.shuffle ();
+                        break;
 
-                case ShuffleMode.OFF:
-                    shufflable_mode.unshuffle ();
-                    break;
+                    case ShuffleMode.OFF:
+                        shufflable_mode.unshuffle ();
+                        break;
                 }
 
                 update_player ();
@@ -92,10 +96,10 @@ public sealed class Tape.Player : Object {
     }
 
     public signal void queue_changed (ArrayList<YaMAPI.Track> queue,
-        string context_type,
-        string? context_id,
-        int current_index,
-        string? context_description);
+                                      string context_type,
+                                      string? context_id,
+                                      int current_index,
+                                      string? context_description);
 
     public bool can_go_force_prev {
         get {
@@ -291,10 +295,10 @@ public sealed class Tape.Player : Object {
         }
 
         var flow = new Flow (
-                             this,
-                             station_id,
-                             flow_queue
-        );
+            this,
+            station_id,
+            flow_queue
+            );
 
         mode = flow;
 
@@ -319,13 +323,13 @@ public sealed class Tape.Player : Object {
         stop ();
 
         mode = new TrackList (
-                              this,
-                              queue,
-                              context_type,
-                              context_id,
-                              current_index,
-                              context_description
-        );
+            this,
+            queue,
+            context_type,
+            context_id,
+            current_index,
+            context_description
+            );
 
         mode_inited ();
 
@@ -342,15 +346,17 @@ public sealed class Tape.Player : Object {
 
     public void play_pause () {
         switch (state) {
-        case State.PLAYING :
-            pause ();
-            break;
-        case State.PAUSED :
-            play ();
-            break;
-        default:
-            start_current_track.begin ();
-            break;
+            case State.PLAYING :
+                pause ();
+                break;
+
+            case State.PAUSED :
+                play ();
+                break;
+
+            default:
+                start_current_track.begin ();
+                break;
         }
     }
 
@@ -382,17 +388,17 @@ public sealed class Tape.Player : Object {
         var current_track = mode.get_current_track_info ();
 
         mode.send_play_async.begin (
-                                    play_id,
-                                    natural ? ms2sec (mode.get_current_track_info ().duration_ms) : playback_pos_sec,
-                                    total_played_seconds
-        );
+            play_id,
+            natural ? ms2sec (mode.get_current_track_info ().duration_ms) : playback_pos_sec,
+            total_played_seconds
+            );
 
         if (mode is Flow) {
             ((Flow) mode).send_feedback.begin (
-                                               natural ? YaMAPI.Rotor.FeedbackType.TRACK_FINISHED : YaMAPI.Rotor.FeedbackType.SKIP,
-                                               current_track.id,
-                                               total_played_seconds
-            );
+                natural ? YaMAPI.Rotor.FeedbackType.TRACK_FINISHED : YaMAPI.Rotor.FeedbackType.SKIP,
+                current_track.id,
+                total_played_seconds
+                );
         }
 
         reset_play ();
@@ -475,9 +481,9 @@ public sealed class Tape.Player : Object {
         mode.send_play_async.begin (play_id);
         if (mode is Flow) {
             ((Flow) mode).send_feedback.begin (
-                                               YaMAPI.Rotor.FeedbackType.TRACK_STARTED,
-                                               current_track.id
-            );
+                YaMAPI.Rotor.FeedbackType.TRACK_STARTED,
+                current_track.id
+                );
         }
 
         string? track_uri = yield Cachier.get_track_uri (current_track.id);
@@ -512,7 +518,8 @@ public sealed class Tape.Player : Object {
         }
     }
 
-    public void add_track (YaMAPI.Track track_info, bool is_next) {
+    public void add_track (YaMAPI.Track track_info,
+                           bool is_next) {
         if (mode is Empty) {
             var track_list = new ArrayList<YaMAPI.Track> ();
             track_list.add (track_info);
@@ -541,12 +548,12 @@ public sealed class Tape.Player : Object {
     public void add_many (ArrayList<YaMAPI.Track> track_list) {
         if (mode is Empty) {
             start_track_list (
-                              track_list,
-                              "various",
-                              null,
-                              0,
-                              null
-            );
+                track_list,
+                "various",
+                null,
+                0,
+                null
+                );
             return;
         }
 
@@ -591,13 +598,14 @@ public sealed class Tape.Player : Object {
         }
     }
 
-    public void rotor_feedback (string feedback_type, string track_id) {
+    public void rotor_feedback (string feedback_type,
+                                string track_id) {
         if (mode is Flow && mode.get_current_track_info ().id == track_id) {
             ((Flow) mode).send_feedback.begin (
-                                               feedback_type,
-                                               track_id,
-                                               total_played_seconds
-            );
+                feedback_type,
+                track_id,
+                total_played_seconds
+                );
         }
     }
 }

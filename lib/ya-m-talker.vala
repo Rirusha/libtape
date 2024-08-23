@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 using Tape.YaMAPI;
@@ -30,10 +32,12 @@ public sealed class Tape.YaMTalker : Object {
     public signal void connection_lost ();
 
     public signal void track_likes_start_change (string track_id);
-    public signal void track_likes_end_change (string track_id, bool is_liked);
+    public signal void track_likes_end_change (string track_id,
+                                               bool is_liked);
 
     public signal void track_dislikes_start_change (string track_id);
-    public signal void track_dislikes_end_change (string track_id, bool is_disliked);
+    public signal void track_dislikes_end_change (string track_id,
+                                                  bool is_disliked);
 
     public signal void playlist_changed (YaMAPI.Playlist new_playlist);
     public signal void playlists_updated ();
@@ -71,9 +75,9 @@ public sealed class Tape.YaMTalker : Object {
 
     public static void init () {
         yam_client = new YaMClient (new SoupWrapper (
-                                                     "Cassette Application",
-                                                     Cachier.storager.cookies_file.peek_path ()
-        ));
+                                        "Cassette Application",
+                                        Cachier.storager.cookies_file.peek_path ()
+                                        ));
     }
 
     public void init_if_not () throws BadStatusCodeError, CantUseError {
@@ -96,21 +100,23 @@ public sealed class Tape.YaMTalker : Object {
         }
     }
 
-    void net_run_wout_code (NetFunc net_func, bool should_init = true) {
+    void net_run_wout_code (NetFunc net_func,
+                            bool should_init = true) {
 
         try {
             net_run (net_func, should_init);
         } catch (BadStatusCodeError e) {}
     }
 
-    void net_run (NetFunc net_func, bool should_init = true) throws BadStatusCodeError {
+    void net_run (NetFunc net_func,
+                  bool should_init = true) throws BadStatusCodeError {
         if (should_init) {
             try {
                 init_if_not ();
             } catch (CantUseError e) {
                 Logger.warning ("Can't use error: %s".printf (
-                                                              e.message
-                ));
+                                    e.message
+                                    ));
                 return;
             }
         }
@@ -121,16 +127,16 @@ public sealed class Tape.YaMTalker : Object {
             connection_established ();
         } catch (ClientError e) {
             Logger.warning ("%s: %s".printf (
-                                             e.domain.to_string (),
-                                             e.message
-            ));
+                                e.domain.to_string (),
+                                e.message
+                                ));
 
             connection_lost ();
         } catch (BadStatusCodeError e) {
             Logger.warning ("%s: %s".printf (
-                                             e.domain.to_string (),
-                                             e.message
-            ));
+                                e.domain.to_string (),
+                                e.message
+                                ));
 
             throw e;
         }
@@ -140,7 +146,8 @@ public sealed class Tape.YaMTalker : Object {
         return uid == null || uid == me.uid;
     }
 
-    public bool is_my_liked (string? uid, string kind) {
+    public bool is_my_liked (string? uid,
+                             string kind) {
         return is_me (uid) && kind == "3";
     }
 
@@ -181,7 +188,8 @@ public sealed class Tape.YaMTalker : Object {
     }
 
     // TODO: remove this
-    public Playlist ? get_playlist_info_old (string? uid = null, string kind = "3") throws BadStatusCodeError {
+    public Playlist ? get_playlist_info_old (string? uid = null,
+                                             string kind = "3") throws BadStatusCodeError {
         Playlist? playlist_info = null;
 
         net_run (() => {
@@ -209,9 +217,9 @@ public sealed class Tape.YaMTalker : Object {
             if (object_location.is_tmp && settings.get_boolean ("can-cache")) {
                 storager.save_object (playlist_info, true);
                 cachier.controller.change_state (
-                                                 Cachier.ContentType.PLAYLIST,
-                                                 playlist_info.oid,
-                                                 Cachier.CacheingState.TEMP);
+                    Cachier.ContentType.PLAYLIST,
+                    playlist_info.oid,
+                    Cachier.CacheingState.TEMP);
             }
         });
 
@@ -246,9 +254,9 @@ public sealed class Tape.YaMTalker : Object {
             if (object_location.is_tmp && settings.get_boolean ("can-cache")) {
                 storager.save_object (playlist_info, true);
                 cachier.controller.change_state (
-                                                 Cachier.ContentType.PLAYLIST,
-                                                 playlist_info.oid,
-                                                 Cachier.CacheingState.TEMP);
+                    Cachier.ContentType.PLAYLIST,
+                    playlist_info.oid,
+                    Cachier.CacheingState.TEMP);
             }
         });
 
@@ -327,7 +335,8 @@ public sealed class Tape.YaMTalker : Object {
     // }
     // }
 
-    public string ? get_download_uri (string track_id, bool is_hq) {
+    public string ? get_download_uri (string track_id,
+                                      bool is_hq) {
         string? track_uri = null;
 
         net_run_wout_code (() => {
@@ -347,24 +356,24 @@ public sealed class Tape.YaMTalker : Object {
         threader.add (() => {
             net_run_wout_code (() => {
                 switch (content_type) {
-                    case LikableType.TRACK :
-                        is_ok = client.users_likes_tracks_add (content_id) != 0;
-                        break;
+                        case LikableType.TRACK :
+                            is_ok = client.users_likes_tracks_add (content_id) != 0;
+                            break;
 
-                    case LikableType.PLAYLIST :
-                        is_ok = client.users_likes_playlists_add (content_id, playlist_owner, playlist_kind);
-                        break;
+                        case LikableType.PLAYLIST :
+                            is_ok = client.users_likes_playlists_add (content_id, playlist_owner, playlist_kind);
+                            break;
 
-                    case LikableType.ALBUM :
-                        is_ok = client.users_likes_albums_add (content_id);
-                        break;
+                        case LikableType.ALBUM :
+                            is_ok = client.users_likes_albums_add (content_id);
+                            break;
 
-                    case LikableType.ARTIST :
-                        is_ok = client.users_likes_artists_add (content_id);
-                        break;
+                        case LikableType.ARTIST :
+                            is_ok = client.users_likes_artists_add (content_id);
+                            break;
 
-                        default :
-                        assert_not_reached ();
+                            default :
+                            assert_not_reached ();
                 }
             });
 
@@ -386,31 +395,32 @@ public sealed class Tape.YaMTalker : Object {
         }
     }
 
-    public async void unlike (LikableType content_type, string content_id) {
+    public async void unlike (LikableType content_type,
+                              string content_id) {
         track_likes_start_change (content_id);
         bool is_ok = false;
 
         threader.add (() => {
             net_run_wout_code (() => {
                 switch (content_type) {
-                    case LikableType.TRACK :
-                        is_ok = client.users_likes_tracks_remove (content_id) != 0;
-                        break;
+                        case LikableType.TRACK :
+                            is_ok = client.users_likes_tracks_remove (content_id) != 0;
+                            break;
 
-                    case LikableType.PLAYLIST :
-                        is_ok = client.users_likes_playlists_remove (content_id);
-                        break;
+                        case LikableType.PLAYLIST :
+                            is_ok = client.users_likes_playlists_remove (content_id);
+                            break;
 
-                    case LikableType.ALBUM:
-                        is_ok = client.users_likes_albums_remove (content_id);
-                        break;
+                        case LikableType.ALBUM:
+                            is_ok = client.users_likes_albums_remove (content_id);
+                            break;
 
-                    case LikableType.ARTIST:
-                        is_ok = client.users_likes_artists_remove (content_id);
-                        break;
+                        case LikableType.ARTIST:
+                            is_ok = client.users_likes_artists_remove (content_id);
+                            break;
 
-                    default:
-                        assert_not_reached ();
+                        default:
+                            assert_not_reached ();
                 }
             });
 
@@ -428,23 +438,24 @@ public sealed class Tape.YaMTalker : Object {
         }
     }
 
-    public async void dislike (DislikableType content_type, string content_id) {
+    public async void dislike (DislikableType content_type,
+                               string content_id) {
         track_dislikes_start_change (content_id);
         bool is_ok = false;
 
         threader.add (() => {
             net_run_wout_code (() => {
                 switch (content_type) {
-                    case DislikableType.TRACK:
-                        is_ok = client.users_dislikes_tracks_add (content_id) != 0;
-                        break;
+                        case DislikableType.TRACK:
+                            is_ok = client.users_dislikes_tracks_add (content_id) != 0;
+                            break;
 
-                    case DislikableType.ARTIST:
-                        is_ok = client.users_dislikes_artists_add (content_id);
-                        break;
+                        case DislikableType.ARTIST:
+                            is_ok = client.users_dislikes_artists_add (content_id);
+                            break;
 
-                    default:
-                        assert_not_reached ();
+                        default:
+                            assert_not_reached ();
                 }
             });
 
@@ -464,23 +475,24 @@ public sealed class Tape.YaMTalker : Object {
         }
     }
 
-    public async void undislike (DislikableType content_type, string content_id) {
+    public async void undislike (DislikableType content_type,
+                                 string content_id) {
         track_dislikes_start_change (content_id);
         bool is_ok = false;
 
         threader.add (() => {
             net_run_wout_code (() => {
                 switch (content_type) {
-                    case DislikableType.TRACK:
-                        is_ok = client.users_dislikes_tracks_remove (content_id) != 0;
-                        break;
+                        case DislikableType.TRACK:
+                            is_ok = client.users_dislikes_tracks_remove (content_id) != 0;
+                            break;
 
-                    case DislikableType.ARTIST:
-                        is_ok = client.users_dislikes_artists_remove (content_id);
-                        break;
+                        case DislikableType.ARTIST:
+                            is_ok = client.users_dislikes_artists_remove (content_id);
+                            break;
 
-                    default:
-                        assert_not_reached ();
+                        default:
+                            assert_not_reached ();
                 }
             });
 
@@ -600,7 +612,8 @@ public sealed class Tape.YaMTalker : Object {
         return content;
     }
 
-    public Playlist ? add_track_to_playlist (Track track_info, Playlist playlist_info) {
+    public Playlist ? add_track_to_playlist (Track track_info,
+                                             Playlist playlist_info) {
         return add_tracks_to_playlist ({ track_info }, playlist_info);
     }
 
@@ -609,30 +622,33 @@ public sealed class Tape.YaMTalker : Object {
     // storager.settings.get_boolean ("add-tracks-to-start") ? 0 : playlist_info.track_count,
     // playlist_info.revision
 
-    public Playlist ? add_tracks_to_playlist (Track[] tracks, Playlist playlist_info) {
+    public Playlist ? add_tracks_to_playlist (Track[] tracks,
+                                              Playlist playlist_info) {
         Playlist? new_playlist = null;
 
         var diff = new DifferenceBuilder ();
 
         diff.add_insert (
-                         settings.get_boolean ("add-tracks-to-start") ? 0 : playlist_info.track_count,
-                         tracks
-        );
+            settings.get_boolean ("add-tracks-to-start") ? 0 : playlist_info.track_count,
+            tracks
+            );
 
         net_run_wout_code (() => {
             new_playlist = yam_client.users_playlists_change (
-                                                              null,
-                                                              playlist_info.kind,
-                                                              diff.to_json (),
-                                                              playlist_info.revision
-            );
+                null,
+                playlist_info.kind,
+                diff.to_json (),
+                playlist_info.revision
+                );
             playlist_changed (new_playlist);
         });
 
         return new_playlist;
     }
 
-    public async Playlist ? remove_tracks_from_playlist (string kind, int position, int revision) {
+    public async Playlist ? remove_tracks_from_playlist (string kind,
+                                                         int position,
+                                                         int revision) {
         Playlist? new_playlist = null;
 
         var diff = new DifferenceBuilder ();
@@ -654,7 +670,8 @@ public sealed class Tape.YaMTalker : Object {
         return new_playlist;
     }
 
-    public Playlist ? change_playlist_visibility (string kind, bool is_public) {
+    public Playlist ? change_playlist_visibility (string kind,
+                                                  bool is_public) {
         Playlist? new_playlist = null;
 
         net_run_wout_code (() => {
@@ -693,7 +710,8 @@ public sealed class Tape.YaMTalker : Object {
         return is_success;
     }
 
-    public Playlist ? change_playlist_name (string kind, string new_name) {
+    public Playlist ? change_playlist_name (string kind,
+                                            string new_name) {
         Playlist? new_playlist = null;
 
         net_run_wout_code (() => {
@@ -735,8 +753,8 @@ public sealed class Tape.YaMTalker : Object {
     }
 
     public Rotor.StationTracks? start_new_session (
-                                                   string station_id
-    ) {
+        string station_id
+        ) {
         Rotor.StationTracks? station_tracks = null;
 
         net_run_wout_code (() => {
@@ -765,16 +783,16 @@ public sealed class Tape.YaMTalker : Object {
             };
 
             yam_client.rotor_session_feedback (
-                                               radio_session_id,
-                                               feedback_obj
-            );
+                radio_session_id,
+                feedback_obj
+                );
         });
     }
 
     public Rotor.StationTracks? get_session_tracks (
-                                                    string radio_session_id,
-                                                    Gee.ArrayList<string> queue
-    ) {
+        string radio_session_id,
+        Gee.ArrayList<string> queue
+        ) {
         Rotor.StationTracks? station_tracks = null;
 
         net_run_wout_code (() => {

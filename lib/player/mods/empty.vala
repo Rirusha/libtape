@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 using Gee;
@@ -25,12 +27,12 @@ public sealed class Tape.PlayerEmpty : PlayerMode {
 
     construct {
         player.queue_changed (
-                              new Gee.ArrayList<YaMAPI.Track> (),
-                              "various",
-                              null,
-                              -1,
-                              null
-        );
+            new Gee.ArrayList<YaMAPI.Track> (),
+            "various",
+            null,
+            -1,
+            null
+            );
     }
 
     public override int get_prev_index () {
@@ -47,5 +49,6 @@ public sealed class Tape.PlayerEmpty : PlayerMode {
 
     public override async void send_play_async (string play_id,
                                                 double end_position_seconds = 0.0,
-                                                double total_played_seconds = 0.0) {}
+                                                double total_played_seconds = 0.0) {
+    }
 }

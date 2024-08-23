@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 /**
@@ -63,28 +65,40 @@ public class Tape.YaMAPI.Account.About : YaMObject, HasCover, HasID {
 
     string num_size_to_avatar_size (int size) {
         switch (size) {
-        case 28:
-            return "islands-small";
-        case 34:
-            return "islands-34";
-        case 42:
-            return "islands-middle";
-        case 50:
-            return "islands-50";
-        case 56:
-            return "islands-retina-small";
-        case 68:
-            return "islands-68";
-        case 75:
-            return "islands-75";
-        case 84:
-            return "islands-retina-middle";
-        case 100:
-            return "islands-retina-50";
-        case 200:
-            return "islands-200";
-        default:
-            Logger.error (_("Wrong avatar size: %d. Available values: 28, 34, 42, 50, 68, 75, 84, 100, 200").printf (size));
+            case 28:
+                return "islands-small";
+
+            case 34:
+                return "islands-34";
+
+            case 42:
+                return "islands-middle";
+
+            case 50:
+                return "islands-50";
+
+            case 56:
+                return "islands-retina-small";
+
+            case 68:
+                return "islands-68";
+
+            case 75:
+                return "islands-75";
+
+            case 84:
+                return "islands-retina-middle";
+
+            case 100:
+                return "islands-retina-50";
+
+            case 200:
+                return "islands-200";
+
+            default:
+                Logger.error (_(
+                                  "Wrong avatar size: %d. Available values: 28, 34, 42, 50, 68, 75, 84, 100, 200").
+                              printf (size));
         }
     }
 
@@ -103,9 +117,9 @@ public class Tape.YaMAPI.Account.About : YaMObject, HasCover, HasID {
         var avatar_size = num_size_to_avatar_size (size);
 
         return "https://avatars.yandex.net/get-yapic/%s/%s".printf (
-                                                                    avatar_id,
-                                                                    avatar_size
-        );
+            avatar_id,
+            avatar_size
+            );
     }
 
     public Gee.ArrayList<string> get_cover_items_by_size (int size) {

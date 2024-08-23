@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 using Gee;
@@ -35,10 +37,10 @@ public class Tape.YaMAPI.TrackHeap : YaMObject, HasID, HasTracks {
         foreach (Track track in tracks) {
             if (
                 (track.available && (
-                                     (!track.is_explicit || with_explicit) &&
-                                     (!track.is_suitable_for_children || with_child)
-                 )) || track.id in exception_tracks_ids
-            ) {
+                     (!track.is_explicit || with_explicit) &&
+                     (!track.is_suitable_for_children || with_child)
+                     )) || track.id in exception_tracks_ids
+                ) {
                 out_track_list.add (track);
             }
         }

@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 using Gee;
@@ -42,21 +44,24 @@ public class Tape.YaMAPI.Playlist : YaMObject, HasCover, HasID, HasTracks {
         }
         set {
             switch (value) {
-            case "Мне нравится":
-                // Translators: Playlist with liked tracks
-                _title = _("Liked");
-                break;
-            case "Плейлист дня":
-                // Translators: Playlist that updates every day
-                _title = _("Daily");
-                break;
-            case "":
-                // Translators: Unknown playlist
-                _title = _("Unknown");
-                break;
-            default:
-                _title = value;
-                break;
+                case "Мне нравится":
+                    // Translators: Playlist with liked tracks
+                    _title = _("Liked");
+                    break;
+
+                case "Плейлист дня":
+                    // Translators: Playlist that updates every day
+                    _title = _("Daily");
+                    break;
+
+                case "":
+                    // Translators: Unknown playlist
+                    _title = _("Unknown");
+                    break;
+
+                default:
+                    _title = value;
+                    break;
             }
         }
     }
@@ -113,10 +118,10 @@ public class Tape.YaMAPI.Playlist : YaMObject, HasCover, HasID, HasTracks {
 
     public Playlist.liked () {
         Object (
-                cover : new Cover.liked (),
-                title : _("Liked"),
-                kind : "3"
-        );
+            cover : new Cover.liked (),
+            title : _("Liked"),
+            kind : "3"
+            );
     }
 
     public void filter_by_track_type (TrackType track_type) {
@@ -140,11 +145,11 @@ public class Tape.YaMAPI.Playlist : YaMObject, HasCover, HasID, HasTracks {
             if (
                 (track_short.track.available &&
                  (
-                  (!track_short.track.is_explicit || with_explicit) &&
-                  (!track_short.track.is_suitable_for_children || with_child)
+                     (!track_short.track.is_explicit || with_explicit) &&
+                     (!track_short.track.is_suitable_for_children || with_child)
                  )
                 ) || track_short.id in exception_tracks_ids
-            ) {
+                ) {
                 out_track_list.add (track_short.track);
             }
         }

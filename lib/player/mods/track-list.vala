@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 using Gee;
@@ -20,19 +22,19 @@ using Gee;
 public sealed class Tape.PlayerTrackList : PlayerShufflable {
 
     public PlayerTrackList (Player player,
-        ArrayList<YaMAPI.Track> queue,
-        string context_type,
-        string? context_id,
-        int current_index,
-        string? context_description) {
+                            ArrayList<YaMAPI.Track> queue,
+                            string context_type,
+                            string? context_id,
+                            int current_index,
+                            string? context_description) {
         Object (
-                player: player,
-                queue: queue,
-                context_type: context_type,
-                context_id: context_id,
-                current_index: current_index,
-                context_description: context_description
-        );
+            player: player,
+            queue: queue,
+            context_type: context_type,
+            context_id: context_id,
+            current_index: current_index,
+            context_description: context_description
+            );
     }
 
     construct {
@@ -42,12 +44,12 @@ public sealed class Tape.PlayerTrackList : PlayerShufflable {
 
     void change_queue () {
         player.queue_changed (
-                              queue,
-                              context_type,
-                              context_id,
-                              current_index,
-                              context_description
-        );
+            queue,
+            context_type,
+            context_id,
+            current_index,
+            context_description
+            );
     }
 
     public override void next (bool consider_repeat_mode) {
@@ -57,11 +59,11 @@ public sealed class Tape.PlayerTrackList : PlayerShufflable {
             current_index = new_index;
         } else {
             player.start_flow (
-                               "%s:%s".printf (
-                                               context_type,
-                                               context_id.replace (":", "_")
-                               ),
-                               queue);
+                "%s:%s".printf (
+                    context_type,
+                    context_id.replace (":", "_")
+                    ),
+                queue);
         }
     }
 
@@ -69,31 +71,31 @@ public sealed class Tape.PlayerTrackList : PlayerShufflable {
         int index = current_index;
 
         switch (player.repeat_mode) {
-        case RepeatMode.OFF:
-            if (index + 1 == queue.size) {
-                index = -1;
-            } else {
-                index++;
-            }
-            break;
-
-        case RepeatMode.ONE:
-            if (!consider_repeat_one) {
+            case RepeatMode.OFF:
                 if (index + 1 == queue.size) {
                     index = -1;
                 } else {
                     index++;
                 }
-            }
-            break;
+                break;
 
-        case RepeatMode.QUEUE:
-            if (index + 1 == queue.size) {
-                index = 0;
-            } else {
-                index++;
-            }
-            break;
+            case RepeatMode.ONE:
+                if (!consider_repeat_one) {
+                    if (index + 1 == queue.size) {
+                        index = -1;
+                    } else {
+                        index++;
+                    }
+                }
+                break;
+
+            case RepeatMode.QUEUE:
+                if (index + 1 == queue.size) {
+                    index = 0;
+                } else {
+                    index++;
+                }
+                break;
         }
 
         return index;
@@ -103,21 +105,21 @@ public sealed class Tape.PlayerTrackList : PlayerShufflable {
         int index = current_index;
 
         switch (index) {
-        case -1:
-            index = -1;
-            break;
-
-        case 0:
-            if (player.repeat_mode == RepeatMode.QUEUE) {
-                index = queue.size - 1;
-            } else {
+            case -1:
                 index = -1;
-            }
-            break;
+                break;
 
-        default:
-            index--;
-            break;
+            case 0:
+                if (player.repeat_mode == RepeatMode.QUEUE) {
+                    index = queue.size - 1;
+                } else {
+                    index = -1;
+                }
+                break;
+
+            default:
+                index--;
+                break;
         }
 
         return index;

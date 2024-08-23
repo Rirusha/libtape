@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 using Gee;
@@ -80,9 +82,9 @@ public sealed class Tape.Cachier : Object {
         Threader.add_audio (() => {
             if (track_uri == null) {
                 track_uri = yam_talker.get_download_uri (
-                                                         track_id,
-                                                         settings.get_boolean ("is-hq")
-                );
+                    track_id,
+                    settings.get_boolean ("is-hq")
+                    );
             }
 
             if (track_uri != null && (settings.get_boolean ("can-cache") || !is_tmp)) {
@@ -127,9 +129,9 @@ public sealed class Tape.Cachier : Object {
 
         threader.add_audio (() => {
             track_uri = yam_talker.get_download_uri (
-                                                     track_id,
-                                                     settings.get_boolean ("is-hq")
-            );
+                track_id,
+                settings.get_boolean ("is-hq")
+                );
 
             Idle.add (get_track_uri.callback);
         });
@@ -172,9 +174,9 @@ public sealed class Tape.Cachier : Object {
                     }
                 } else {
                     Logger.info ("Hello, send this to developer: %s, %d".printf (
-                                                                                 yam_object.get_type ().to_string (),
-                                                                                 cover_uris.size
-                    ));
+                                     yam_object.get_type ().to_string (),
+                                     cover_uris.size
+                                     ));
                 }
             }
 
@@ -196,104 +198,104 @@ public sealed class Tape.Cachier : Object {
 
         if (pixbufs.length >= 2) {
             pixbufs[0].composite (
-                                  pixbuf,
-                                  0,
-                                  0, new_size,
-                                  new_size,
-                                  0,
-                                  0,
-                                  0.5,
-                                  0.5,
-                                  Gdk.InterpType.BILINEAR,
-                                  255
-            );
+                pixbuf,
+                0,
+                0, new_size,
+                new_size,
+                0,
+                0,
+                0.5,
+                0.5,
+                Gdk.InterpType.BILINEAR,
+                255
+                );
             pixbufs[1].composite (
-                                  pixbuf,
-                                  new_size,
-                                  0,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  0,
-                                  0.5,
-                                  0.5,
-                                  Gdk.InterpType.BILINEAR,
-                                  255
-            );
+                pixbuf,
+                new_size,
+                0,
+                new_size,
+                new_size,
+                new_size,
+                0,
+                0.5,
+                0.5,
+                Gdk.InterpType.BILINEAR,
+                255
+                );
         }
 
         if (pixbufs.length >= 3) {
             pixbufs[2].composite (
-                                  pixbuf,
-                                  0,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  0,
-                                  new_size,
-                                  0.5,
-                                  0.5,
-                                  Gdk.InterpType.BILINEAR,
-                                  255
-            );
+                pixbuf,
+                0,
+                new_size,
+                new_size,
+                new_size,
+                0,
+                new_size,
+                0.5,
+                0.5,
+                Gdk.InterpType.BILINEAR,
+                255
+                );
         } else {
             pixbufs[1].composite (
-                                  pixbuf,
-                                  0,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  0,
-                                  new_size,
-                                  0.5,
-                                  0.5,
-                                  Gdk.InterpType.BILINEAR,
-                                  255
-            );
+                pixbuf,
+                0,
+                new_size,
+                new_size,
+                new_size,
+                0,
+                new_size,
+                0.5,
+                0.5,
+                Gdk.InterpType.BILINEAR,
+                255
+                );
             pixbufs[0].composite (
-                                  pixbuf,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  0.5,
-                                  0.5,
-                                  Gdk.InterpType.BILINEAR,
-                                  255
-            );
+                pixbuf,
+                new_size,
+                new_size,
+                new_size,
+                new_size,
+                new_size,
+                new_size,
+                0.5,
+                0.5,
+                Gdk.InterpType.BILINEAR,
+                255
+                );
 
             return pixbuf;
         }
 
         if (pixbufs.length == 4) {
             pixbufs[3].composite (
-                                  pixbuf,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  0.5,
-                                  0.5,
-                                  Gdk.InterpType.BILINEAR,
-                                  255
-            );
+                pixbuf,
+                new_size,
+                new_size,
+                new_size,
+                new_size,
+                new_size,
+                new_size,
+                0.5,
+                0.5,
+                Gdk.InterpType.BILINEAR,
+                255
+                );
         } else {
             pixbufs[0].composite (
-                                  pixbuf,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  new_size,
-                                  0.5,
-                                  0.5,
-                                  Gdk.InterpType.BILINEAR,
-                                  255);
+                pixbuf,
+                new_size,
+                new_size,
+                new_size,
+                new_size,
+                new_size,
+                new_size,
+                0.5,
+                0.5,
+                Gdk.InterpType.BILINEAR,
+                255);
         }
         return pixbuf;
     }

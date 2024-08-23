@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 using Gee;
@@ -152,11 +154,11 @@ public abstract class Tape.PlayerMode : Object {
         play_obj.total_played_seconds = total_played_seconds;
 
         Logger.debug ("Track id %s: end: %f; total: %f, dur: %f".printf (
-                                                                         play_obj.track_id,
-                                                                         play_obj.end_position_seconds,
-                                                                         play_obj.total_played_seconds,
-                                                                         play_obj.track_length_seconds
-        ));
+                          play_obj.track_id,
+                          play_obj.end_position_seconds,
+                          play_obj.total_played_seconds,
+                          play_obj.track_length_seconds
+                          ));
 
         Threader.add_single (() => {
             player.client.yam_talker.send_play ({ play_obj });

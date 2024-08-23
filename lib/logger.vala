@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 public sealed class Tape.Logger : Object {
@@ -67,9 +69,9 @@ public sealed class Tape.Logger : Object {
                     Logger.info ("Log file created");
                 } catch (Error e) {
                     GLib.warning ("Can't create log file on %s. Error message: %s".printf (
-                                                                                           value.peek_path (),
-                                                                                           e.message
-                    ));
+                                      value.peek_path (),
+                                      e.message
+                                      ));
                 }
             }
 
@@ -82,7 +84,8 @@ public sealed class Tape.Logger : Object {
         }
     }
 
-    static void write_to_file (string log_level_str, string? message) {
+    static void write_to_file (string log_level_str,
+                               string? message) {
         if (log_file == null) {
             return;
         }
@@ -94,10 +97,10 @@ public sealed class Tape.Logger : Object {
             string final_message;
             if (message != null) {
                 final_message = "%s : %s : %s\n".printf (
-                                                         log_level_str,
-                                                         current_time,
-                                                         message
-                );
+                    log_level_str,
+                    current_time,
+                    message
+                    );
             } else {
                 final_message = "\n";
             }
@@ -108,7 +111,8 @@ public sealed class Tape.Logger : Object {
         }
     }
 
-    static void write_net_to_file (string direction, string data) {
+    static void write_net_to_file (string direction,
+                                   string data) {
         if (log_file == null) {
             return;
         }
@@ -116,9 +120,9 @@ public sealed class Tape.Logger : Object {
         try {
             FileOutputStream os = log_file.append_to (FileCreateFlags.NONE);
             string final_message = "%s : %s\n".printf (
-                                                       direction,
-                                                       data
-            );
+                direction,
+                data
+                );
             os.write (final_message.data);
         } catch (Error e) {
             GLib.warning ("Can't write to log file. Error message: %s".printf (e.message));
@@ -129,7 +133,8 @@ public sealed class Tape.Logger : Object {
         write_to_file (TIME_PREFIX, "\n\n");
     }
 
-    public static void net_in (Soup.LoggerLogLevel soup_log_level, string data) {
+    public static void net_in (Soup.LoggerLogLevel soup_log_level,
+                               string data) {
         if (soup_log_level == Soup.LoggerLogLevel.BODY && data != "") {
             write_net_to_file (BODY_IN_PREFIX, data);
         } else {
@@ -137,7 +142,8 @@ public sealed class Tape.Logger : Object {
         }
     }
 
-    public static void net_out (Soup.LoggerLogLevel soup_log_level, string data) {
+    public static void net_out (Soup.LoggerLogLevel soup_log_level,
+                                string data) {
         if (soup_log_level == Soup.LoggerLogLevel.BODY && data != "") {
             write_net_to_file (BODY_OUT_PREFIX, data);
         } else {
@@ -158,10 +164,10 @@ public sealed class Tape.Logger : Object {
 
             string current_time = new DateTime.now ().format ("%T.%f");
             stdout.printf ("%s : %s : %s\n".printf (
-                                                    DEVEL_PREFIX,
-                                                    current_time,
-                                                    message
-            ));
+                               DEVEL_PREFIX,
+                               current_time,
+                               message
+                               ));
         }
     }
 

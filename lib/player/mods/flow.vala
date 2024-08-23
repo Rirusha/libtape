@@ -1,18 +1,20 @@
-/* Copyright 2023-2024 Rirusha
+/*
+ * Copyright (C) 2023-2024 Rirusha
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-3.0-only
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 using Gee;
@@ -28,15 +30,15 @@ public sealed class Tape.PlayerFlow : PlayerMode {
     string radio_session_id;
 
     public PlayerFlow (Player player,
-        string station_id,
-        ArrayList<YaMAPI.Track> queue) {
+                       string station_id,
+                       ArrayList<YaMAPI.Track> queue) {
         Object (
-                player: player,
-                station_id: station_id,
-                queue: queue,
-                context_id: station_id,
-                context_type: "radio"
-        );
+            player: player,
+            station_id: station_id,
+            queue: queue,
+            context_id: station_id,
+            context_type: "radio"
+            );
     }
 
     public async bool init_async () {
@@ -72,12 +74,12 @@ public sealed class Tape.PlayerFlow : PlayerMode {
                                      double total_played_seconds = 0.0) {
         Threader.add_single (() => {
             player.client.yam_talker.send_rotor_feedback (
-                                                          radio_session_id,
-                                                          last_station_tracks.batch_id,
-                                                          feedback_type,
-                                                          track_id,
-                                                          total_played_seconds
-            );
+                radio_session_id,
+                last_station_tracks.batch_id,
+                feedback_type,
+                track_id,
+                total_played_seconds
+                );
 
             Idle.add (send_feedback.callback);
         });
@@ -113,14 +115,14 @@ public sealed class Tape.PlayerFlow : PlayerMode {
         int index = current_index;
 
         switch (index) {
-        case -1 :
-        case 0 :
-            index = -1;
-            break;
+            case -1 :
+            case 0 :
+                index = -1;
+                break;
 
-            default :
-            index--;
-            break;
+                default :
+                index--;
+                break;
         }
 
         return index;
@@ -130,27 +132,27 @@ public sealed class Tape.PlayerFlow : PlayerMode {
         var index = current_index;
 
         switch (player.repeat_mode) {
-        case RepeatMode.OFF:
-            if (index + 1 == queue.size) {
-                index = -1;
-            } else {
-                index++;
-            }
-            break;
-
-        case RepeatMode.ONE:
-            if (!consider_repeat_mode) {
+            case RepeatMode.OFF:
                 if (index + 1 == queue.size) {
                     index = -1;
                 } else {
                     index++;
                 }
-            }
-            break;
+                break;
 
-        default:
-            Logger.error ("Flow with `RepeatMode.QUEUE unsupported");
-            break;
+            case RepeatMode.ONE:
+                if (!consider_repeat_mode) {
+                    if (index + 1 == queue.size) {
+                        index = -1;
+                    } else {
+                        index++;
+                    }
+                }
+                break;
+
+            default:
+                Logger.error ("Flow with `RepeatMode.QUEUE unsupported");
+                break;
         }
 
         return index;
