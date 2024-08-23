@@ -46,8 +46,8 @@ public sealed class Tape.Jsoner : Object {
      * @param names_case    нейм кейс имён элементов в json строке
      */
     public Jsoner (string json_string,
-        string[]? sub_members = null,
-        Case names_case = Case.KEBAB) throws ClientError {
+                   string[]? sub_members = null,
+                   Case names_case = Case.KEBAB) throws ClientError {
         Json.Node? node;
         try {
             node = Json.from_string (json_string);
@@ -120,6 +120,7 @@ public sealed class Tape.Jsoner : Object {
                 throw new ClientError.PARSE_ERROR ("Json has no %s%s".printf (has_members, member_name));
             }
         }
+
         return node;
     }
 
@@ -160,7 +161,8 @@ public sealed class Tape.Jsoner : Object {
      *
      * @return              json строка
      */
-    public static string serialize (YaMAPI.YaMObject yam_obj, Case names_case = Case.KEBAB) {
+    public static string serialize (YaMAPI.YaMObject yam_obj,
+                                    Case names_case = Case.KEBAB) {
         var builder = new Json.Builder ();
         serialize_object (builder, yam_obj, names_case);
 
@@ -202,17 +204,17 @@ public sealed class Tape.Jsoner : Object {
             }
         } else {
             switch (element_type) {
-            case Type.STRING :
-                foreach (string val in (ArrayList<string>) array_list) {
-                    serialize_value (builder, val);
-                }
-                break;
+                case Type.STRING :
+                    foreach (string val in (ArrayList<string>) array_list) {
+                        serialize_value (builder, val);
+                    }
+                    break;
 
-            case Type.INT :
-                foreach (int val in (ArrayList<int>) array_list) {
-                    serialize_value (builder, val);
-                }
-                break;
+                case Type.INT :
+                    foreach (int val in (ArrayList<int>) array_list) {
+                        serialize_value (builder, val);
+                    }
+                    break;
             }
         }
         builder.end_array ();
@@ -226,9 +228,12 @@ public sealed class Tape.Jsoner : Object {
      *                      Может быть `null`
      * @param names_case    нейм кейс имён элементов в json строке
      */
-    static void serialize_object (Json.Builder builder, YaMAPI.YaMObject? yam_obj, Case names_case = Case.KEBAB) {
+    static void serialize_object (Json.Builder builder,
+                                  YaMAPI.YaMObject? yam_obj,
+                                  Case names_case = Case.KEBAB) {
         if (yam_obj == null) {
             builder.add_null_value ();
+
             return;
         }
 
@@ -236,26 +241,26 @@ public sealed class Tape.Jsoner : Object {
         var cls = (ObjectClass) yam_obj.get_type ().class_ref ();
 
         foreach (ParamSpec property in cls.list_properties ()) {
-            if ((property.flags & ParamFlags.READABLE) == 0 || (property.flags & ParamFlags.WRITABLE) == 0) {
+            if (((property.flags & ParamFlags.READABLE) == 0) || ((property.flags & ParamFlags.WRITABLE) == 0)) {
                 continue;
             }
 
             switch (names_case) {
-            case Case.CAMEL :
-                builder.set_member_name (kebab2camel (strip (property.name, '-')));
-                break;
+                case Case.CAMEL :
+                    builder.set_member_name (kebab2camel (strip (property.name, '-')));
+                    break;
 
-            case Case.SNAKE :
-                builder.set_member_name (kebab2snake (strip (property.name, '-')));
-                break;
+                case Case.SNAKE :
+                    builder.set_member_name (kebab2snake (strip (property.name, '-')));
+                    break;
 
-            case Case.KEBAB:
-                builder.set_member_name (strip (property.name, '-'));
-                break;
+                case Case.KEBAB:
+                    builder.set_member_name (strip (property.name, '-'));
+                    break;
 
-            default:
-                Logger.error ("Unknown case - %s".printf (names_case.to_string ()));
-                assert_not_reached ();
+                default:
+                    Logger.error ("Unknown case - %s".printf (names_case.to_string ()));
+                    assert_not_reached ();
             }
 
             var prop_val = Value (property.value_type);
@@ -283,35 +288,36 @@ public sealed class Tape.Jsoner : Object {
      * @param prop_val      значение базового типа, который нужно сериализовать.
      *                      Может содержать `null`
      */
-    static void serialize_value (Json.Builder builder, Value prop_val) {
+    static void serialize_value (Json.Builder builder,
+                                 Value prop_val) {
         switch (prop_val.type ()) {
-        case Type.INT:
-            builder.add_int_value (prop_val.get_int ());
-            break;
+            case Type.INT:
+                builder.add_int_value (prop_val.get_int ());
+                break;
 
-        case Type.INT64:
-            builder.add_int_value (prop_val.get_int64 ());
-            break;
+            case Type.INT64:
+                builder.add_int_value (prop_val.get_int64 ());
+                break;
 
-        case Type.DOUBLE:
-            builder.add_double_value (prop_val.get_double ());
-            break;
+            case Type.DOUBLE:
+                builder.add_double_value (prop_val.get_double ());
+                break;
 
-        case Type.STRING:
-            builder.add_string_value (prop_val.get_string ());
-            break;
+            case Type.STRING:
+                builder.add_string_value (prop_val.get_string ());
+                break;
 
-        case Type.BOOLEAN:
-            builder.add_boolean_value (prop_val.get_boolean ());
-            break;
+            case Type.BOOLEAN:
+                builder.add_boolean_value (prop_val.get_boolean ());
+                break;
 
-        case Type.NONE:
-            builder.add_null_value ();
-            break;
+            case Type.NONE:
+                builder.add_null_value ();
+                break;
 
-        default:
-            Logger.warning ("Unknown type for serialize - %s".printf (prop_val.type ().name ()));
-            break;
+            default:
+                Logger.warning ("Unknown type for serialize - %s".printf (prop_val.type ().name ()));
+                break;
         }
     }
 
@@ -333,8 +339,8 @@ public sealed class Tape.Jsoner : Object {
 
         if (node.get_node_type () != Json.NodeType.OBJECT) {
             Logger.warning (_("Wrong type: expected %s, got %s").printf (
-                                                                         Json.NodeType.OBJECT.to_string (), node.get_node_type ().to_string ()
-            ));
+                                Json.NodeType.OBJECT.to_string (), node.get_node_type ().to_string ()
+                                ));
             throw new ClientError.PARSE_ERROR ("Node isn't object");
         }
 
@@ -383,15 +389,16 @@ public sealed class Tape.Jsoner : Object {
      *
      * @return          десериализованный объект
      */
-    public YaMAPI.YaMObject deserialize_object (GLib.Type obj_type, Json.Node? node = null) throws ClientError {
+    public YaMAPI.YaMObject deserialize_object (GLib.Type obj_type,
+                                                Json.Node? node = null) throws ClientError {
         if (node == null) {
             node = root;
         }
 
         if (node.get_node_type () != Json.NodeType.OBJECT) {
             Logger.warning (_("Wrong type: expected %s, got %s").printf (
-                                                                         Json.NodeType.OBJECT.to_string (), node.get_node_type ().to_string ()
-            ));
+                                Json.NodeType.OBJECT.to_string (), node.get_node_type ().to_string ()
+                                ));
             throw new ClientError.PARSE_ERROR ("Node isn't object");
         }
 
@@ -410,21 +417,21 @@ public sealed class Tape.Jsoner : Object {
 
             string member_name;
             switch (names_case) {
-            case Case.CAMEL :
-                member_name = kebab2camel (strip (property.name, '-'));
-                break;
+                case Case.CAMEL :
+                    member_name = kebab2camel (strip (property.name, '-'));
+                    break;
 
-            case Case.SNAKE:
-                member_name = kebab2snake (strip (property.name, '-'));
-                break;
+                case Case.SNAKE:
+                    member_name = kebab2snake (strip (property.name, '-'));
+                    break;
 
-            case Case.KEBAB:
-                member_name = strip (property.name, '-');
-                break;
+                case Case.KEBAB:
+                    member_name = strip (property.name, '-');
+                    break;
 
-            default:
-                Logger.error ("Unknown case - %s".printf (names_case.to_string ()));
-                assert_not_reached ();
+                default:
+                    Logger.error ("Unknown case - %s".printf (names_case.to_string ()));
+                    assert_not_reached ();
             }
 
             if (!node.get_object ().has_member (member_name)) {
@@ -434,50 +441,51 @@ public sealed class Tape.Jsoner : Object {
             var sub_node = node.get_object ().get_member (member_name);
 
             switch (sub_node.get_node_type ()) {
-            case Json.NodeType.ARRAY:
-                var arrayval = Value (prop_type);
-                yam_object.get_property (property.name, ref arrayval);
-                ArrayList array_list = (Gee.ArrayList) arrayval.get_object ();
+                case Json.NodeType.ARRAY:
+                    var arrayval = Value (prop_type);
+                    yam_object.get_property (property.name, ref arrayval);
+                    ArrayList array_list = (Gee.ArrayList) arrayval.get_object ();
 
-                deserialize_array (ref array_list, sub_node);
-                yam_object.set_property (
-                                         property.name,
-                                         array_list
-                );
-                break;
-
-            case Json.NodeType.OBJECT:
-                yam_object.set_property (
-                                         property.name,
-                                         deserialize_object (prop_type, sub_node)
-                );
-                break;
-
-            case Json.NodeType.VALUE:
-                var val = deserialize_value (sub_node);
-                if (val.type () == Type.INT64 && prop_type == Type.STRING) {
+                    deserialize_array (ref array_list, sub_node);
                     yam_object.set_property (
-                                             property.name,
-                                             val.get_int64 ().to_string ()
-                    );
-                } else {
-                    yam_object.set_property (
-                                             property.name,
-                                             val
-                    );
-                }
-                break;
+                        property.name,
+                        array_list
+                        );
+                    break;
 
-            case Json.NodeType.NULL:
-                yam_object.set_property (
-                                         property.name,
-                                         Value (prop_type)
-                );
-                break;
+                case Json.NodeType.OBJECT:
+                    yam_object.set_property (
+                        property.name,
+                        deserialize_object (prop_type, sub_node)
+                        );
+                    break;
+
+                case Json.NodeType.VALUE:
+                    var val = deserialize_value (sub_node);
+                    if ((val.type () == Type.INT64) && (prop_type == Type.STRING)) {
+                        yam_object.set_property (
+                            property.name,
+                            val.get_int64 ().to_string ()
+                            );
+                    } else {
+                        yam_object.set_property (
+                            property.name,
+                            val
+                            );
+                    }
+                    break;
+
+                case Json.NodeType.NULL:
+                    yam_object.set_property (
+                        property.name,
+                        Value (prop_type)
+                        );
+                    break;
             }
         }
 
         yam_object.thaw_notify ();
+
         return yam_object;
     }
 
@@ -496,8 +504,8 @@ public sealed class Tape.Jsoner : Object {
 
         if (node.get_node_type () != Json.NodeType.VALUE) {
             Logger.warning (_("Wrong type: expected %s, got %s").printf (
-                                                                         Json.NodeType.VALUE.to_string (), node.get_node_type ().to_string ()
-            ));
+                                Json.NodeType.VALUE.to_string (), node.get_node_type ().to_string ()
+                                ));
             throw new ClientError.PARSE_ERROR ("Node isn't value");
         }
 
@@ -513,15 +521,15 @@ public sealed class Tape.Jsoner : Object {
      * @param node          нода, которая будет десериализована. Будет использовано свойство
      *                      root, если передан `null`
      */
-    public void deserialize_array (ref ArrayList array_list, Json.Node? node = null) throws ClientError {
+    public void deserialize_array (ref ArrayList array_list,
+                                   Json.Node? node = null) throws ClientError {
         if (node == null) {
             node = root;
         }
 
         if (node.get_node_type () != Json.NodeType.ARRAY) {
             Logger.warning (_("Wrong type: expected %s, got %s").printf (
-                                                                         Json.NodeType.ARRAY.to_string (), node.get_node_type ().to_string ()
-            ));
+                                Json.NodeType.ARRAY.to_string (), node.get_node_type ().to_string ()));
             throw new ClientError.PARSE_ERROR ("Node isn't array");
         }
 
@@ -554,6 +562,7 @@ public sealed class Tape.Jsoner : Object {
                     new_array_list = new ArrayList<YaMAPI.Track> ();
                 } else {
                     Logger.warning ("Unknown type of element of subarray - %s".printf (sub_element_type.name ()));
+
                     return;
                 }
 
@@ -567,38 +576,38 @@ public sealed class Tape.Jsoner : Object {
             array_list.clear ();
 
             switch (array_list.element_type) {
-            case Type.STRING :
-                var narray_list = array_list as ArrayList<string>;
-                jarray.foreach_element ((array, _index, sub_node) => {
+                case Type.STRING :
+                    var narray_list = array_list as ArrayList<string>;
+                    jarray.foreach_element ((array, _index, sub_node) => {
                     try {
                         narray_list.add (deserialize_value (sub_node).get_string ());
                     } catch (ClientError e) {}
                 });
-                break;
+                    break;
 
-            case Type.INT :
-                var narray_list = array_list as ArrayList<int>;
-                jarray.foreach_element ((array, _index, sub_node) => {
+                case Type.INT :
+                    var narray_list = array_list as ArrayList<int>;
+                    jarray.foreach_element ((array, _index, sub_node) => {
                     try {
                         narray_list.add ((int) deserialize_value (sub_node).get_int64 ());
                     } catch (ClientError e) {}
                 });
-                break;
+                    break;
 
-            case Type.INT64:
-                var narray_list = array_list as ArrayList<int64>;
-                jarray.foreach_element ((array, _index, sub_node) => {
+                case Type.INT64:
+                    var narray_list = array_list as ArrayList<int64>;
+                    jarray.foreach_element ((array, _index, sub_node) => {
                     try {
                         narray_list.add (deserialize_value (sub_node).get_int64 ());
                     } catch (ClientError e) {}
                 });
-                break;
+                    break;
 
-            default:
-                Logger.warning ("Unknown type of element of array - %s".printf (
-                                                                                array_list.element_type.name ()
-                ));
-                break;
+                default:
+                    Logger.warning ("Unknown type of element of array - %s".printf (
+                                        array_list.element_type.name ()
+                                        ));
+                    break;
             }
         }
     }
