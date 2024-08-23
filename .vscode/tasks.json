@@ -1,0 +1,31 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Lint check",
+            "type": "shell",
+            "command": "io.elementary.vala-lint -d . -c vala-lint.conf",
+            "problemMatcher": []
+        },
+        {
+            "label": "Empty lines check",
+            "type": "shell",
+            "command": "python3 ${workspaceFolder}/checkers/empty_lines_checker.py .",
+            "problemMatcher": []
+        },
+        {
+            "label": "Indentation check",
+            "type": "shell",
+            "command": "python3 ${workspaceFolder}/checkers/indentation_checker.py .",
+            "problemMatcher": []
+        },
+        {
+            "label": "Full check",
+            "type": "shell",
+            "command": "io.elementary.vala-lint -d . -c vala-lint.conf && python3 ${workspaceFolder}/checkers/empty_lines_checker.py . && python3 ${workspaceFolder}/checkers/indentation_checker.py .",
+            "problemMatcher": []
+        },
+    ]
+}
