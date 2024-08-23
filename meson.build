@@ -14,6 +14,7 @@ add_project_arguments(
 
 glib_min_version = '2.76'
 add_project_arguments(
+  '-enable-experimental-non-null',
   '--abi-stability',
   '--hide-internal',
   '--target-glib', glib_min_version,
