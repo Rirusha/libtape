@@ -139,9 +139,8 @@ namespace Tape {
         PERM
     }
 
-    public async void wait_async (int seconds) {
-        Threader.add (() => {
-            GLib.Thread.usleep (seconds * 1000000);
+    public async void wait_async (uint seconds) {
+        Timeout.add_seconds_once (seconds, () => {
             Idle.add (wait_async.callback);
         });
 
