@@ -25,10 +25,6 @@ client_sources = files(
   'soup-wrapper/headers.vala',
   'soup-wrapper/post-content.vala',
   'soup-wrapper/soup-wrapper.vala',
-  'ya-m-api/difference-builder.vala',
-  'ya-m-api/has-cover.vala',
-  'ya-m-api/has-id.vala',
-  'ya-m-api/has-tracks.vala',
 
   'ya-m-api/objects/account/about.vala',
   'ya-m-api/objects/additional-info/lyrics-major.vala',
@@ -81,6 +77,12 @@ client_sources = files(
   'ya-m-api/objects/track/lyrics-info.vala',
   'ya-m-api/objects/track/meta-data.vala',
   'ya-m-api/objects/track/track.vala',
+
+  'ya-m-api/difference-builder.vala',
+  'ya-m-api/enums.vala',
+  'ya-m-api/has-cover.vala',
+  'ya-m-api/has-id.vala',
+  'ya-m-api/has-tracks.vala',
   'ya-m-api/utils.vala',
   'ya-m-api/ya-m-client.vala',
   'ya-m-api/ya-m-object.vala',
