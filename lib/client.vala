@@ -38,8 +38,6 @@ public class Tape.Client : Object {
     public static Player player { get; private set; }
 
     public static void init () {
-        Threader.init (settings.max_thread_number);
-
         cachier = new Cachier ();
         ya_m_talker = new YaMTalker ();
         player = new Player ();
