@@ -175,7 +175,7 @@ public sealed class Tape.SoupWrapper : Object {
         return msg;
     }
 
-    void check_status_code (Soup.Message msg, Bytes bytes) throws ClientError, BadStatusCodeError {
+    async void check_status_code (Soup.Message msg, Bytes bytes) throws ClientError, BadStatusCodeError {
         if (msg.status_code == Soup.Status.OK) {
             return;
         }
@@ -185,11 +185,11 @@ public sealed class Tape.SoupWrapper : Object {
         try {
             var jsoner = Jsoner.from_bytes (bytes, { "error" }, Case.CAMEL);
             if (jsoner.root.get_node_type () == Json.NodeType.OBJECT) {
-                error = (YaMAPI.ApiError) jsoner.deserialize_object (typeof (YaMAPI.ApiError));
+                error = (YaMAPI.ApiError) yield jsoner.deserialize_object (typeof (YaMAPI.ApiError));
 
             } else {
                 jsoner = Jsoner.from_bytes (bytes, null, Case.SNAKE);
-                error = (YaMAPI.ApiError) jsoner.deserialize_object (typeof (YaMAPI.ApiError));
+                error = (YaMAPI.ApiError) yield jsoner.deserialize_object (typeof (YaMAPI.ApiError));
             }
         } catch (ClientError e) {}
 
@@ -224,7 +224,7 @@ public sealed class Tape.SoupWrapper : Object {
             throw new ClientError.SOUP_ERROR ("%s %s: %s".printf (msg.method, msg.uri.to_string (), e.message));
         }
 
-        check_status_code (msg, bytes);
+        yield check_status_code (msg, bytes);
 
         return bytes;
     }
