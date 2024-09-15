@@ -1,1 +1,10 @@
+# build dir
 _build
+
+# Codium
+*.code-workspace
+.vscode/settings.json
+
+# Po
+*.mo
+po/cassette.pot
