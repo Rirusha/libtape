@@ -94,6 +94,12 @@ namespace Tape {
         public const int BIG = 400;
     }
 
+    public enum CookieJarType {
+        NONE,
+        DB,
+        TEXT,
+    }
+
     public enum PlayerState {
         NONE,
         PLAYING,

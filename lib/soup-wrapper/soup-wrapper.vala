@@ -19,6 +19,8 @@
 
 public sealed class Tape.SoupWrapper : Object {
 
+    public CookieJarType cookie_jar_type { get; construct; }
+
     Gee.HashMap<string, Headers> presets_table = new Gee.HashMap<string, Headers> ();
 
     Soup.Session session = new Soup.Session () {
@@ -45,7 +47,7 @@ public sealed class Tape.SoupWrapper : Object {
         }
     }
 
-    public SoupWrapper (string? user_agent = null, string? cookies_file_path = null) {
+    public SoupWrapper (string? user_agent = null, string? cookies_file_path = null, CookieJarType cookie_jar_type = NONE) {
         Object (
             user_agent: user_agent,
             cookies_file_path: cookies_file_path
@@ -53,7 +55,7 @@ public sealed class Tape.SoupWrapper : Object {
     }
 
     construct {
-        var logger = new Soup.Logger (Soup.LoggerLogLevel.BODY);
+        var logger = new Soup.Logger (BODY);
 
         logger.set_printer ((logger, level, direction, data) => {
             switch (direction) {
@@ -72,15 +74,43 @@ public sealed class Tape.SoupWrapper : Object {
     }
 
     public void reload_cookies () {
-        if (session.has_feature (typeof (Soup.CookieJarDB))) {
-            session.remove_feature_by_type (typeof (Soup.CookieJarDB));
+        Type feature_type;
+
+        switch (cookie_jar_type) {
+            case DB:
+                feature_type = typeof (Soup.CookieJarDB);
+                break;
+
+            case TEXT:
+                feature_type = typeof (Soup.CookieJarText);
+                break;
+
+            default:
+                assert_not_reached ();
+        }
+
+        if (session.has_feature (feature_type)) {
+            session.remove_feature_by_type (feature_type);
         }
 
         if (cookies_file_path != null) {
-            var cookie_jar = new Soup.CookieJarDB (cookies_file_path, false);
-            session.add_feature (cookie_jar);
+            Soup.SessionFeature cookie_jar;
 
-            Logger.debug (_("Cookies updated. New cookies file: '%s'").printf (cookies_file_path));
+            switch (cookie_jar_type) {
+                case DB:
+                    cookie_jar = new Soup.CookieJarDB (cookies_file_path, false);
+                    break;
+    
+                case TEXT:
+                    cookie_jar = new Soup.CookieJarText (cookies_file_path, false);
+                    break;
+    
+                default:
+                    assert_not_reached ();
+            }
+
+            session.add_feature (cookie_jar);
+            Logger.debug ("Cookies updated. New cookies file: \"%s\"".printf (cookies_file_path));
         }
     }
 

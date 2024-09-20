@@ -19,7 +19,13 @@ public enum Tape.YaMAPI.TrackType {
     MUSIC,
     AUDIOBOOK,
     PODCAST,
-    LOCAL
+    LOCAL,
+}
+
+public enum Tape.YaMAPI.AuthType {
+    TOKEN,
+    COOKIES_DB,
+    COOKIES_TEXT,
 }
 
 namespace Tape.YaMAPI {
