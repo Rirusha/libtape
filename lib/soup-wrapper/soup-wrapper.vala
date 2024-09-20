@@ -67,7 +67,7 @@ public sealed class Tape.SoupWrapper : Object {
                         break;
 
                     default:
-                        Logger.time ();
+                        Logger.empty ();
                         break;
                 }
             });
@@ -210,7 +210,7 @@ public sealed class Tape.SoupWrapper : Object {
         }
     }
 
-    async GLib.Bytes run_async (
+    async GLib.Bytes run (
         Soup.Message msg,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
@@ -229,7 +229,7 @@ public sealed class Tape.SoupWrapper : Object {
         return bytes;
     }
 
-    public async GLib.Bytes get_async (
+    public async new GLib.Bytes @get (
         owned string uri,
         string[]? header_preset_names = null,
         string[,]? parameters = null,
@@ -244,10 +244,10 @@ public sealed class Tape.SoupWrapper : Object {
             headers
         );
 
-        return yield run_async (msg, priority, cancellable);
+        return yield run (msg, priority, cancellable);
     }
 
-    public async GLib.Bytes post_async (
+    public async GLib.Bytes post (
         owned string uri,
         string[]? header_preset_names = null,
         PostContent? post_content = null,
@@ -264,6 +264,6 @@ public sealed class Tape.SoupWrapper : Object {
             headers
         );
 
-        return yield run_async (msg, priority, cancellable);
+        return yield run (msg, priority, cancellable);
     }
 }
