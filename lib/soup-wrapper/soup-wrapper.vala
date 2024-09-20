@@ -53,27 +53,22 @@ public sealed class Tape.SoupWrapper : Object {
     }
 
     construct {
-        if (Logger.include_devel) {
-            var logger = new Soup.Logger (Soup.LoggerLogLevel.BODY);
+        var logger = new Soup.Logger (Soup.LoggerLogLevel.BODY);
 
-            logger.set_printer ((logger, level, direction, data) => {
-                switch (direction) {
-                    case '<':
-                        Logger.net_in (level, data);
-                        break;
+        logger.set_printer ((logger, level, direction, data) => {
+            switch (direction) {
+                case '<':
+                case '>':
+                    Logger.net (direction, data);
+                    break;
 
-                    case '>':
-                        Logger.net_out (level, data);
-                        break;
+                default:
+                    Logger.empty ();
+                    break;
+            }
+        });
 
-                    default:
-                        Logger.empty ();
-                        break;
-                }
-            });
-
-            session.add_feature (logger);
-        }
+        session.add_feature (logger);
     }
 
     public void reload_cookies () {

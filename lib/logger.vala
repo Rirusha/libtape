@@ -19,12 +19,8 @@
 
 public sealed class Tape.Logger : Object {
 
-    const string TIME_PREFIX = "*TIME*   ";
+    const string EMPTY_PREFIX = "         ";
     const string SYSTEM_PREFIX = "*SYSTEM* ";
-    const string BODY_IN_PREFIX = "*BODY* <";
-    const string IN_PREFIX = "*IN*   <";
-    const string BODY_OUT_PREFIX = "*BODY* >";
-    const string OUT_PREFIX = "*OUT*  >";
     const string DEBUG_PREFIX = "*DEBUG*  ";
     const string DEVEL_PREFIX = "*DEVEL*  ";
     const string INFO_PREFIX = "*INFO*   ";
@@ -38,15 +34,19 @@ public sealed class Tape.Logger : Object {
      */
     public static bool include_devel { get; set; default = false; }
 
+    static bool _include_debug = false;
     /**
      * Include additional information logs.
+     * Doesn't make sense if include_devel is ``true``
      */
-    public static bool include_debug { get; set; default = false; }
-
-    /**
-     * Include additional information logs.
-     */
-    public static bool write_logs { get; set; default = true; }
+    public static bool include_debug {
+        get {
+            return _include_debug || include_devel;
+        }
+        set {
+            _include_debug = value;
+        }
+    }
 
     static File _log_file = null;
     public static File log_file {
@@ -57,97 +57,80 @@ public sealed class Tape.Logger : Object {
             if (_log_file != null) {
                 try {
                     Logger._log_file.delete ();
-                } catch (Error e) {
-                    if (e is IOError.NOT_FOUND) {}
-                }
+                } catch (Error e) {}
+            }
+
+            if (value.query_exists () && !include_debug) {
+                try {
+                    value.delete ();
+                } catch (Error e) {}
             }
 
             if (!value.query_exists ()) {
                 try {
                     value.create (FileCreateFlags.PRIVATE);
 
+                    Logger._log_file = value;
                     Logger.info ("Log file created");
+
                 } catch (Error e) {
                     GLib.warning ("Can't create log file on %s. Error message: %s".printf (
-                                      value.peek_path (),
-                                      e.message
-                                      ));
+                        value.peek_path (),
+                        e.message
+                    ));
                 }
             }
 
-            Logger._log_file = value;
-
-            write_to_file (SYSTEM_PREFIX, null);
-            write_to_file (SYSTEM_PREFIX, null);
-            write_to_file (SYSTEM_PREFIX, "Log initialized");
-            write_to_file (SYSTEM_PREFIX, null);
+            write_to_file (SYSTEM_PREFIX, "\n\nLog initialized\n");
         }
     }
 
-    static void write_to_file (string log_level_str,
-                               string? message) {
+    static string form_log_string (
+        string log_prefix,
+        string? message
+    ) {
+        return "%s : %s : %s\n".printf (
+            log_prefix,
+            new DateTime.now ().format ("%T.%f"),
+            message
+        );
+    }
+
+    static void write_to_file (
+        string log_prefix,
+        string? message
+    ) {
         if (log_file == null) {
             return;
         }
 
         try {
             FileOutputStream os = log_file.append_to (FileCreateFlags.NONE);
-            string current_time = new DateTime.now ().format ("%T.%f");
 
             string final_message;
             if (message != null) {
-                final_message = "%s : %s : %s\n".printf (
-                    log_level_str,
-                    current_time,
-                    message
-                    );
+                final_message = form_log_string (log_prefix, message);
             } else {
                 final_message = "\n";
             }
 
             os.write (final_message.data);
+
         } catch (Error e) {
             GLib.warning ("Can't write to log file. Error message: %s".printf (e.message));
         }
     }
 
-    static void write_net_to_file (string direction,
-                                   string data) {
-        if (log_file == null) {
-            return;
-        }
-
-        try {
-            FileOutputStream os = log_file.append_to (FileCreateFlags.NONE);
-            string final_message = "%s : %s\n".printf (
-                direction,
-                data
-                );
-            os.write (final_message.data);
-        } catch (Error e) {
-            GLib.warning ("Can't write to log file. Error message: %s".printf (e.message));
-        }
+    public static void empty () {
+        write_to_file (EMPTY_PREFIX, null);
     }
 
-    public static void time () {
-        write_to_file (TIME_PREFIX, "\n\n");
-    }
-
-    public static void net_in (Soup.LoggerLogLevel soup_log_level,
-                               string data) {
-        if (soup_log_level == Soup.LoggerLogLevel.BODY && data != "") {
-            write_net_to_file (BODY_IN_PREFIX, data);
-        } else {
-            write_net_to_file (IN_PREFIX, data);
-        }
-    }
-
-    public static void net_out (Soup.LoggerLogLevel soup_log_level,
-                                string data) {
-        if (soup_log_level == Soup.LoggerLogLevel.BODY && data != "") {
-            write_net_to_file (BODY_OUT_PREFIX, data);
-        } else {
-            write_net_to_file (OUT_PREFIX, data);
+    public static void net (
+        char direction,
+        string data
+    ) {
+        if (include_devel) {
+            write_to_file (direction.to_string (), data);
         }
     }
 
@@ -161,36 +144,22 @@ public sealed class Tape.Logger : Object {
     public static void devel (string message) {
         if (include_devel) {
             write_to_file (DEVEL_PREFIX, message);
-
-            string current_time = new DateTime.now ().format ("%T.%f");
-            stdout.printf ("%s : %s : %s\n".printf (
-                               DEVEL_PREFIX,
-                               current_time,
-                               message
-                               ));
+            stdout.printf (form_log_string (DEVEL_PREFIX, message));
         }
     }
 
     public static void info (string message) {
-        if (write_logs) {
-            write_to_file (INFO_PREFIX, message);
-            GLib.info (message);
-        }
+        write_to_file (INFO_PREFIX, message);
+        GLib.info (message);
     }
 
     public static void warning (string message) {
-        if (write_logs) {
-            write_to_file (WARNING_PREFIX, message);
-        }
-
+        write_to_file (WARNING_PREFIX, message);
         GLib.warning (message);
     }
 
     public static void error (string message) {
-        if (write_logs) {
-            write_to_file (ERROR_PREFIX, message);
-        }
-
+        write_to_file (ERROR_PREFIX, message);
         GLib.error (message);
     }
 }
