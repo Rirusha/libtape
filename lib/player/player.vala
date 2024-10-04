@@ -77,23 +77,21 @@ public sealed class Tape.Player : Object {
         }
     }
 
-    public double playback_pos_sec {
+    public double position_sec {
         get {
-            int64 cur;
-            playbin.query_position (Gst.Format.TIME, out cur);
-            return (double) cur / Gst.SECOND;
+            return ((double) position) / 1000.0;
         }
     }
 
     public double total_played_seconds { get; set; default = 0.0; }
 
-    public int64 playback_pos_ms {
-        get {
-            int64 cur;
-            playbin.query_position (Gst.Format.TIME, out cur);
-            return cur / Gst.MSECOND;
-        }
-    }
+    public int64 position { get; private set; }
+        //  get {
+            //  int64 cur;
+            //  playbin.query_position (Gst.Format.TIME, out cur);
+            //  return cur / Gst.MSECOND;
+        //  }
+    //  }
 
     public signal void queue_changed (ArrayList<YaMAPI.Track> queue,
                                       string context_type,
@@ -114,6 +112,12 @@ public sealed class Tape.Player : Object {
     public bool can_go_prev { get; private set; default = true; }
 
     public bool can_go_next { get; private set; default = true; }
+
+    public bool can_play { get; private set; default = true; }
+
+    public bool can_pause { get; private set; default = true; }
+
+    public bool can_seek { get; private set; default = true; }
 
     /**
      * Is current track loading.

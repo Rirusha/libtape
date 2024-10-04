@@ -15,7 +15,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-[SingleInstance]
 public sealed class Tape.Settings : Object {
 
     /**
@@ -37,11 +36,6 @@ public sealed class Tape.Settings : Object {
      * Player's mute. Should be used instead of `player.mute`.
      */
     public bool mute { get; set; default = false; }
-
-    /**
-     * Max thread amount of each threader worker. Need restart to apply.
-     */
-    public int max_thread_number { get; construct; }
 
     /**
      * If `true` tracks are added to the beginning of the playlist,

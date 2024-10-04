@@ -15,29 +15,38 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
+namespace Tape {
+    public static Client root;
+}
+
 /**
  * IMPORTANT: Client settings should be bound or set before init
  */
+[SingleInstance]
 public class Tape.Client : Object {
 
-    public static Tape.Settings settings { get; default = new Tape.Settings (); }
+    public Tape.Settings settings { get; construct; }
 
     /**
      * Cachier module.
      */
-    public static Cachier cachier { get; private set; }
+    public Cachier cachier { get; private set; }
 
     /**
      * YaMTalker module.
      */
-    public static YaMTalker ya_m_talker { get; private set; }
+    public YaMTalker ya_m_talker { get; private set; }
 
     /**
      * Player module.
      */
-    public static Player player { get; private set; }
+    public Player player { get; private set; }
 
-    public static void init () {
+    public Client (Tape.Settings settings = new Tape.Settings ()) {
+        Object (settings: settings);
+    }
+
+    construct {
         cachier = new Cachier ();
         ya_m_talker = new YaMTalker ();
         player = new Player ();
