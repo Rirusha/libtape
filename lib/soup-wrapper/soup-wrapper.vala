@@ -100,11 +100,11 @@ public sealed class Tape.SoupWrapper : Object {
                 case DB:
                     cookie_jar = new Soup.CookieJarDB (cookies_file_path, false);
                     break;
-    
+
                 case TEXT:
                     cookie_jar = new Soup.CookieJarText (cookies_file_path, false);
                     break;
-    
+
                 default:
                     assert_not_reached ();
             }
