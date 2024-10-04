@@ -1,9 +1,9 @@
 project(
   'libtape-1',
   ['c', 'vala'],
-  version: '0.2.0',
+  version: '0.2.1',
   meson_version: '>= 0.62.0',
-  license: 'GPL-3.0-only',
+  license: 'GPL-3.0-or-later',
 )
 
 add_project_arguments(
