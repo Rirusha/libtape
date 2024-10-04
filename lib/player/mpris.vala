@@ -125,7 +125,7 @@ public class MprisPlayer : Object {
 
     public int64 position {
         get {
-            return position;
+            return root.player.position;
         }
     }
 
@@ -239,7 +239,7 @@ public class MprisPlayer : Object {
             send_property_change ("CanSeek", can_seek);
         });
 
-        root.player.notify["position-ms"].connect (() => {
+        root.player.notify["position"].connect (() => {
             send_property_change ("Position", position);
         });
 
