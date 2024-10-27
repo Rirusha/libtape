@@ -24,6 +24,7 @@ client_sources = files(
   'soup-wrapper/header.vala',
   'soup-wrapper/headers.vala',
   'soup-wrapper/post-content.vala',
+  'soup-wrapper/soup-utils.vala',
   'soup-wrapper/soup-wrapper.vala',
 
   'ya-m-api/objects/account/about.vala',

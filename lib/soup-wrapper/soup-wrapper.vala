@@ -153,7 +153,7 @@ public sealed class Tape.SoupWrapper : Object {
             add_params_to_uri (parameters, ref uri);
         }
 
-        var msg = new Soup.Message ("GET", uri);
+        var msg = new Soup.Message (Soup.Method.GET, uri);
 
         if (header_preset_names != null) {
             foreach (string preset_name in header_preset_names) {
@@ -178,7 +178,7 @@ public sealed class Tape.SoupWrapper : Object {
             add_params_to_uri (parameters, ref uri);
         }
 
-        var msg = new Soup.Message ("POST", uri);
+        var msg = new Soup.Message (Soup.Method.POST, uri);
 
         if (post_content != null) {
             msg.set_request_body_from_bytes (
