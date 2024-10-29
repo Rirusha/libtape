@@ -2,7 +2,7 @@ vapi_sources = files(
   'config.vapi',
 )
 
-client_sources = files(
+vala_sources = files(
   'cachier/cachier.vala',
   'cachier/controller.vala',
   'cachier/humanity-size.vala',
@@ -99,24 +99,21 @@ client_sources = files(
 
 libtape_sources = [
   vapi_sources,
-  client_sources,
+  vala_sources,
 ]
 
-libtape_gi_name = 'Tape'
-libtape_gi_version = '1'
+libtape_gir = versioned_gir_name + '.gir'
+libtape_typelib = versioned_gir_name + '.typelib'
 
-libtape_gi = '@0@-@1@'.format(libtape_gi_name, libtape_gi_version)
-libtape_gir = '@0@.gir'.format(libtape_gi)
-libtape_typelib = '@0@.typelib'.format(libtape_gi)
-
-include_dir = join_paths(get_option('prefix'), get_option('includedir'), meson.project_name())
+include_dir = get_option('prefix') / get_option('includedir') / meson.project_name()
 
 libtape = shared_library(
   meson.project_name(),
   libtape_sources,
   dependencies: libtape_dependencies,
-  vala_header: 'libtape.h',
-  vala_vapi: 'libtape.vapi',
+  include_directories: config_h_dir,
+  vala_header: versioned_name + '.h',
+  vala_vapi: versioned_name + '.vapi',
   vala_gir: libtape_gir,
   version: meson.project_version(),
   install: true,
@@ -124,8 +121,8 @@ libtape = shared_library(
 )
 
 install_data(
-  'libtape-1.deps',
-  install_dir: join_paths(get_option('datadir'), 'vala', 'vapi'),
+  versioned_name + '.deps',
+  install_dir: get_option('datadir') / 'vala' / 'vapi',
 )
 
 if get_option('introspection')
@@ -136,12 +133,23 @@ if get_option('introspection')
       g_ir_compiler,
       '--shared-library', '@PLAINNAME@',
       '--output', '@OUTPUT@',
-      join_paths(meson.current_build_dir(), libtape_gir),
+      '--includedir', gee_girdir,
+      meson.current_build_dir() / libtape_gir,
     ],
     input: libtape,
     output: libtape_typelib,
     depends: libtape,
     install: true,
-    install_dir: join_paths(get_option('libdir'), 'girepository-1.0'),
+    install_dir: get_option('libdir') / 'girepository-1.0',
   )
 endif
+
+granite_pc = pkgconfig.generate(
+  libtape,
+  name: meson.project_name(),
+  requires: libtape_dependencies,
+  subdirs: [versioned_name],
+  description: 'Unofficial Yandex Music client library',
+  version: meson.project_version(),
+  url: 'https://gitlab.gnome.org/Rirusha/libtape',
+)
