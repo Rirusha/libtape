@@ -144,7 +144,7 @@ if get_option('introspection')
   )
 endif
 
-granite_pc = pkgconfig.generate(
+pkgconfig.generate(
   libtape,
   name: meson.project_name(),
   requires: libtape_dependencies,
