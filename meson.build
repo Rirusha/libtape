@@ -32,7 +32,7 @@ foreach deps_pkg : deps_pkgs
   libtape_dependencies += dependency(deps_pkg)
 endforeach
 
-gee = dependency(gio_pkg, version: '>= 2.72')
+gee = dependency('gee-0.8')
 gee_girdir = gee.get_variable('datadir') / 'gir-1.0'
 gee_vapidir = gee.get_variable('datadir') / 'vala' / 'vapi'
 
