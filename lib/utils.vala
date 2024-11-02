@@ -153,7 +153,7 @@ namespace Tape {
         yield;
     }
 
-    public static void check_client_initted () {
+    internal static void check_client_initted () {
         if (Client.player == null ||
             Client.cachier == null ||
             Client.ya_m_talker == null
