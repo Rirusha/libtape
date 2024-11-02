@@ -70,7 +70,7 @@ public sealed class Tape.Player : Object {
 
                 update_player ();
 
-                if (settings.get_boolean ("can-cache")) {
+                if (root.settings.can_cache) {
                     cache_next_track ();
                 }
             }
