@@ -51,6 +51,6 @@ public class Tape.Client : Object {
         ya_m_talker = new YaMTalker ();
         player = new Player ();
 
-        Mpris.init ();
+        Mpris.init (player);
     }
 }

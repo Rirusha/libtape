@@ -19,22 +19,26 @@
 
 namespace Tape.Mpris {
 
+static Player player;
 public static Mpris mpris;
-public static MprisPlayer mpris_player;
+static MprisPlayer mpris_player;
 
-public static void init () {
+public static void init (Player player) {
     mpris = new Mpris ();
+    Tape.Mpris.player = player;
 
     Bus.own_name (
         BusType.SESSION,
         "org.mpris.MediaPlayer2.%s".printf (Config.APP_ID),
         BusNameOwnerFlags.ALLOW_REPLACEMENT,
         on_bus_aquired
-        );
+    );
 }
 
-static void on_bus_aquired (DBusConnection con,
-                            string name) {
+static void on_bus_aquired (
+    DBusConnection con,
+    string name
+) {
     try {
         con.register_object ("/org/mpris/MediaPlayer2", mpris);
         var mpris_player = new MprisPlayer (con);
@@ -77,37 +81,37 @@ public class MprisPlayer : Object {
 
     public bool can_go_next {
         get {
-            return root.player.can_go_next;
+            return player.can_go_next;
         }
     }
 
     public bool can_go_previous {
         get {
-            return root.player.can_go_prev;
+            return player.can_go_prev;
         }
     }
 
     public bool can_pause {
         get {
-            return root.player.can_pause;
+            return player.can_pause;
         }
     }
 
     public bool can_seek {
         get {
-            return root.player.can_seek;
+            return player.can_seek;
         }
     }
 
     public bool can_play {
         get {
-            return root.player.can_play;
+            return player.can_play;
         }
     }
 
     public string playback_status {
         get {
-            switch (root.player.state) {
+            switch (player.state) {
                 case PlayerState.PLAYING:
                     return "Playing";
 
@@ -125,36 +129,36 @@ public class MprisPlayer : Object {
 
     public int64 position {
         get {
-            return root.player.position;
+            return player.position;
         }
     }
 
     public double volume {
         get {
-            return root.player.volume;
+            return player.volume;
         }
         set {
-            root.player.volume = value;
+            player.volume = value;
         }
     }
 
     public bool shuffle {
         get {
-            return root.player.shuffle_mode == ShuffleMode.ON;
+            return player.shuffle_mode == ShuffleMode.ON;
         }
         set {
             if (value) {
-                root.player.shuffle_mode = ShuffleMode.ON;
+                player.shuffle_mode = ShuffleMode.ON;
 
             } else {
-                root.player.shuffle_mode = ShuffleMode.OFF;
+                player.shuffle_mode = ShuffleMode.OFF;
             }
         }
     }
 
     public string loop_status {
         get {
-            switch (root.player.repeat_mode) {
+            switch (player.repeat_mode) {
                 case RepeatMode.OFF:
                     return "None";
 
@@ -171,15 +175,15 @@ public class MprisPlayer : Object {
         set {
             switch (value) {
                 case "None":
-                    root.player.repeat_mode = RepeatMode.OFF;
+                    player.repeat_mode = RepeatMode.OFF;
                     break;
 
                 case "Track":
-                    root.player.repeat_mode = RepeatMode.ONE;
+                    player.repeat_mode = RepeatMode.ONE;
                     break;
 
                 case "Playlist":
-                    root.player.repeat_mode = RepeatMode.QUEUE;
+                    player.repeat_mode = RepeatMode.QUEUE;
                     break;
             }
         }
@@ -189,67 +193,67 @@ public class MprisPlayer : Object {
 
     public HashTable<string, Variant>? metadata {
         owned get {
-            return _get_metadata (root.player.mode.get_current_track_info ());
+            return _get_metadata (player.mode.get_current_track_info ());
         }
     }
 
     public MprisPlayer (DBusConnection con) {
         this.con = con;
 
-        root.player.played.connect ((track_info) => {
+        player.played.connect ((track_info) => {
             send_property_change ("Metadata", _get_metadata (track_info));
         });
-        root.player.stopped.connect (() => {
+        player.stopped.connect (() => {
             send_property_change ("Metadata", _get_metadata (null));
         });
 
-        root.player.notify["volume"].connect (() => {
+        player.notify["volume"].connect (() => {
             send_property_change ("Volume", volume);
         });
 
-        root.player.notify["shuffle-mode"].connect (() => {
+        player.notify["shuffle-mode"].connect (() => {
             send_property_change ("Shuffle", shuffle);
         });
 
-        root.player.notify["repeat-mode"].connect (() => {
+        player.notify["repeat-mode"].connect (() => {
             send_property_change ("LoopStatus", loop_status);
         });
 
-        root.player.notify["state"].connect (() => {
+        player.notify["state"].connect (() => {
             send_property_change ("PlaybackStatus", playback_status);
         });
 
-        root.player.notify["can-go-prev"].connect (() => {
+        player.notify["can-go-prev"].connect (() => {
             send_property_change ("CanGoPrevious", can_go_previous);
         });
 
-        root.player.notify["can-go-next"].connect (() => {
+        player.notify["can-go-next"].connect (() => {
             send_property_change ("CanGoNext", can_go_next);
         });
 
-        root.player.notify["can-play"].connect (() => {
+        player.notify["can-play"].connect (() => {
             send_property_change ("CanPlay", can_play);
         });
 
-        root.player.notify["can-pause"].connect (() => {
+        player.notify["can-pause"].connect (() => {
             send_property_change ("CanPause", can_pause);
         });
 
-        root.player.notify["can-seek"].connect (() => {
+        player.notify["can-seek"].connect (() => {
             send_property_change ("CanSeek", can_seek);
         });
 
-        root.player.notify["position"].connect (() => {
+        player.notify["position"].connect (() => {
             send_property_change ("Position", position);
         });
 
-        root.player.bind_property (
+        player.bind_property (
             "volume",
             this, "volume",
             BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE
         );
 
-        root.player.playback_callback.connect ((position) => {
+        player.playback_callback.connect ((position) => {
             seeked ((int64) position);
         });
     }
@@ -325,37 +329,37 @@ public class MprisPlayer : Object {
 
     public void next (BusName sender) throws Error {
         if (can_go_next) {
-            root.player.next ();
+            player.next ();
         }
     }
 
     public void previous (BusName sender) throws Error {
         if (can_go_previous) {
-            root.player.prev ();
+            player.prev ();
         }
     }
 
     public void play (BusName sender) throws Error {
         if (can_control) {
-            root.player.play ();
+            player.play ();
         }
     }
 
     public void pause (BusName sender) throws Error {
         if (can_control) {
-            root.player.pause ();
+            player.pause ();
         }
     }
 
     public void play_pause (BusName sender) throws Error {
         if (can_control) {
-            root.player.play_pause ();
+            player.play_pause ();
         }
     }
 
     public void stop (BusName sender) throws Error {
         if (can_control) {
-            root.player.clear_mode ();
+            player.clear_mode ();
         }
     }
 
@@ -364,7 +368,7 @@ public class MprisPlayer : Object {
         BusName sender
     ) throws Error {
         if (can_seek) {
-            root.player.seek ((position + offset) / 1000);
+            player.seek ((position + offset) / 1000);
         }
     }
 
@@ -374,7 +378,7 @@ public class MprisPlayer : Object {
         BusName sender
     ) throws Error {
         if (can_seek) {
-            root.player.seek ((position) / 1000);
+            player.seek ((position) / 1000);
         }
     }
 }
