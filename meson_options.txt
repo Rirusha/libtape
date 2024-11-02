@@ -1,4 +1,4 @@
 option('documentation', type: 'boolean', value: false, description: 'generate documentation with gtk-doc and valadoc')
 option('introspection', type: 'boolean', value: true, description: 'Whether to build introspection files')
-option('app_name', type: 'string', value: 'Default', description: 'App name for folders name')
-option('app_id', type: 'string', value: 'com.example.Default', description: 'App name for folders name')
+option('app_name', type: 'string', value: 'Test', description: 'App name for folders name')
+option('app_id', type: 'string', value: 'com.example.Test', description: 'App name for folders name')
