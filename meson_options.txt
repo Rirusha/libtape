@@ -2,3 +2,9 @@ option('documentation', type: 'boolean', value: false, description: 'generate do
 option('introspection', type: 'boolean', value: true, description: 'Whether to build introspection files')
 option('app_name', type: 'string', value: 'Test', description: 'App name for folders name')
 option('app_id', type: 'string', value: 'com.example.Test', description: 'App name for folders name')
+
+# mpris
+option('can_control', type: 'boolean', value: true, description: 'App name for folders name')
+option('can_quit', type: 'boolean', value: true, description: 'App name for folders name')
+option('can_raise', type: 'boolean', value: true, description: 'App name for folders name')
+option('can_set_fullscreen', type: 'boolean', value: true, description: 'App name for folders name')

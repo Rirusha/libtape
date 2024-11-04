@@ -19,94 +19,156 @@
 
 namespace Tape.Mpris {
 
-static Player player;
-public static Mpris mpris;
-static MprisPlayer mpris_player;
+static Tape.Client client;
+static Tape.Player player;
+uint bus_id = 0;
 
-public static void init (Player player) {
-    mpris = new Mpris ();
-    Tape.Mpris.player = player;
+public void init (Tape.Client client) {
+    Tape.Mpris.client = client;
+    Tape.Mpris.player = client.player;
 
-    Bus.own_name (
+    if (bus_id != 0) {
+        Bus.unown_name (bus_id);
+    }
+
+    bus_id = Bus.own_name (
         BusType.SESSION,
         "org.mpris.MediaPlayer2.%s".printf (Config.APP_ID),
-        BusNameOwnerFlags.ALLOW_REPLACEMENT,
+        BusNameOwnerFlags.NONE,
         on_bus_aquired
     );
+
+    if (bus_id == 0) {
+        warning ("Can't create mpris bus");
+    }
 }
 
-static void on_bus_aquired (
-    DBusConnection con,
-    string name
-) {
+void on_bus_aquired (DBusConnection con, string name) {
     try {
-        con.register_object ("/org/mpris/MediaPlayer2", mpris);
-        var mpris_player = new MprisPlayer (con);
-        con.register_object ("/org/mpris/MediaPlayer2", mpris_player);
+        con.register_object ("/org/mpris/MediaPlayer2", new MprisRoot (con));
+        con.register_object ("/org/mpris/MediaPlayer2", new Player (con));
 
     } catch (IOError e) {
-        Logger.warning ("Error message: %s".printf (e.message));
+        warning ("Error message: %s".printf (e.message));
+    }
+}
+
+void send_property_change (
+    string property,
+    Variant variant,
+    DBusConnection con,
+    string iface_name
+) {
+    var builder = new VariantBuilder (VariantType.ARRAY);
+    var invalidated_builder = new VariantBuilder (new VariantType ("as"));
+    builder.add ("{sv}", property, variant);
+
+    try {
+        con.emit_signal (
+            null,
+            "/org/mpris/MediaPlayer2",
+            "org.freedesktop.DBus.Properties",
+            "PropertiesChanged",
+            new Variant (
+                "(sa{sv}as)",
+                iface_name,
+                builder,
+                invalidated_builder
+            )
+        );
+
+    } catch (Error e) {
+        warning ("Could not send MPRIS property change: %s".printf (e.message));
     }
 }
 
 [DBus (name = "org.mpris.MediaPlayer2")]
-public class Mpris : Object {
-    public bool can_quit { get; set; default = true; }
-    public bool can_raise { get; set; default = true; }
-    public string desktop_entry { get; set; default = Config.APP_ID; }
-    public string identity { get; set; default = Config.APP_NAME; }
+public class MprisRoot : Object {
 
-    public signal void quit_triggered ();
-    public signal void raise_triggered ();
+    DBusConnection con;
 
-    public void quit (BusName sender) throws Error {
-        quit_triggered ();
+    public bool can_quit {
+        get { return Config.CAN_QUIT; }
+    }
+
+    public bool fullscreen { get; set; default = false; }
+
+    public bool can_set_fullscreen {
+        get { return Config.CAN_SET_FULLSCREEN; }
+    }
+
+    public bool can_raise {
+        get { return Config.CAN_RAISE; }
+    }
+
+    public bool has_tracklist {
+        get { return false; }
+    }
+
+    public string identity {
+        get { return Config.APP_NAME; }
+    }
+
+    public string desktop_entry {
+        get { return Config.APP_ID; }
+    }
+
+    public string[] supported_uri_schemes {
+        owned get { return { "http", "https", "yandexmusic" }; }
+    }
+
+    public string[] supported_mime_types {
+        owned get { return { "x-scheme-handler/yandexmusic" }; }
+    }
+
+    public MprisRoot (DBusConnection con) {
+        this.con = con;
+
+        notify["fullscreen"].connect (() => {
+            send_property_change ("fullscreen", fullscreen);
+        });
+    }
+
+    void send_property_change (string property, GLib.Variant variant) {
+        Mpris.send_property_change (property, variant, con, "org.mpris.MediaPlayer2");
     }
 
     public void raise (BusName sender) throws Error {
-        raise_triggered ();
+        client.raise ();
+    }
+
+    public void quit (BusName sender) throws Error {
+        client.quit ();
     }
 }
 
 [DBus (name = "org.mpris.MediaPlayer2.Player")]
-public class MprisPlayer : Object {
+public class Player : Object {
 
     DBusConnection con;
 
     public bool can_control {
-        get {
-            return true;
-        }
+        get { return Config.CAN_CONTROL; }
     }
 
     public bool can_go_next {
-        get {
-            return player.can_go_next;
-        }
+        get { return player.can_go_next; }
     }
 
     public bool can_go_previous {
-        get {
-            return player.can_go_prev;
-        }
+        get { return player.can_go_prev; }
     }
 
     public bool can_pause {
-        get {
-            return player.can_pause;
-        }
+        get { return player.can_pause; }
     }
 
     public bool can_seek {
-        get {
-            return player.can_seek;
-        }
+        get { return player.can_seek; }
     }
 
     public bool can_play {
-        get {
-            return player.can_play;
-        }
+        get { return player.can_play; }
     }
 
     public string playback_status {
@@ -128,24 +190,16 @@ public class MprisPlayer : Object {
     }
 
     public int64 position {
-        get {
-            return player.position;
-        }
+        get { return player.position_us; }
     }
 
     public double volume {
-        get {
-            return player.volume;
-        }
-        set {
-            player.volume = value;
-        }
+        get { return player.volume; }
+        set { player.volume = value; }
     }
 
     public bool shuffle {
-        get {
-            return player.shuffle_mode == ShuffleMode.ON;
-        }
+        get { return player.shuffle_mode == ShuffleMode.ON; }
         set {
             if (value) {
                 player.shuffle_mode = ShuffleMode.ON;
@@ -192,12 +246,10 @@ public class MprisPlayer : Object {
     public signal void seeked (int64 position);
 
     public HashTable<string, Variant>? metadata {
-        owned get {
-            return _get_metadata (player.mode.get_current_track_info ());
-        }
+        owned get { return _get_metadata (player.mode.get_current_track_info ()); }
     }
 
-    public MprisPlayer (DBusConnection con) {
+    public Player (DBusConnection con) {
         this.con = con;
 
         player.played.connect ((track_info) => {
@@ -243,19 +295,19 @@ public class MprisPlayer : Object {
             send_property_change ("CanSeek", can_seek);
         });
 
-        player.notify["position"].connect (() => {
-            send_property_change ("Position", position);
-        });
-
         player.bind_property (
             "volume",
             this, "volume",
             BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE
         );
 
-        player.playback_callback.connect ((position) => {
-            seeked ((int64) position);
+        player.position_changed.connect (() => {
+            seeked (position);
         });
+    }
+
+    void send_property_change (string property, GLib.Variant variant) {
+        Mpris.send_property_change (property, variant, con, "org.mpris.MediaPlayer2.Player");
     }
 
     HashTable<string, Variant> _get_metadata (YaMAPI.Track? track_info) {
@@ -297,36 +349,6 @@ public class MprisPlayer : Object {
         return metadata;
     }
 
-    // Tnanks https://github.com/bcedu/MuseIC
-    bool send_property_change (
-        string property,
-        Variant variant
-    ) {
-        var builder = new VariantBuilder (VariantType.ARRAY);
-        var invalidated_builder = new VariantBuilder (new VariantType ("as"));
-        builder.add ("{sv}", property, variant);
-
-        try {
-            con.emit_signal (
-                null,
-                "/org/mpris/MediaPlayer2",
-                "org.freedesktop.DBus.Properties",
-                "PropertiesChanged",
-                new Variant (
-                    "(sa{sv}as)",
-                    "org.mpris.MediaPlayer2.Player",
-                    builder,
-                    invalidated_builder
-                )
-            );
-
-        } catch (Error e) {
-            Logger.warning ("Could not send MPRIS property change: %s".printf (e.message));
-        }
-
-        return false;
-    }
-
     public void next (BusName sender) throws Error {
         if (can_go_next) {
             player.next ();
@@ -336,12 +358,6 @@ public class MprisPlayer : Object {
     public void previous (BusName sender) throws Error {
         if (can_go_previous) {
             player.prev ();
-        }
-    }
-
-    public void play (BusName sender) throws Error {
-        if (can_control) {
-            player.play ();
         }
     }
 
@@ -363,23 +379,26 @@ public class MprisPlayer : Object {
         }
     }
 
-    public void seek (
-        int64 offset,
-        BusName sender
-    ) throws Error {
+    public void play (BusName sender) throws Error {
+        if (can_control) {
+            player.play ();
+        }
+    }
+
+    public void seek (int64 offset, BusName sender) throws Error {
         if (can_seek) {
             player.seek ((position + offset) / 1000);
         }
     }
 
-    public void set_position (
-        ObjectPath track_id,
-        int64 position,
-        BusName sender
-    ) throws Error {
+    public void set_position (ObjectPath track_id, int64 position, BusName sender) throws Error {
         if (can_seek) {
             player.seek ((position) / 1000);
         }
+    }
+
+    public void open_uri (string uri, BusName sender) throws Error {
+        client.mpris_uri_open (uri);
     }
 }
 }

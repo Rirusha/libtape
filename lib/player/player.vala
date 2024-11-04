@@ -77,21 +77,48 @@ public sealed class Tape.Player : Object {
         }
     }
 
-    public double position_sec {
-        get {
-            return ((double) position) / 1000.0;
-        }
-    }
+    /**
+     * You can get position via:
+     * - position
+     * - position_sec
+     * - position_us
+     */
+    public signal void position_changed (int64 position);
 
     public double total_played_seconds { get; set; default = 0.0; }
 
-    public int64 position { get; private set; }
-        //  get {
-            //  int64 cur;
-            //  playbin.query_position (Gst.Format.TIME, out cur);
-            //  return cur / Gst.MSECOND;
-        //  }
-    //  }
+    /**
+     * Current position in milliseconds.
+     */
+    public int64 position {
+        get {
+            int64 cur;
+            playbin.query_position (Gst.Format.TIME, out cur);
+            return cur / Gst.MSECOND;
+        }
+    }
+
+    /**
+     * Current position in seconds.
+     */
+    public double position_sec {
+        get {
+            int64 cur;
+            playbin.query_position (Gst.Format.TIME, out cur);
+            return ((double) cur) / Gst.SECOND;
+        }
+    }
+
+    /**
+     * Current position in microseconds.
+     */
+    public int64 position_us {
+        get {
+            int64 cur;
+            playbin.query_position (Gst.Format.TIME, out cur);
+            return cur / Gst.USECOND;
+        }
+    }
 
     public signal void queue_changed (ArrayList<YaMAPI.Track> queue,
                                       string context_type,

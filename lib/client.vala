@@ -42,6 +42,12 @@ public class Tape.Client : Object {
      */
     public Player player { get; private set; }
 
+    public signal void quit ();
+
+    public signal void raise ();
+
+    public signal void mpris_uri_open (string uri);
+
     public Client (Tape.Settings settings = new Tape.Settings ()) {
         Object (settings: settings);
     }
@@ -51,6 +57,6 @@ public class Tape.Client : Object {
         ya_m_talker = new YaMTalker ();
         player = new Player ();
 
-        Mpris.init (player);
+        Mpris.init (this);
     }
 }

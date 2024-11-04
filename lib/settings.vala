@@ -52,4 +52,10 @@ public sealed class Tape.Settings : Object {
      * Save content on disk or not.
      */
     public bool can_cache { get; set; default = true; }
+
+    /**
+     * Client opened in fullscreen mode or not.
+     * It is NOT maximized window.
+     */
+    public bool fullscreen { get; set; default = false; }
 }

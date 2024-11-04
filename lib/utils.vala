@@ -19,6 +19,11 @@ using Tape.YaMAPI;
 
 namespace Tape {
 
+    public struct ParseUriResult {
+        public YaMObject root_object;
+        public Track? track;
+    }
+
     public delegate void NetFunc () throws ClientError, BadStatusCodeError;
 
     /**
@@ -34,22 +39,27 @@ namespace Tape {
         /**
          * Error while parsing json.
          */
-        PARSE_ERROR,
+        PARSE_URI,
+
+        /**
+         * Error while parsing json.
+         */
+        PARSE_JSON,
 
         /**
          * Error while trying send request.
          */
-        SOUP_ERROR,
+        SOUP,
 
         /**
          * Error while geting error from api.
          */
-        ANSWER_ERROR,
+        ANSWER,
 
         /**
          * Error while trying authorize.
          */
-        AUTH_ERROR
+        AUTH
     }
 
     public errordomain BadStatusCodeError {
@@ -98,6 +108,14 @@ namespace Tape {
         NONE,
         DB,
         TEXT,
+    }
+
+    public enum UriObjectType {
+        PLAYLIST,
+        ALBUM,
+        TRACK,
+        ARTIST,
+        FILE,
     }
 
     public enum PlayerState {
@@ -206,6 +224,90 @@ namespace Tape {
         case RepeatMode.ONE:
             Client.player.repeat_mode = RepeatMode.OFF;
             break;
+        }
+    }
+
+    /**
+     * @return  Returns the result with the root dummy object
+     *          (playlist, album) for which you want to get the
+     *          object from the api. And a similar track, if the
+     *          uri contained one.
+     */
+    public ParseUriResult? parse_uri (string uri) throws ClientError {
+        string[] uri_parts = {};
+        string[] args = {};
+
+        try {
+            var regex = new Regex (
+                "(yandexmusic://|https://music.yandex..+/)(.+)",
+                RegexCompileFlags.OPTIMIZE, RegexMatchFlags.NOTEMPTY
+            );
+            MatchInfo match_info;
+
+            string? match = null;
+            if (regex.match (uri, 0, out match_info)) {
+                match = match_info.fetch (2);
+            }
+
+            if (match == "" || match == null) {
+                return null;
+            }
+
+            var splitted = match.split ("?");
+            uri_parts = splitted[0].split ("/");
+
+            // Cut off arguments
+            if (splitted.length == 2) {
+                args = splitted[1].split ("&");
+            }
+
+        } catch (Error e) {
+            warning (e.message);
+        }
+
+        switch (uri_parts[0]) {
+            case "users":
+                return_val_if_fail (uri_parts.length > 1, null);
+                string user_id = uri_parts[1];
+
+                switch (uri_parts[2]) {
+                    case "playlists":
+                        return_val_if_fail (uri_parts.length > 3, null);
+                        var playlist_dummy = new Playlist () {
+                            uid = user_id,
+                            kind = uri_parts[3]
+                        };
+
+                        string kind = uri_parts[3];
+                        return {playlist_dummy, null};
+
+                    default:
+                        return null;
+                }
+
+            case "album":
+                return_val_if_fail (uri_parts.length > 1, null);
+                Album album_dummy = new Album () {
+                    id = uri_parts[1]
+                };
+
+                if (uri_parts.length == 2) {
+                    warning (_("Albums view not implemented yet"));
+                    return null;
+                }
+
+                switch (uri_parts[2]) {
+                    case "track":
+                        return_val_if_fail (uri_parts.length > 3, null);
+                        var track_dummy = new Track () {
+                            id = uri_parts[3]
+                        };
+
+                        return {album_dummy, track_dummy};
+
+                    default:
+                        return null;
+                }
         }
     }
 

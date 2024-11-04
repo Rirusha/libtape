@@ -26,4 +26,10 @@ namespace Config {
     public const string GETTEXT_PACKAGE;
     public const string GNOMELOCALEDIR;
     public const string DATADIR;
+
+    // mpris
+    public const bool CAN_CONTROL;
+    public const bool CAN_QUIT;
+    public const bool CAN_RAISE;
+    public const bool CAN_SET_FULLSCREEN;
 }
