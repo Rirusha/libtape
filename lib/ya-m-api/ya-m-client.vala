@@ -24,7 +24,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     const string USER_AGENT = "libtape";
     const string YAM_BASE_URL = "https://api.music.yandex.net";
 
-    public SoupWrapper soup_wrapper { private get; construct; }
+    public ApiBase.SoupWrapper soup_wrapper { private get; construct; }
 
     public AuthType auth_type { get; construct; }
 

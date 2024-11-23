@@ -21,12 +21,6 @@ vala_sources = files(
   'player/mpris.vala',
   'player/player.vala',
 
-  'soup-wrapper/header.vala',
-  'soup-wrapper/headers.vala',
-  'soup-wrapper/post-content.vala',
-  'soup-wrapper/soup-utils.vala',
-  'soup-wrapper/soup-wrapper.vala',
-
   'ya-m-api/objects/account/about.vala',
   'ya-m-api/objects/additional-info/lyrics-major.vala',
   'ya-m-api/objects/additional-info/lyrics.vala',
