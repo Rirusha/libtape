@@ -27,11 +27,6 @@ namespace Tape {
     public delegate void NetFunc () throws ClientError, BadStatusCodeError;
 
     /**
-     * Timeout for all requests.
-     */
-    public const int TIMEOUT = 10;
-
-    /**
      * Client errors.
      */
     public errordomain ClientError {
@@ -42,24 +37,9 @@ namespace Tape {
         PARSE_URI,
 
         /**
-         * Error while parsing json.
-         */
-        PARSE_JSON,
-
-        /**
-         * Error while trying send request.
-         */
-        SOUP,
-
-        /**
-         * Error while geting error from api.
-         */
-        ANSWER,
-
-        /**
          * Error while trying authorize.
          */
-        AUTH
+        AUTH,
     }
 
     public errordomain BadStatusCodeError {
@@ -104,12 +84,6 @@ namespace Tape {
         public const int BIG = 400;
     }
 
-    public enum CookieJarType {
-        NONE,
-        DB,
-        TEXT,
-    }
-
     public enum UriObjectType {
         PLAYLIST,
         ALBUM,
@@ -133,20 +107,6 @@ namespace Tape {
     public enum ShuffleMode {
         OFF,
         ON
-    }
-
-    public enum PostContentType {
-        X_WWW_FORM_URLENCODED,
-        JSON
-    }
-
-    /**
-     * Перечисление нейм кейсов.
-     */
-    public enum Case {
-        SNAKE,
-        KEBAB,
-        CAMEL
     }
 
     public enum ContentType {
@@ -488,109 +448,5 @@ namespace Tape {
                 list[random_index] = a;
             }
         }
-    }
-
-    /**
-     * Delete `ch` from start and end of `str`
-     */
-    public string strip (string str, char ch) {
-        int start = 0;
-        int end = str.length;
-
-        while (str[start] == ch) {
-            start++;
-        }
-
-        while (str[end - 1] == ch) {
-            end--;
-        }
-
-        return str[start:end];
-    }
-
-    /**
-     * Camel string to kebab string.
-     *
-     * @param camel_string  correct camel string
-     */
-    public string camel2kebab (string camel_string) {
-        var builder = new StringBuilder ();
-
-        int i = 0;
-        while (i < camel_string.length) {
-            if (camel_string[i].isupper ()) {
-                builder.append_c ('-');
-                builder.append_c (camel_string[i].tolower ());
-            } else {
-                builder.append_c (camel_string[i]);
-            }
-            i += 1;
-        }
-
-        return builder.free_and_steal ();
-    }
-
-    /**
-     * Kebab string to camel string.
-     *
-     * @param kebab_string  correct kebab string
-     */
-    public string kebab2camel (string kebab_string) {
-        var builder = new StringBuilder ();
-
-        int i = 0;
-        while (i < kebab_string.length) {
-            if (kebab_string[i] == '-') {
-                i += 1;
-                builder.append_c (kebab_string[i].toupper ());
-            } else {
-                builder.append_c (kebab_string[i]);
-            }
-            i += 1;
-        }
-
-        return builder.free_and_steal ();
-    }
-
-    /**
-     * Kebab string to snake string.
-     *
-     * @param kebab_string  correct kebab string
-     */
-    public string kebab2snake (string kebab_string) {
-        var builder = new StringBuilder ();
-
-        int i = 0;
-        while (i < kebab_string.length) {
-            if (kebab_string[i] == '-') {
-                builder.append_c ('_');
-            } else {
-                builder.append_c (kebab_string[i]);
-            }
-            i += 1;
-        }
-
-        return builder.free_and_steal ();
-    }
-
-    /**
-     * Snake string to kebab string.
-     *
-     * @param snake_string  correct snake string
-     */
-    public string snake2kebab (string snake_string) {
-        var builder = new StringBuilder ();
-
-        int i = 0;
-        while (i < snake_string.length) {
-            if (snake_string[i] == '_') {
-                builder.append_c ('-');
-            } else {
-                builder.append_c (snake_string[i]);
-            }
-            i += 1;
-        }
-
-        return builder.free_and_steal ();
     }
 }

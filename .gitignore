@@ -8,3 +8,5 @@ _build
 # Po
 *.mo
 po/cassette.pot
+
+subprojects/*/

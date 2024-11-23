@@ -97,59 +97,66 @@ vala_sources = files(
   'ya-m-talker.vala',
 )
 
-libtape_sources = [
+sources = [
   vapi_sources,
   vala_sources,
 ]
 
-libtape_gir = versioned_gir_name + '.gir'
-libtape_typelib = versioned_gir_name + '.typelib'
-
-include_dir = get_option('prefix') / get_option('includedir') / meson.project_name()
-
-libtape = shared_library(
-  meson.project_name(),
-  libtape_sources,
-  dependencies: libtape_dependencies,
+lib = shared_library(
+  lib_name,
+  sources,
+  dependencies: dependencies,
   include_directories: config_h_dir,
-  vala_header: versioned_name + '.h',
-  vala_vapi: versioned_name + '.vapi',
-  vala_gir: libtape_gir,
+  vala_header: header_name,
+  vala_vapi: vapi_name,
+  vala_gir: gir_name,
   version: meson.project_version(),
   install: true,
-  install_dir: [true, include_dir, true, true],
+  install_dir: [true, true, true, true],
 )
 
-install_data(
-  versioned_name + '.deps',
+lib_dep = declare_dependency(
+  link_with: lib,
+  include_directories: include_directories('.'),
+  dependencies: dependencies
+)
+
+deps_conf = configuration_data()
+deps_conf.set ('DEPS',  '\n'.join (deps_pkgs))
+
+configure_file(
+  input: 'lib.deps.in',
+  output: deps_name,
+  configuration: deps_conf,
+  install: true,
   install_dir: get_option('datadir') / 'vala' / 'vapi',
 )
 
 if get_option('introspection')
   g_ir_compiler = find_program('g-ir-compiler')
   custom_target(
-    libtape_typelib,
+    'typelib',
     command: [
       g_ir_compiler,
       '--shared-library', '@PLAINNAME@',
       '--output', '@OUTPUT@',
       '--includedir', gee_girdir,
-      meson.current_build_dir() / libtape_gir,
+      meson.current_build_dir() / gir_name,
     ],
-    input: libtape,
-    output: libtape_typelib,
-    depends: libtape,
+    input: lib,
+    output: typelib_name,
+    depends: lib,
     install: true,
     install_dir: get_option('libdir') / 'girepository-1.0',
   )
 endif
 
 pkgconfig.generate(
-  libtape,
-  name: meson.project_name(),
-  requires: libtape_dependencies,
-  subdirs: [versioned_name],
-  description: 'Unofficial Yandex Music client library',
+  lib,
+  name: versioned_name,
+  requires: pgconfig_dependencies,
+  subdirs: [ versioned_name ],
+  description: pkgc_description,
   version: meson.project_version(),
-  url: 'https://gitlab.gnome.org/Rirusha/libtape',
+  url: pkgc_url,
 )

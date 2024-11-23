@@ -7,10 +7,23 @@ project(
 )
 
 api_version = '0.2'
-versioned_name = meson.project_name() + '-' + api_version
-gir_name = 'Tape'
-versioned_gir_name = gir_name + '-' + api_version
 glib_min_version = '2.76'
+
+lib_name = 'tape'
+project_name = meson.project_name()
+gir_name = 'Tape'
+
+pkgc_description = 'Unofficial Yandex Music client library'
+pkgc_url = 'https://gitlab.gnome.org/Rirusha/libtape'
+
+versioned_name = meson.project_name() + '-' + api_version
+versioned_gir_name = gir_name + '-' + api_version
+
+deps_name = versioned_name + '.deps'
+header_name = project_name + '.h'
+vapi_name = versioned_name + '.vapi'
+git_name = versioned_gir_name + '.gir'
+typelib_name = versioned_gir_name + '.typelib'
 
 pkgconfig = import('pkgconfig')
 i18n = import('i18n')
@@ -23,18 +36,34 @@ deps_pkgs = [
   'gee-0.8',
   'libxml-2.0',
   'gstreamer-1.0',
-  'gio-2.0'
+  'gio-2.0',
 ]
 
-libtape_dependencies = []
+libsoup_dep = dependency('libsoup-3.0')
+json_glib_dep = dependency('json-glib-1.0')
+sqlite3_dep = dependency('sqlite3')
+gee_dep = dependency('gee-0.8')
+libxml_dep = dependency('libxml-2.0')
+gstreamer_dep = dependency('gstreamer-1.0')
+gio_dep = dependency('gio-2.0')
+libapi_base_dep = dependency('libapi-base-1', fallback : ['libapi-base', 'libapi_base_dep'])
 
-foreach deps_pkg : deps_pkgs 
-  libtape_dependencies += dependency(deps_pkg)
-endforeach
+pgconfig_dependencies = [
+  libsoup_dep,
+  json_glib_dep,
+  sqlite3_dep,
+  gee_dep,
+  libxml_dep,
+  gstreamer_dep,
+  gio_dep,
+]
+dependencies = pgconfig_dependencies + [libapi_base_dep]
 
-gee = dependency('gee-0.8')
-gee_girdir = gee.get_variable('datadir') / 'gir-1.0'
-gee_vapidir = gee.get_variable('datadir') / 'vala' / 'vapi'
+if libapi_base_dep.type_name() == 'pkgconfig'
+  pgconfig_dependencies += libapi_base_dep
+endif
+
+gee_girdir = gee_dep.get_variable('datadir') / 'gir-1.0'
 
 add_project_arguments(
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
@@ -43,7 +72,6 @@ add_project_arguments(
 )
 
 add_project_arguments(
-  '-enable-experimental-non-null',
   '--abi-stability',
   '--hide-internal',
   '--target-glib', glib_min_version,

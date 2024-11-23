@@ -1,20 +1,18 @@
 valadoc = find_program('valadoc')
 
+pkgs = []
+foreach deps_pkg : deps_pkgs
+  pkgs += '--pkg=' + deps_pkg
+endforeach
+
 valadoc_vala_dir = versioned_name + '-vala'
 custom_target(
   'valadoc',
-  command: [
-    valadoc,
-    '--pkg=gee-0.8',
-    '--pkg=gio-2.0',
-    '--pkg=libsoup-3.0',
-    '--pkg=json-glib-1.0',
-    '--pkg=sqlite3',
-    '--pkg=libxml-2.0',
-    '--pkg=gstreamer-1.0',
-    libtape_sources,
+  command: [ valadoc ] + pkgs +
+  [
+    sources,
     '--target-glib=' + glib_min_version,
-    '--package-name=' + meson.project_name(),
+    '--package-name=' + versioned_name,
     '--package-version=' + meson.project_version(),
     '--verbose',
     '--force',
@@ -22,34 +20,27 @@ custom_target(
   ],
 
   build_by_default: true,
-  input : libtape_sources,
+  input : sources,
   output: valadoc_vala_dir,
-  depends: libtape,
+  depends: lib,
 )
 
 custom_target(
   'cdocs',
-  command: [
-    valadoc,
-    '--pkg=gee-0.8',
-    '--pkg=gio-2.0',
-    '--pkg=libsoup-3.0',
-    '--pkg=json-glib-1.0',
-    '--pkg=sqlite3',
-    '--pkg=libxml-2.0',
-    '--pkg=gstreamer-1.0',
-    libtape_sources,
+  command: [ valadoc ] + pkgs +
+  [
+    sources,
     '--target-glib=' + glib_min_version,
-    '--package-name=' + meson.project_name(),
+    '--package-name=' + versioned_name,
     '--package-version=' + meson.project_version(),
     '--verbose',
     '--force',
     '-o', meson.current_build_dir() / versioned_name,
-    '--doclet-arg=lib/' + versioned_name + '.h',
+    '--doclet-arg=lib/' + header_name,
     '--doclet=gtkdoc',
   ],
 
   build_by_default: true,
   output: versioned_name,
-  depends: libtape,
+  depends: lib,
 )
