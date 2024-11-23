@@ -10,7 +10,6 @@ api_version = '0.2'
 glib_min_version = '2.76'
 
 lib_name = 'tape'
-project_name = meson.project_name()
 gir_name = 'Tape'
 
 pkgc_description = 'Unofficial Yandex Music client library'
@@ -20,9 +19,9 @@ versioned_name = meson.project_name() + '-' + api_version
 versioned_gir_name = gir_name + '-' + api_version
 
 deps_name = versioned_name + '.deps'
-header_name = project_name + '.h'
+header_name = meson.project_name() + '.h'
 vapi_name = versioned_name + '.vapi'
-git_name = versioned_gir_name + '.gir'
+gir_name = versioned_gir_name + '.gir'
 typelib_name = versioned_gir_name + '.typelib'
 
 pkgconfig = import('pkgconfig')
