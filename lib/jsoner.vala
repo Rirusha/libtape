@@ -17,7 +17,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using Gee;
 using ApiBase;
 
 public sealed class Tape.Jsoner : ApiBase.Jsoner {
@@ -30,13 +29,6 @@ public sealed class Tape.Jsoner : ApiBase.Jsoner {
         this (json_string, sub_members, names_case);
     }
 
-    /**
-     * Метод для десериализации данных о библиотеке пользователя.
-     * Существует, так как API возвращает json, в котором вместо списков с id
-     * решили каждый элемент списка сделать отдельным элементом json объекта.
-     *
-     * @return  десериализованный объект
-     */
     public async YaMAPI.Library.AllIds deserialize_lib_data () throws CommonError {
         var lib_data = new YaMAPI.Library.AllIds ();
 
@@ -66,6 +58,7 @@ public sealed class Tape.Jsoner : ApiBase.Jsoner {
                     Idle.add (deserialize_lib_data.callback);
                     yield;
                 }
+
             } else if (ld_type_name == "artists") {
                 foreach (var ld_val_name in ld_type_obj.get_members ()) {
                     if (ld_type_obj.get_int_member (ld_val_name) == 1) {
@@ -78,6 +71,7 @@ public sealed class Tape.Jsoner : ApiBase.Jsoner {
                     Idle.add (deserialize_lib_data.callback);
                     yield;
                 }
+
             } else {
                 var tval = Value (Type.OBJECT);
                 lib_data.get_property (camel2kebab (ld_type_name), ref tval);
