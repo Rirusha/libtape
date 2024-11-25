@@ -28,7 +28,7 @@ internal class Tape.Storager : Object {
             if (_db == null) {
                 _db = new InfoDB (db_file.peek_path ());
 
-                Logger.info (_("Database was initialized, loc - %s").printf (db.db_path));
+                info ("Database was initialized, loc - %s", db.db_path);
             }
 
             return _db;
@@ -175,7 +175,6 @@ internal class Tape.Storager : Object {
         _cache_dir_file = File.new_build_filename (Environment.get_user_cache_dir (), Filenames.ROOT_DIR_NAME);
 
         _log_file = File.new_build_filename (cache_dir_file.peek_path (), Filenames.LOG);
-        Logger.log_file = _log_file;
 
         _cache_images_dir_file = File.new_build_filename (cache_dir_file.peek_path (), Filenames.IMAGES);
         _cache_audios_dir_file = File.new_build_filename (cache_dir_file.peek_path (), Filenames.AUDIOS);
@@ -184,7 +183,7 @@ internal class Tape.Storager : Object {
         temp_audio_file = File.new_build_filename (cache_dir_file.peek_path (), ".track");
         temp_audio_uri = "file://%s".printf (temp_audio_file.peek_path ());
 
-        Logger.debug ("Storager initialized");
+        debug ("Storager initialized");
     }
 
     /**
@@ -218,7 +217,7 @@ internal class Tape.Storager : Object {
             return true;
 
         } else {
-            Logger.info ("Location '%s' was not found.".printf (target_file.peek_path ()));
+            info ("Location '%s' was not found.", target_file.peek_path ());
             return false;
         }
     }
@@ -228,14 +227,14 @@ internal class Tape.Storager : Object {
             try {
                 target_file.make_directory_with_parents ();
 
-                Logger.info ("Directory '%s' created".printf (target_file.peek_path ()));
+                info ("Directory '%s' created", target_file.peek_path ());
 
             } catch (Error e) {
-                Logger.error (
-                    "Error while creating directory '%s'. Error message: %s".printf (
+                error (
+                    "Error while creating directory '%s'. Error message: %s",
                     target_file.peek_path (),
                     e.message
-                ));
+                );
             }
         }
     }
@@ -273,12 +272,12 @@ internal class Tape.Storager : Object {
             );
 
         } catch (Error e) {
-            Logger.warning (
-                "Can't move file '%s' to '%s'. Error message: %s".printf (
+            warning (
+                "Can't move file '%s' to '%s'. Error message: %s",
                 src_file.peek_path (),
                 dst_file.peek_path (),
                 e.message
-            ));
+            );
         }
     }
 
@@ -308,21 +307,19 @@ internal class Tape.Storager : Object {
                     } else {
                         yield src_file.trash_async ();
 
-                        Logger.warning (
-                            "In cache folder found suspicious file '%s'. It moved to trash.".printf (file_name)
-                        );
+                        warning ("In cache folder found suspicious file '%s'. It moved to trash.", file_name);
                     }
                 }
             }
             yield src_dir_file.delete_async ();
 
         } catch (Error e) {
-            Logger.warning (
-                "Can't move directory '%s' to '%s'. Error message: %s".printf (
+            warning (
+                "Can't move directory '%s' to '%s'. Error message: %s",
                 src_dir_file.peek_path (),
                 dst_dir_file.peek_path (),
                 e.message
-            ));
+            );
         }
     }
 
@@ -334,10 +331,10 @@ internal class Tape.Storager : Object {
             yield target_file.delete_async ();
 
         } catch (Error e) {
-            Logger.warning ("Can't delete file '%s'. Error message: %s".printf (
+            warning ("Can't delete file '%s'. Error message: %s",
                 target_file.peek_path (),
                 e.message
-            ));
+            );
         }
     }
 
@@ -371,20 +368,18 @@ internal class Tape.Storager : Object {
                     } else {
                         yield file.trash_async ();
 
-                        Logger.warning (
-                            "In cache folder found suspicious file '%s'. It moved to trash.".printf (file_name)
-                            );
+                        warning ("In cache folder found suspicious file '%s'. It moved to trash.", file_name);
                     }
                 }
             }
             dir_file.delete ();
 
         } catch (Error e) {
-            Logger.warning (
-                "Can't remove directory '%s'. Error message: %s".printf (
+            warning (
+                "Can't remove directory '%s'. Error message: %s",
                 dir_file.peek_path (),
                 e.message
-            ));
+            );
         }
     }
 
@@ -505,19 +500,19 @@ internal class Tape.Storager : Object {
                 return image_data;
 
             } catch (Error e) {
-                Logger.warning (
-                    "Can't load image '%s'. Error message: %s".printf (
+                warning (
+                    "Can't load image '%s'. Error message: %s",
                     image_location.file.peek_path (),
                     e.message
-                ));
+                );
 
                 yield wait (3);
             }
         }
 
-        Logger.warning ("Give up loading image '%s'.".printf (
+        warning ("Give up loading image '%s'.",
             image_location.file.peek_path ()
-        ));
+        );
         return null;
     }
 
@@ -542,7 +537,7 @@ internal class Tape.Storager : Object {
             );
 
         } catch (Error e) {
-            Logger.warning (("Can't save image %s".printf (image_url)));
+            warning ("Can't save image %s", image_url);
         }
     }
 
@@ -594,19 +589,19 @@ internal class Tape.Storager : Object {
                 return audio_data;
 
             } catch (Error e) {
-                Logger.warning (
-                    "Can't load audio '%s'. Error message: %s".printf (
+                warning (
+                    "Can't load audio '%s'. Error message: %s",
                     audio_location.file.peek_path (),
                     e.message
-                ));
+                );
 
                 yield wait (3);
             }
         }
 
-        Logger.warning ("Give up loading track with id '%s'.".printf (
+        warning ("Give up loading track with id '%s'.",
             track_id
-        ));
+        );
         return null;
     }
 
@@ -627,16 +622,16 @@ internal class Tape.Storager : Object {
                 return temp_audio_uri;
 
             } catch (Error e) {
-                Logger.warning (
-                    "Can't save temp audio. Error message: %s".printf (
+                warning (
+                    "Can't save temp audio. Error message: %s",
                     e.message
-                ));
+                );
                 yield wait (3);
             }
 
-            Logger.warning ("Give up saving temp track with id '%s'.".printf (
+            warning ("Give up saving temp track with id '%s'.",
                 track_id
-            ));
+            );
             return null;
         } else {
             return null;
@@ -675,9 +670,7 @@ internal class Tape.Storager : Object {
             );
 
         } catch (Error e) {
-            Logger.warning (("Can't save audio %s".printf (
-                track_id
-            )));
+            warning ("Can't save audio %s", track_id);
         }
     }
 
@@ -730,25 +723,23 @@ internal class Tape.Storager : Object {
 
                     simple_dencode (ref idata);
 
-                    var jsoner = new Jsoner.from_data (idata);
+                    var jsoner = new ApiBase.Jsoner.from_data (idata);
 
                     try {
                         obj_arr.append_val ((YaMAPI.HasTracks) (yield jsoner.deserialize_object_async (obj_type)));
 
                     } catch (ApiBase.CommonError e) {
-                        Logger.warning (("Can't parse object. Error message: %s".printf (
-                            e.message
-                        )));
+                        warning ("Can't parse object. Error message: %s", e.message);
                     }
                 }
             }
 
         } catch (Error e) {
-            Logger.warning (
-                "Can't find '%s'. Error message: %s".printf (
+            warning (
+                "Can't find '%s'. Error message: %s",
                 data_objects_dir_file.peek_path (),
                 e.message
-            ));
+            );
         }
 
         return obj_arr.data;
@@ -800,7 +791,7 @@ internal class Tape.Storager : Object {
 
                 simple_dencode (ref object_data);
 
-                var jsoner = new Jsoner.from_data (object_data);
+                var jsoner = new ApiBase.Jsoner.from_data (object_data);
 
                 YaMAPI.HasID? des_obj = null;
 
@@ -808,26 +799,23 @@ internal class Tape.Storager : Object {
                     des_obj = (YaMAPI.HasID) (yield jsoner.deserialize_object_async (obj_type));
 
                 } catch (ApiBase.CommonError e) {
-                    Logger.warning (("Can't parse object. Error message: %s".printf (
-                        e.message
-                    )));
+                    warning ("Can't parse object. Error message: %s", e.message);
                 }
 
                 return des_obj;
 
             } catch (Error e) {
-                Logger.warning ("Can't load object '%s'. Error message: %s".printf (
+                warning (
+                    "Can't load object '%s'. Error message: %s",
                     object_location.file.peek_path (),
                     e.message
-                ));
+                );
 
                 yield wait (3);
             }
         }
 
-        Logger.warning ("Give up loading object '%s'.".printf (
-            object_location.file.peek_path ()
-        ));
+        warning ("Give up loading object '%s'.", object_location.file.peek_path ());
         return null;
     }
 
@@ -848,7 +836,7 @@ internal class Tape.Storager : Object {
             );
 
         } catch (Error e) {
-            Logger.warning (_("Can't save object %s").printf (yam_object.get_type ().name ()));
+            warning ("Can't save object %s", yam_object.get_type ().name ());
         }
     }
 
@@ -883,9 +871,7 @@ internal class Tape.Storager : Object {
             }
 
         } catch (Error e) {
-            Logger.warning (_("Error while getting cache directory size. Error message %s").printf (
-                e.message
-            ));
+            warning ("Error while getting cache directory size. Error message %s", e.message);
         }
 
         if (size != "") {
@@ -922,9 +908,7 @@ internal class Tape.Storager : Object {
             }
 
         } catch (Error e) {
-            Logger.warning (_("Error while getting data directory size. Error message %s").printf (
-                e.message
-            ));
+           warning ("Error while getting data directory size. Error message %s", e.message);
         }
 
         if (size != "") {
