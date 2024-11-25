@@ -46,6 +46,7 @@ libxml_dep = dependency('libxml-2.0')
 gstreamer_dep = dependency('gstreamer-1.0')
 gio_dep = dependency('gio-2.0')
 libapi_base_dep = dependency('libapi-base-1', fallback : ['libapi-base', 'libapi_base_dep'])
+libyandex_music_api_dep = dependency('libyandex-music-api-0.1', fallback : ['libyandex-music-api', 'lib_dep'])
 
 pgconfig_dependencies = [
   libsoup_dep,
@@ -56,10 +57,16 @@ pgconfig_dependencies = [
   gstreamer_dep,
   gio_dep,
 ]
-dependencies = pgconfig_dependencies + [libapi_base_dep]
+dependencies = pgconfig_dependencies + [
+  libapi_base_dep,
+  libyandex_music_api_dep
+]
 
 if libapi_base_dep.type_name() == 'pkgconfig'
   pgconfig_dependencies += libapi_base_dep
+endif
+if libyandex_music_api_dep.type_name() == 'pkgconfig'
+  pgconfig_dependencies += libyandex_music_api_dep
 endif
 
 gee_girdir = gee_dep.get_variable('datadir') / 'gir-1.0'
