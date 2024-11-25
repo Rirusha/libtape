@@ -20,7 +20,7 @@
 /**
  * Track parameters object
  */
-public class Tape.YaMAPI.Rotor.TrackParameters : YaMObject {
+public class Tape.YaMAPI.Rotor.TrackParameters : Object {
 
     /**
      * Bits per minutes.

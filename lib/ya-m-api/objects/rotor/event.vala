@@ -20,7 +20,7 @@
 /**
  *
  */
-public class Tape.YaMAPI.Rotor.Event : YaMObject {
+public class Tape.YaMAPI.Rotor.Event : Object {
 
     public string timestamp { get; set; default = get_timestamp (); }
 

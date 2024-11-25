@@ -20,7 +20,7 @@
 /**
  *
  */
-public class Tape.YaMAPI.Rotor.Queue : YaMObject {
+public class Tape.YaMAPI.Rotor.Queue : Object {
 
     public Gee.ArrayList<string> queue { get; set; default = new Gee.ArrayList<string> (); }
 }

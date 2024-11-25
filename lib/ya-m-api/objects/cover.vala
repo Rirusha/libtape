@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class Tape.YaMAPI.Cover : YaMObject {
+public class Tape.YaMAPI.Cover : Object {
 
     public ArrayList<string> uris {
         owned get {

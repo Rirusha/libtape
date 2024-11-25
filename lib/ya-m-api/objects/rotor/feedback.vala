@@ -20,7 +20,7 @@
 /**
  * Класс Id станции
  */
-public class Tape.YaMAPI.Rotor.Feedback : YaMObject {
+public class Tape.YaMAPI.Rotor.Feedback : Object {
 
     public Event event { get; set; }
 

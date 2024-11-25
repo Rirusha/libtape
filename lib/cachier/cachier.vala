@@ -24,7 +24,7 @@ public sealed class Tape.Cachier : Object {
 
     public Storager storager { get; default = new Storager (); }
 
-    public Controller controller { get; default = new Controller (); }
+    public CacheController controller { get; default = new CacheController (); }
 
     public Jober jober { get; default = new Jober (); }
 

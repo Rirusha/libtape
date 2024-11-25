@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class Tape.YaMAPI.PlaylistRecommendations : YaMObject {
+public class Tape.YaMAPI.PlaylistRecommendations : Object {
 
     public ArrayList<Track> tracks { get; set; default = new ArrayList<Track> (); }
 

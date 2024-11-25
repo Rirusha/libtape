@@ -21,7 +21,6 @@ namespace Config {
     public const string APP_ID;
     public const string APP_NAME;
     public const string APP_NAME_LOWER;
-    public const string VERSION;
     public const string G_LOG_DOMAIN;
     public const string GETTEXT_PACKAGE;
     public const string GNOMELOCALEDIR;

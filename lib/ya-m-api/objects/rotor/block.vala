@@ -22,7 +22,7 @@ using Gee;
 /**
  *
  */
-public class Tape.YaMAPI.Rotor.Block : YaMObject {
+public class Tape.YaMAPI.Rotor.Block : Object {
 
     /**
      *

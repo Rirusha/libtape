@@ -22,7 +22,7 @@ using Gee;
 /**
  *
  */
-public class Tape.YaMAPI.Rotor.SessionNew : YaMObject {
+public class Tape.YaMAPI.Rotor.SessionNew : Object {
 
     /**
      *

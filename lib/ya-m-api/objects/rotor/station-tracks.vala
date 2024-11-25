@@ -22,7 +22,7 @@ using Gee;
 /**
  * Track list returns by `rotor` methods
  */
-public class Tape.YaMAPI.Rotor.StationTracks : YaMObject {
+public class Tape.YaMAPI.Rotor.StationTracks : Object {
 
     /**
      *

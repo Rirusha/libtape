@@ -22,7 +22,7 @@ using Gee;
 /**
  * Датакласс с фидбеками
  */
-public class Tape.YaMAPI.Plays : YaMObject {
+public class Tape.YaMAPI.Plays : Object {
 
     /**
      * Id сессии прослушивания

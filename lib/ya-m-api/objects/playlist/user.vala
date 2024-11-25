@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class Tape.YaMAPI.User : YaMObject {
+public class Tape.YaMAPI.User : Object {
 
     public string uid { get; set; }
 

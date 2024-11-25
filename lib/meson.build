@@ -80,7 +80,6 @@ vala_sources = files(
   'ya-m-api/has-tracks.vala',
   'ya-m-api/utils.vala',
   'ya-m-api/ya-m-client.vala',
-  'ya-m-api/ya-m-object.vala',
 
   'client.vala',
   'jsoner.vala',

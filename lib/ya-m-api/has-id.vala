@@ -20,7 +20,7 @@
  * Exists because, for example, 'Tape.YaMAPI.Playlist' has
  * a composite id divided into uid and kind properties
  */
-public interface Tape.YaMAPI.HasID : YaMObject {
+public interface Tape.YaMAPI.HasID : Object {
 
     /**
      * Object id

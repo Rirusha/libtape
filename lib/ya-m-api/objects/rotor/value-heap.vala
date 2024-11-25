@@ -23,7 +23,7 @@ using Gee;
  * Value heap in api.
  * Discrete scale or enum
  */
-public class Tape.YaMAPI.Rotor.ValueHeap : YaMObject {
+public class Tape.YaMAPI.Rotor.ValueHeap : Object {
 
     /**
      * Data type.

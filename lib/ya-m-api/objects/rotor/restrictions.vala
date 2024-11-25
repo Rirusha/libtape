@@ -20,7 +20,7 @@
 /**
  * Wave parameters
  */
-public class Tape.YaMAPI.Rotor.Restrictions : YaMObject {
+public class Tape.YaMAPI.Rotor.Restrictions : Object {
 
     /**
      * Wave language

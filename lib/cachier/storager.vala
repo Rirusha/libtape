@@ -20,7 +20,7 @@
 /**
  * A class for working with client files
  */
-public class Tape.Storager : Object {
+internal class Tape.Storager : Object {
 
     InfoDB? _db = null;
     public InfoDB db {
@@ -187,37 +187,38 @@ public class Tape.Storager : Object {
         Logger.debug ("Storager initialized");
     }
 
-    public async void move_loc_to_temp_async (Location loc,
-                                              bool can_cache) {
-        /**
-            Переместить файл во временное хранилище, если он в постоянном
-         */
-
+    /**
+     * Remove file from datadir. Move it to cache dir or delete
+     * if ``keep_on_disk`` is false
+     *
+     * @param loc           file location
+     * @param keep_on_disk  keep file on disk or remove
+     */
+    public async void move_loc_to_temp (Location loc, bool keep_on_disk = true) {
         if (loc.file != null && loc.is_tmp == false) {
-            if (can_cache) {
-                yield move_file_to_async (loc.file,
-                                          true);
+            if (keep_on_disk) {
+                yield move_file_to (loc.file, true);
             } else {
-                yield remove_file_async (loc.file);
+                yield remove_file (loc.file);
             }
         }
     }
 
-    public async void move_loc_to_perm_async (Location loc) {
-        /**
-            Переместить файл в постоянное хранилище, если он во временном
-         */
-
-        yield move_file_to_async (loc.file,
-                                  false);
+    /**
+     * Move file from cache dir to datadir
+     *
+     * @param loc           file location
+     */
+    public async void move_loc_to_perm (Location loc) {
+        yield move_file_to (loc.file, false);
     }
 
     static bool file_exists (File target_file) {
         if (target_file.query_exists ()) {
             return true;
+
         } else {
             Logger.info ("Location '%s' was not found.".printf (target_file.peek_path ()));
-
             return false;
         }
     }
@@ -228,66 +229,65 @@ public class Tape.Storager : Object {
                 target_file.make_directory_with_parents ();
 
                 Logger.info ("Directory '%s' created".printf (target_file.peek_path ()));
+
             } catch (Error e) {
-                Logger.error ("Error while creating directory '%s'. Error message: %s".printf (
-                                  target_file.peek_path (),
-                                  e.message
-                                  ));
+                Logger.error (
+                    "Error while creating directory '%s'. Error message: %s".printf (
+                    target_file.peek_path (),
+                    e.message
+                ));
             }
         }
     }
 
-    public async void move_to_async (string src_path,
-                                     bool is_tmp) {
-        yield move_file_to_async (File.new_for_path (src_path),
-                                  is_tmp);
+    public async void move_to (string src_path, bool is_tmp) {
+        yield move_file_to (
+            File.new_for_path (src_path),
+            is_tmp
+        );
     }
 
-    public async void move_file_to_async (File src_file,
-                                          bool is_tmp) {
+    public async void move_file_to (File src_file, bool is_tmp) {
         var b = src_file.peek_path ().split ("/tape/");
 
         File dst_file = File.new_build_filename (
             is_tmp ? cache_dir_file.peek_path () : data_dir_file.peek_path (),
             b[b.length - 1]
-            );
+        );
 
-        yield move_file_async (src_file,
-                               dst_file);
+        yield move_file (src_file, dst_file);
     }
 
-    async void move_file_async (File src_file,
-                                File dst_file) {
+    async void move_file (File src_file, File dst_file) {
         /**
             Перемещает файл
          */
 
         try {
-            yield src_file.move_async (dst_file,
-                                       FileCopyFlags.OVERWRITE,
-                                       Priority.DEFAULT,
-                                       null,
-                                       null);
+            yield src_file.move_async (
+                dst_file,
+                FileCopyFlags.OVERWRITE,
+                Priority.DEFAULT,
+                null,
+                null
+            );
+
         } catch (Error e) {
-            Logger.warning ("Can't move file '%s' to '%s'. Error message: %s".printf (
-                                src_file.peek_path (),
-                                dst_file.peek_path (),
-                                e.message
-                                ));
+            Logger.warning (
+                "Can't move file '%s' to '%s'. Error message: %s".printf (
+                src_file.peek_path (),
+                dst_file.peek_path (),
+                e.message
+            ));
         }
     }
 
-    async void move_file_dir_async (File src_dir_file,
-                                    File dst_dir_file) {
-        /**
-            Перемещает директорию рекурсивно
-         */
-
+    async void move_file_dir (File src_dir_file, File dst_dir_file) {
         try {
             FileEnumerator? enumerator = src_dir_file.enumerate_children (
-                "standard::*",
-                FileQueryInfoFlags.NONE,
-                null
+                    "standard::*",
+                    FileQueryInfoFlags.NONE,
+                    null
                 );
 
             if (enumerator != null) {
@@ -300,57 +300,59 @@ public class Tape.Storager : Object {
                     File dst_file = File.new_build_filename (dst_dir_file.peek_path (), file_name);
 
                     if (file_info.get_file_type () == FileType.DIRECTORY) {
-                        yield move_file_dir_async (src_file,
-                                                   dst_file);
+                        yield move_file_dir (src_file, dst_file);
+
                     } else if (file_info.get_file_type () == FileType.REGULAR) {
-                        yield move_file_async (src_file,
-                                               dst_file);
+                        yield move_file (src_file, dst_file);
+
                     } else {
                         yield src_file.trash_async ();
 
                         Logger.warning (
                             "In cache folder found suspicious file '%s'. It moved to trash.".printf (file_name)
-                            );
+                        );
                     }
                 }
             }
-
             yield src_dir_file.delete_async ();
+
         } catch (Error e) {
-            Logger.warning ("Can't move directory '%s' to '%s'. Error message: %s".printf (
-                                src_dir_file.peek_path (),
-                                dst_dir_file.peek_path (),
-                                e.message
-                                ));
+            Logger.warning (
+                "Can't move directory '%s' to '%s'. Error message: %s".printf (
+                src_dir_file.peek_path (),
+                dst_dir_file.peek_path (),
+                e.message
+            ));
         }
     }
 
     /**
      * Delete file with error handle.
      */
-    public async static void remove_file_async (File target_file) {
+    public async static void remove_file (File target_file) {
         try {
             yield target_file.delete_async ();
+
         } catch (Error e) {
             Logger.warning ("Can't delete file '%s'. Error message: %s".printf (
-                                target_file.peek_path (),
-                                e.message
-                                ));
+                target_file.peek_path (),
+                e.message
+            ));
         }
     }
 
     public async static void remove_async (string file_path) {
-        yield remove_file_async (File.new_for_path (file_path));
+        yield remove_file (File.new_for_path (file_path));
     }
 
-    async void remove_dir_file_async (File dir_file) {
+    async void remove_dir_file (File dir_file) {
 
         try {
             FileEnumerator? enumerator = dir_file.enumerate_children (
                 "standard::*",
                 FileQueryInfoFlags.NONE,
                 null
-                );
+            );
 
             if (enumerator != null) {
                 FileInfo? file_info = null;
@@ -361,9 +363,11 @@ public class Tape.Storager : Object {
                     File file = File.new_build_filename (dir_file.peek_path (), file_name);
 
                     if (file_info.get_file_type () == FileType.DIRECTORY) {
-                        yield remove_dir_file_async (file);
+                        yield remove_dir_file (file);
+
                     } else if (file_info.get_file_type () == FileType.REGULAR) {
-                        yield remove_file_async (file);
+                        yield remove_file (file);
+
                     } else {
                         yield file.trash_async ();
 
@@ -373,13 +377,14 @@ public class Tape.Storager : Object {
                     }
                 }
             }
-
             dir_file.delete ();
+
         } catch (Error e) {
-            Logger.warning ("Can't remove directory '%s'. Error message: %s".printf (
-                                dir_file.peek_path (),
-                                e.message
-                                ));
+            Logger.warning (
+                "Can't remove directory '%s'. Error message: %s".printf (
+                dir_file.peek_path (),
+                e.message
+            ));
         }
     }
 
@@ -389,31 +394,26 @@ public class Tape.Storager : Object {
      * @param keep_content  remove content or keep
      * @param keep_settings remove cookies and other or
      */
-    public async void clear_user_data_async (bool keep_content,
-                                             bool keep_datadir) {
+    public async void clear_user_data (bool keep_content, bool keep_datadir) {
         if (keep_content) {
-            yield move_file_dir_async (data_images_dir_file,
-                                       cache_images_dir_file);
-            yield move_file_dir_async (data_objects_dir_file,
-                                       cache_objects_dir_file);
-            yield move_file_dir_async (data_audios_dir_file,
-                                       cache_audios_dir_file);
+            yield move_file_dir (data_images_dir_file, cache_images_dir_file);
+            yield move_file_dir (data_objects_dir_file, cache_objects_dir_file);
+            yield move_file_dir (data_audios_dir_file, cache_audios_dir_file);
         }
 
         _db = null;
-        yield remove_file_async (db_file);
+        yield remove_file (db_file);
 
         if (!keep_datadir) {
-            yield remove_dir_file_async (data_dir_file);
+            yield remove_dir_file (data_dir_file);
         }
     }
 
-    public async void delete_cache_dir_async () {
-        /**
-            Удаляет временные файлы
-         */
-
-        yield remove_dir_file_async (cache_dir_file);
+    /**
+     * Remove diractory with cached files
+     */
+    public async void delete_cache_dir () {
+        yield remove_dir_file (cache_dir_file);
     }
 
     /**
@@ -428,9 +428,11 @@ public class Tape.Storager : Object {
         }
     }
 
-    string replace_many (string input,
-                         char[] targets,
-                         char replacement) {
+    string replace_many (
+        string input,
+        char[] targets,
+        char replacement
+    ) {
         var builder = new StringBuilder ();
 
         for (int i = 0; i < input.length; i++) {
@@ -452,12 +454,11 @@ public class Tape.Storager : Object {
     // Images  //
     /////////////
 
-    File get_image_cache_file (string image_uri,
-                               bool is_tmp) {
+    File get_image_cache_file (string image_uri, bool is_tmp) {
         return File.new_build_filename (
             is_tmp ? cache_images_dir_file.peek_path () : data_images_dir_file.peek_path (),
             encode_name (image_uri)
-            );
+        );
     }
 
     /**
@@ -483,7 +484,7 @@ public class Tape.Storager : Object {
         return Location.none ();
     }
 
-    public async uint8[] ? load_image_async (string image_uri) {
+    public async uint8[]? load_image (string image_uri) {
         Location image_location = image_cache_location (image_uri);
 
         if (image_location.file == null) {
@@ -493,43 +494,53 @@ public class Tape.Storager : Object {
         for (int i = 0; i > 5; i++) {
             try {
                 uint8[] image_data;
-                yield image_location.file.load_contents_async (null,
-                                                               out image_data,
-                                                               null);
+                yield image_location.file.load_contents_async (
+                    null,
+                    out image_data,
+                    null
+                );
 
                 simple_dencode (ref image_data);
 
                 return image_data;
-            } catch (Error e) {
-                Logger.warning ("Can't load image '%s'. Error message: %s".printf (
-                                    image_location.file.peek_path (),
-                                    e.message
-                                    ));
 
-                yield wait_async (3);
+            } catch (Error e) {
+                Logger.warning (
+                    "Can't load image '%s'. Error message: %s".printf (
+                    image_location.file.peek_path (),
+                    e.message
+                ));
+
+                yield wait (3);
             }
         }
 
         Logger.warning ("Give up loading image '%s'.".printf (
-                            image_location.file.peek_path ()
-                            ));
+            image_location.file.peek_path ()
+        ));
         return null;
     }
 
-    public async void save_image_async (owned uint8[] image_data,
-                                        string image_url,
-                                        bool is_tmp = true) {
+    public async void save_image (
+        uint8[] image_data,
+        string image_url,
+        bool is_tmp = true
+    ) {
         File image_file = get_image_cache_file (image_url, is_tmp);
 
         try {
-            simple_dencode (ref image_data);
+            var dencoded_image_data = image_data.copy ();
+            simple_dencode (ref dencoded_image_data);
 
-            yield image_file.replace_contents_async (image_data,
-                                                     null,
-                                                     false,
-                                                     FileCreateFlags.NONE,
-                                                     null,
-                                                     null);
+            yield image_file.replace_contents_async (
+                dencoded_image_data,
+                null,
+                false,
+                FileCreateFlags.NONE,
+                null,
+                null
+            );
+
         } catch (Error e) {
             Logger.warning (("Can't save image %s".printf (image_url)));
         }
@@ -539,12 +550,11 @@ public class Tape.Storager : Object {
     // Audios  //
     /////////////
 
-    File get_audio_cache_file (string track_id,
-                               bool is_tmp) {
+    File get_audio_cache_file (string track_id, bool is_tmp) {
         return File.new_build_filename (
             is_tmp ? cache_audios_dir_file.peek_path () : data_audios_dir_file.peek_path (),
             encode_name (track_id)
-            );
+        );
     }
 
     public Location audio_cache_location (string track_id) {
@@ -563,7 +573,7 @@ public class Tape.Storager : Object {
         return Location.none ();
     }
 
-    public async uint8[] ? load_audio_data_async (string track_id) {
+    public async uint8[]? load_audio_data (string track_id) {
         Location audio_location = audio_cache_location (track_id);
 
         if (audio_location.file == null) {
@@ -573,89 +583,101 @@ public class Tape.Storager : Object {
         for (int i = 0; i > 5; i++) {
             try {
                 uint8[] audio_data;
-                yield audio_location.file.load_contents_async (null,
-                                                               out audio_data,
-                                                               null);
+                yield audio_location.file.load_contents_async (
+                    null,
+                    out audio_data,
+                    null
+                );
 
                 simple_dencode (ref audio_data);
 
                 return audio_data;
-            } catch (Error e) {
-                Logger.warning ("Can't load audio '%s'. Error message: %s".printf (
-                                    audio_location.file.peek_path (),
-                                    e.message
-                                    ));
 
-                yield wait_async (3);
+            } catch (Error e) {
+                Logger.warning (
+                    "Can't load audio '%s'. Error message: %s".printf (
+                    audio_location.file.peek_path (),
+                    e.message
+                ));
+
+                yield wait (3);
             }
         }
 
         Logger.warning ("Give up loading track with id '%s'.".printf (
-                            track_id
-                            ));
+            track_id
+        ));
         return null;
     }
 
     // Расшифровывает трек, помещает его во временные файлы и даёт его uri
-    public async string ? load_audio_async (string track_id) {
-        var track_data = yield load_audio_data_async (track_id);
+    public async string? load_audio (string track_id) {
+        var track_data = yield load_audio_data (track_id);
 
         if (track_data != null) {
             try {
-                yield temp_audio_file.replace_contents_async (track_data,
-                                                              null,
-                                                              false,
-                                                              FileCreateFlags.NONE,
-                                                              null,
-                                                              null);
-
+                yield temp_audio_file.replace_contents_async (
+                    track_data,
+                    null,
+                    false,
+                    FileCreateFlags.NONE,
+                    null,
+                    null
+                );
                 return temp_audio_uri;
-            } catch (Error e) {
-                Logger.warning ("Can't save temp audio. Error message: %s".printf (
-                                    e.message
-                                    ));
 
-                yield wait_async (3);
+            } catch (Error e) {
+                Logger.warning (
+                    "Can't save temp audio. Error message: %s".printf (
+                    e.message
+                ));
+                yield wait (3);
             }
 
             Logger.warning ("Give up saving temp track with id '%s'.".printf (
-                                track_id
-                                ));
+                track_id
+            ));
             return null;
         } else {
             return null;
         }
     }
 
-    public async void clear_temp_audio_async () {
-        yield remove_file_async (temp_audio_file);
+    public async void clear_temp_audio () {
+        yield remove_file (temp_audio_file);
     }
 
     /**
      * Save audio data.
      *
-     * @param audio_data    audio data. It will be decode and can't be use after
+     * @param audio_data    audio data
      * @param track_id      track's id
      * @param is_tmp        is track should be save in cache or data
      */
-    public async void save_audio_async (owned uint8[] audio_data,
-                                        string track_id,
-                                        bool is_tmp) {
+    public async void save_audio (
+        uint8[] audio_data,
+        string track_id,
+        bool is_tmp
+    ) {
         File audio_file = get_audio_cache_file (track_id, is_tmp);
 
         try {
-            simple_dencode (ref audio_data);
+            var dencoded_audio_data = audio_data.copy ();
+            simple_dencode (ref dencoded_audio_data);
 
-            yield audio_file.replace_contents_async (audio_data,
-                                                     null,
-                                                     false,
-                                                     FileCreateFlags.NONE,
-                                                     null,
-                                                     null);
+            yield audio_file.replace_contents_async (
+                dencoded_audio_data,
+                null,
+                false,
+                FileCreateFlags.NONE,
+                null,
+                null
+            );
+
         } catch (Error e) {
             Logger.warning (("Can't save audio %s".printf (
-                                 track_id
-                                 )));
+                track_id
+            )));
         }
     }
 
@@ -663,12 +685,11 @@ public class Tape.Storager : Object {
     // Objects  //
     ///////////////
 
-    string build_id (Type build_type,
-                     string oid) {
+    string build_id (Type build_type, string oid) {
         return build_type.name () + "-" + oid;
     }
 
-    public async YaMAPI.HasTracks[] get_saved_objects_async () {
+    public async YaMAPI.HasTracks[] get_saved_objects () {
         var obj_arr = new Array<YaMAPI.HasTracks> ();
 
         try {
@@ -676,7 +697,7 @@ public class Tape.Storager : Object {
                 "standard::*",
                 FileQueryInfoFlags.NONE,
                 null
-                );
+            );
 
             if (enumerator != null) {
                 FileInfo? file_info = null;
@@ -701,50 +722,50 @@ public class Tape.Storager : Object {
                     }
 
                     uint8[] idata;
-                    yield file.load_contents_async (null,
-                                                    out idata,
-                                                    null);
+                    yield file.load_contents_async (
+                        null,
+                        out idata,
+                        null
+                    );
 
                     simple_dencode (ref idata);
 
-                    var jsoner = Jsoner.from_data (idata);
+                    var jsoner = new Jsoner.from_data (idata);
 
-                    Threader.add (() => {
-                        try {
-                            obj_arr.append_val ((YaMAPI.HasTracks) jsoner.deserialize_object (obj_type));
-                        } catch (ClientError e) {
-                            Logger.warning (("Can't parse object. Error message: %s".printf (
-                                                 e.message
-                                                 )));
-                        }
+                    try {
+                        obj_arr.append_val ((YaMAPI.HasTracks) (yield jsoner.deserialize_object_async (obj_type)));
 
-                        Idle.add (get_saved_objects_async.callback);
-                    });
-
-                    yield;
+                    } catch (ApiBase.CommonError e) {
+                        Logger.warning (("Can't parse object. Error message: %s".printf (
+                            e.message
+                        )));
+                    }
                 }
             }
+
         } catch (Error e) {
-            Logger.warning ("Can't find '%s'. Error message: %s".printf (
-                                data_objects_dir_file.peek_path (),
-                                e.message
-                                ));
+            Logger.warning (
+                "Can't find '%s'. Error message: %s".printf (
+                data_objects_dir_file.peek_path (),
+                e.message
+            ));
         }
 
         return obj_arr.data;
     }
 
-    File get_object_cache_file (Type obj_type,
-                                string oid,
-                                bool is_tmp) {
+    File get_object_cache_file (
+        Type obj_type,
+        string oid,
+        bool is_tmp
+    ) {
         return File.new_build_filename (
             is_tmp ? cache_objects_dir_file.peek_path () : data_objects_dir_file.peek_path (),
             encode_name (build_id (obj_type, oid))
-            );
+        );
     }
 
-    public Location object_cache_location (Type obj_type,
-                                           string oid) {
+    public Location object_cache_location (Type obj_type, string oid) {
         File object_file;
 
         object_file = get_object_cache_file (obj_type, oid, false);
@@ -760,7 +781,7 @@ public class Tape.Storager : Object {
         return Location.none ();
     }
 
-    public async YaMAPI.HasID? load_object_async (Type obj_type, string oid) {
+    public async YaMAPI.HasID? load_object (Type obj_type, string oid) {
         Location object_location = object_cache_location (obj_type, oid);
 
         if (object_location.file == null) {
@@ -771,70 +792,61 @@ public class Tape.Storager : Object {
             try {
                 uint8[] object_data;
 
-                yield object_location.file.load_contents_async (null,
-                                                                out object_data,
-                                                                null);
+                yield object_location.file.load_contents_async (
+                    null,
+                    out object_data,
+                    null
+                );
 
                 simple_dencode (ref object_data);
 
-                var jsoner = Jsoner.from_data (object_data);
+                var jsoner = new Jsoner.from_data (object_data);
 
                 YaMAPI.HasID? des_obj = null;
 
-                Threader.add (() => {
-                    try {
-                        des_obj = (YaMAPI.HasID) jsoner.deserialize_object (obj_type);
-                    } catch (ClientError e) {
-                        Logger.warning (("Can't parse object. Error message: %s".printf (
-                                             e.message
-                                             )));
-                    }
+                try {
+                    des_obj = (YaMAPI.HasID) (yield jsoner.deserialize_object_async (obj_type));
 
-                    Idle.add (load_object_async.callback);
-                });
-
-                yield;
+                } catch (ApiBase.CommonError e) {
+                    Logger.warning (("Can't parse object. Error message: %s".printf (
+                        e.message
+                    )));
+                }
 
                 return des_obj;
+
             } catch (Error e) {
                 Logger.warning ("Can't load object '%s'. Error message: %s".printf (
-                                    object_location.file.peek_path (),
-                                    e.message
-                                    ));
+                    object_location.file.peek_path (),
+                    e.message
+                ));
 
-                yield wait_async (3);
+                yield wait (3);
             }
         }
 
         Logger.warning ("Give up loading object '%s'.".printf (
-                            object_location.file.peek_path ()
-                            ));
+            object_location.file.peek_path ()
+        ));
         return null;
     }
 
-    public async void save_object_async (YaMAPI.HasID yam_object,
-                                         bool is_tmp) {
+    public async void save_object (YaMAPI.HasID yam_object, bool is_tmp) {
         File object_file = get_object_cache_file (yam_object.get_type (), yam_object.oid, is_tmp);
 
         try {
-            uint8[] object_data;
-
-            Threader.add (() => {
-                object_data = Jsoner.serialize (yam_object).data;
-
-                Idle.add (save_object_async.callback);
-            });
-
-            yield;
-
+            var object_data = (yield ApiBase.Jsoner.serialize_async (yam_object)).data;
             simple_dencode (ref object_data);
 
-            yield object_file.replace_contents_async (object_data,
-                                                      null,
-                                                      false,
-                                                      FileCreateFlags.NONE,
-                                                      null,
-                                                      null);
+            yield object_file.replace_contents_async (
+                object_data,
+                null,
+                false,
+                FileCreateFlags.NONE,
+                null,
+                null
+            );
+
         } catch (Error e) {
             Logger.warning (_("Can't save object %s").printf (yam_object.get_type ().name ()));
         }
@@ -844,35 +856,37 @@ public class Tape.Storager : Object {
     // Other  //
     /////////////
 
-    public async HumanitySize get_temp_size_async () {
+    public async HumanitySize get_temp_size () {
         string size = "";
 
-        Threader.add (() => {
-            try {
-                Process.spawn_command_line_sync ("du -sh %s --exclude=\"*.log\"".printf (
-                                                     cache_dir_file.peek_path ()
-                                                     ), out size);
+        try {
+            var sp = new Subprocess.newv (
+                {"du", "-sh", cache_dir_file.peek_path (), "--exclude=\"*.log\""},
+                SubprocessFlags.STDOUT_PIPE
+            );
 
-                Regex regex = null;
-                regex = new Regex ("^[\\d.,]+[A-Z]", RegexCompileFlags.OPTIMIZE, RegexMatchFlags.NOTEMPTY);
+            string? stdout_buf;
+            yield sp.communicate_utf8_async (null, null, out stdout_buf, null);
 
-                MatchInfo match_info;
-
-                if (regex.match (size, 0, out match_info)) {
-                    size = match_info.fetch (0);
-                } else {
-                    size = "";
-                }
-            } catch (Error e) {
-                Logger.warning (_("Error while getting cache directory size. Error message %s").printf (
-                                    e.message
-                                    ));
+            if (stdout_buf != null) {
+                size = stdout_buf;
             }
 
-            Idle.add (get_temp_size_async.callback);
-        });
+            Regex regex = null;
+            regex = new Regex ("^[\\d.,]+[A-Z]", RegexCompileFlags.OPTIMIZE, RegexMatchFlags.NOTEMPTY);
 
-        yield;
+            MatchInfo match_info;
+            if (regex.match (size, 0, out match_info)) {
+                size = match_info.fetch (0);
+            } else {
+                size = "";
+            }
+
+        } catch (Error e) {
+            Logger.warning (_("Error while getting cache directory size. Error message %s").printf (
+                e.message
+            ));
+        }
 
         if (size != "") {
             return to_human (size);
@@ -881,35 +895,37 @@ public class Tape.Storager : Object {
         }
     }
 
-    public async HumanitySize get_perm_size_async () {
+    public async HumanitySize get_perm_size () {
         string size = "";
 
-        Threader.add (() => {
-            try {
-                Process.spawn_command_line_sync ("du -sh %s --exclude=\"*.db\" --exclude=\"*.cookies\"".printf (
-                                                     data_dir_file.peek_path ()
-                                                     ), out size);
+        try {
+            var sp = new Subprocess.newv (
+                {"du", "-sh", data_dir_file.peek_path (), "--exclude=\"*.db\"", "--exclude=\"*.cookies\""},
+                SubprocessFlags.STDOUT_PIPE
+            );
 
-                Regex regex = null;
-                regex = new Regex ("^[\\d.,]+[A-Z]", RegexCompileFlags.OPTIMIZE, RegexMatchFlags.NOTEMPTY);
+            string? stdout_buf;
+            yield sp.communicate_utf8_async (null, null, out stdout_buf, null);
 
-                MatchInfo match_info;
-
-                if (regex.match (size, 0, out match_info)) {
-                    size = match_info.fetch (0);
-                } else {
-                    size = "";
-                }
-            } catch (Error e) {
-                Logger.warning (_("Error while getting cache directory size. Error message %s").printf (
-                                    e.message
-                                    ));
+            if (stdout_buf != null) {
+                size = stdout_buf;
             }
 
-            Idle.add (get_perm_size_async.callback);
-        });
+            Regex regex = null;
+            regex = new Regex ("^[\\d.,]+[A-Z]", RegexCompileFlags.OPTIMIZE, RegexMatchFlags.NOTEMPTY);
 
-        yield;
+            MatchInfo match_info;
+            if (regex.match (size, 0, out match_info)) {
+                size = match_info.fetch (0);
+            } else {
+                size = "";
+            }
+
+        } catch (Error e) {
+            Logger.warning (_("Error while getting data directory size. Error message %s").printf (
+                e.message
+            ));
+        }
 
         if (size != "") {
             return to_human (size);

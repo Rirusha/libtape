@@ -20,7 +20,7 @@
 /**
  * Value object in api.
  */
-public class Tape.YaMAPI.Rotor.Value : YaMObject {
+public class Tape.YaMAPI.Rotor.Value : Object {
 
     /**
      * Value in string format

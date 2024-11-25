@@ -19,14 +19,30 @@
 
 using ApiBase;
 
-public sealed class Tape.Jsoner : ApiBase.Jsoner {
+internal sealed class Tape.Jsoner : ApiBase.Jsoner {
 
     public Jsoner (
         string json_string,
         string[]? sub_members = null,
         Case names_case = Case.KEBAB
     ) throws CommonError {
-        this (json_string, sub_members, names_case);
+        base (json_string, sub_members, names_case);
+    }
+
+    public Jsoner.from_bytes (
+        Bytes bytes,
+        string[]? sub_members = null,
+        Case names_case = Case.KEBAB
+    ) throws CommonError {
+        base.from_bytes (bytes, sub_members, names_case);
+    }
+
+    public Jsoner.from_data (
+        uint8[] data,
+        string[]? sub_members = null,
+        Case names_case = Case.KEBAB
+    ) throws CommonError {
+        base.from_data (data, sub_members, names_case);
     }
 
     public async YaMAPI.Library.AllIds deserialize_lib_data () throws CommonError {

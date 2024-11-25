@@ -18,6 +18,7 @@
  */
 
 using Tape.YaMAPI.Rotor;
+using ApiBase;
 
 public sealed class Tape.YaMAPI.YaMClient : Object {
 
@@ -38,13 +39,11 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         }
     }
 
-    YaMClient () {
-        Object ();
-    }
+    YaMClient () {}
 
     public YaMClient.with_token (string token) {
         Object (
-            soup_wrapper: new SoupWrapper (USER_AGENT),
+            soup_wrapper: new SoupWrapper (CookieJarType.NONE, USER_AGENT),
             token: token,
             auth_type: AuthType.TOKEN
         );
@@ -66,7 +65,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         }
 
         Object (
-            soup_wrapper: new SoupWrapper (USER_AGENT, cookie_path, cookie_jar_type),
+            soup_wrapper: new SoupWrapper (cookie_jar_type, USER_AGENT, cookie_path),
             auth_type: auth_type
         );
     }
@@ -89,7 +88,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async void init (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         if (auth_type != TOKEN) {
             var datalist = Datalist<string> ();
             datalist.set_data ("grant_type", "sessionid");
@@ -100,7 +99,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
             post_content.set_datalist (datalist);
 
-            var bytes = yield soup_wrapper.post (
+            var bytes = yield soup_wrapper.post_async (
                 "https://oauth.yandex.ru/token",
                 null,
                 post_content,
@@ -109,7 +108,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
                 priority,
                 cancellable
             );
-            var jsoner = Jsoner.from_bytes (bytes, { "access_token" }, Case.SNAKE);
+            var jsoner = new ApiBase.Jsoner.from_bytes (bytes, { "access_token" }, Case.SNAKE);
 
             var val = jsoner.deserialize_value ();
 
@@ -135,7 +134,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
 
             me = yield account_about (priority, cancellable);
         } else {
-            throw new ClientError.AUTH_ERROR (_("No token provided"));
+            throw new CommonError.AUTH_ERROR (_("No token provided"));
         }
     }
 
@@ -150,8 +149,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string url,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
-        return yield soup_wrapper.get (
+    ) throws CommonError, BadStatusCodeError {
+        return yield soup_wrapper.get_async (
             url,
             null,
             null,
@@ -164,7 +163,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     /**
      * Проверить uid пользователя на наличие
      */
-    void check_uid (ref string? uid) throws ClientError {
+    void check_uid (ref string? uid) throws CommonError {
         if (uid == null) {
             if (me != null) {
                 return;
@@ -175,28 +174,28 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
                 return;
             }
 
-            throw new ClientError.AUTH_ERROR (_("Authorization not completed"));
+            throw new CommonError.AUTH_ERROR (_("Authorization not completed"));
         }
     }
 
     /**
      *
      */
-    public async void account_experiments () throws ClientError, BadStatusCodeError {
+    public async void account_experiments () throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
     /**
      *
      */
-    public async void account_experiments_details () throws ClientError, BadStatusCodeError {
+    public async void account_experiments_details () throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
     /**
      *
      */
-    public async void account_settings () throws ClientError, BadStatusCodeError {
+    public async void account_settings () throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -206,8 +205,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async Account.About account_about (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
-        var bytes = yield soup_wrapper.get (
+    ) throws CommonError, BadStatusCodeError {
+        var bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/account/about",
             { "default" },
             null,
@@ -216,9 +215,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (Account.About) yield jsoner.deserialize_object (typeof (Account.About));
+        return (Account.About) yield jsoner.deserialize_object_async (typeof (Account.About));
     }
 
     /**
@@ -229,7 +228,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         bool rich_tracks,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -242,8 +241,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         bool rich_tracks,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
-        var bytes = yield soup_wrapper.get (
+    ) throws CommonError, BadStatusCodeError {
+        var bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/playlist/$playlist_uuid",
             { "default" },
         {
@@ -254,9 +253,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (Playlist) yield jsoner.deserialize_object (typeof (Playlist));
+        return (Playlist) yield jsoner.deserialize_object_async (typeof (Playlist));
     }
 
     /**
@@ -265,7 +264,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async void playlists (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -276,7 +275,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string artist_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -287,7 +286,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string artist_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -298,7 +297,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string artist_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -309,7 +308,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string artist_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -320,7 +319,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string artist_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -331,7 +330,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string artist_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -342,7 +341,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string artist_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -353,7 +352,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string artist_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -364,7 +363,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string artist_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -375,7 +374,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
     }
 
@@ -386,7 +385,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
     }
 
@@ -397,11 +396,11 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError,
+    ) throws CommonError,
     BadStatusCodeError {
         check_uid (ref uid);
 
-        Bytes bytes = yield soup_wrapper.get (
+        Bytes bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/users/$uid/playlists/list",
             { "default" },
             null,
@@ -409,10 +408,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var playlist_array = new Gee.ArrayList<Playlist> ();
-        yield jsoner.deserialize_array (playlist_array);
+        yield jsoner.deserialize_array_async (playlist_array);
 
         return playlist_array;
     }
@@ -426,10 +425,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.get (
+        var bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/users/$uid/playlists/$playlist_kind",
             { "default" },
             {
@@ -439,9 +438,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (Playlist) yield jsoner.deserialize_object (typeof (Playlist));
+        return (Playlist) yield jsoner.deserialize_object_async (typeof (Playlist));
     }
 
     /**
@@ -452,7 +451,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
     }
 
@@ -461,10 +460,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string kind,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        Bytes bytes = yield soup_wrapper.post (
+        Bytes bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/delete",
             { "default" },
             null,
@@ -474,7 +473,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
         if (jsoner.root != null) {
             return true;
         }
@@ -488,7 +487,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         int revision = 1,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
         var datalist = Datalist<string> ();
@@ -499,7 +498,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
         post_content.set_datalist (datalist);
 
-        Bytes bytes = yield soup_wrapper.post (
+        Bytes bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$(uid)/playlists/$kind/change",
             { "default" },
             post_content,
@@ -509,9 +508,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (Playlist) yield jsoner.deserialize_object (typeof (Playlist));
+        return (Playlist) yield jsoner.deserialize_object_async (typeof (Playlist));
     }
 
     public async Playlist users_playlists_create (
@@ -520,7 +519,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         PlaylistVisible visibility = PlaylistVisible.PRIVATE,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
         var datalist = Datalist<string> ();
@@ -530,7 +529,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
         post_content.set_datalist (datalist);
 
-        Bytes bytes = yield soup_wrapper.post (
+        Bytes bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/playlists/create",
             { "default" },
             post_content,
@@ -540,9 +539,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (Playlist) yield jsoner.deserialize_object (typeof (Playlist));
+        return (Playlist) yield jsoner.deserialize_object_async (typeof (Playlist));
     }
 
     public async Playlist users_playlists_name (
@@ -551,7 +550,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string new_name,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
         var datalist = Datalist<string> ();
@@ -560,7 +559,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
         post_content.set_datalist (datalist);
 
-        Bytes bytes = yield soup_wrapper.post (
+        Bytes bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/name",
             { "default" },
             post_content,
@@ -570,9 +569,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (Playlist) yield jsoner.deserialize_object (typeof (Playlist));
+        return (Playlist) yield jsoner.deserialize_object_async (typeof (Playlist));
     }
 
     public async PlaylistRecommendations users_playlists_recommendations (
@@ -580,11 +579,11 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string kind,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError,
+    ) throws CommonError,
     BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.get (
+        var bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/recommendations",
             { "default" },
             null,
@@ -592,9 +591,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (PlaylistRecommendations) yield jsoner.deserialize_object (typeof (PlaylistRecommendations));
+        return (PlaylistRecommendations) yield jsoner.deserialize_object_async (typeof (PlaylistRecommendations));
     }
 
     public async Playlist users_playlists_visibility (
@@ -603,7 +602,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string visibility,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
         var datalist = Datalist<string> ();
@@ -612,7 +611,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
         post_content.set_datalist (datalist);
 
-        Bytes bytes = yield soup_wrapper.post (
+        Bytes bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/visibility",
             { "default" },
             post_content,
@@ -622,9 +621,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (Playlist) yield jsoner.deserialize_object (typeof (Playlist));
+        return (Playlist) yield jsoner.deserialize_object_async (typeof (Playlist));
     }
 
     public async Playlist users_palylists_cover_upload (
@@ -635,7 +634,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string content_type,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
         var post_builder = new StringBuilder ();
@@ -649,7 +648,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
 
         PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED, post_builder.free_and_steal () };
 
-        Bytes bytes = yield soup_wrapper.post (
+        Bytes bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/cover/upload",
             { "default" },
             post_content,
@@ -659,9 +658,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (Playlist) yield jsoner.deserialize_object (typeof (Playlist));
+        return (Playlist) yield jsoner.deserialize_object_async (typeof (Playlist));
     }
 
     public async Playlist users_palylists_cover_clear (
@@ -670,10 +669,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         uint8[] new_cover,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        Bytes bytes = yield soup_wrapper.post (
+        Bytes bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/cover/clear",
             { "default" },
             null,
@@ -683,9 +682,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (Playlist) yield jsoner.deserialize_object (typeof (Playlist));
+        return (Playlist) yield jsoner.deserialize_object_async (typeof (Playlist));
     }
 
     /**
@@ -695,7 +694,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
     }
 
@@ -706,7 +705,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
     }
 
@@ -717,10 +716,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        Bytes bytes = yield soup_wrapper.get (
+        Bytes bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/users/$uid/likes/playlists",
             { "default" },
             null,
@@ -728,10 +727,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var playlist_array = new Gee.ArrayList<LikedPlaylist> ();
-        yield jsoner.deserialize_array (playlist_array);
+        yield jsoner.deserialize_array_async (playlist_array);
         return playlist_array;
     }
 
@@ -743,10 +742,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/likes/tracks/add",
             { "default" },
             null,
@@ -755,7 +754,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
 
@@ -773,10 +772,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/likes/tracks/$track_id/remove",
             { "default" },
             null,
@@ -785,7 +784,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
 
@@ -800,11 +799,11 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         int if_modified_since_revision = 0,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError,
+    ) throws CommonError,
     BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.get (
+        var bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/users/$uid/dislikes/tracks",
             { "default" },
             {
@@ -814,10 +813,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result", "library", "tracks" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result", "library", "tracks" }, Case.CAMEL);
 
         var our_array = new Gee.ArrayList<TrackShort> ();
-        yield jsoner.deserialize_array (our_array);
+        yield jsoner.deserialize_array_async (our_array);
 
         return our_array;
     }
@@ -830,10 +829,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/dislikes/tracks/add",
             { "default" },
             null,
@@ -844,7 +843,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
 
@@ -862,10 +861,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/dislikes/tracks/$track_id/remove",
             { "default" },
             null,
@@ -874,7 +873,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
 
@@ -892,10 +891,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/likes/artists/add",
             { "default" },
             null,
@@ -906,7 +905,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
 
@@ -924,10 +923,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/likes/artists/$artist_id/remove",
             { "default" },
             null,
@@ -936,7 +935,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
 
@@ -954,10 +953,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/dislikes/artists/add",
             { "default" },
             null,
@@ -968,7 +967,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
 
@@ -986,10 +985,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/dislikes/artists/$artist_id/remove",
             { "default" },
             null,
@@ -998,7 +997,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
 
@@ -1016,10 +1015,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/likes/albums/add",
             { "default" },
             null,
@@ -1030,7 +1029,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
 
@@ -1048,10 +1047,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/likes/albums/$album_id/remove",
             { "default" },
             null,
@@ -1060,7 +1059,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
 
@@ -1080,10 +1079,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/likes/playlists/add",
             { "default" },
             null,
@@ -1096,7 +1095,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
 
@@ -1114,10 +1113,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/users/$uid/likes/playlists/$playlist_uid/remove",
             { "default" },
             null,
@@ -1126,7 +1125,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var value = jsoner.deserialize_value ();
 
@@ -1143,7 +1142,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
     }
 
@@ -1154,7 +1153,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
     }
 
@@ -1165,7 +1164,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
     }
 
@@ -1176,7 +1175,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         owned string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         check_uid (ref uid);
     }
 
@@ -1186,8 +1185,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async Library.AllIds library_all_ids (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
-        var bytes = yield soup_wrapper.get (
+    ) throws CommonError, BadStatusCodeError {
+        var bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/library/all-ids",
             { "default" },
             null,
@@ -1196,7 +1195,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         return yield jsoner.deserialize_lib_data ();
     }
@@ -1207,7 +1206,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async void landing3_metatags (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1218,7 +1217,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string metatag,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1229,7 +1228,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string metatag,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1240,7 +1239,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string metatag,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1251,7 +1250,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string metatag,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1262,7 +1261,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string category,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1273,7 +1272,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string station_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1283,7 +1282,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async void rotor_station_stream (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1294,13 +1293,13 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         SessionNew session_new,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         PostContent post_content = {
             PostContentType.JSON,
-            yield Jsoner.serialize (session_new, Case.CAMEL)
+            yield ApiBase.Jsoner.serialize_async (session_new, Case.CAMEL)
         };
 
-        Bytes bytes = yield soup_wrapper.post (
+        Bytes bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/rotor/session/new",
             { "default" },
             post_content,
@@ -1310,9 +1309,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (StationTracks) yield jsoner.deserialize_object (typeof (StationTracks));
+        return (StationTracks) yield jsoner.deserialize_object_async (typeof (StationTracks));
     }
 
     /**
@@ -1323,13 +1322,13 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         Rotor.Queue queue,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         PostContent post_content = {
             PostContentType.JSON,
-            yield Jsoner.serialize (queue, Case.CAMEL)
+            yield ApiBase.Jsoner.serialize_async (queue, Case.CAMEL)
         };
 
-        Bytes bytes = yield soup_wrapper.post (
+        Bytes bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/rotor/session/$radio_session_id/tracks",
             { "default" },
             post_content,
@@ -1339,9 +1338,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (StationTracks) yield jsoner.deserialize_object (typeof (StationTracks));
+        return (StationTracks) yield jsoner.deserialize_object_async (typeof (StationTracks));
     }
 
     /**
@@ -1352,13 +1351,13 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         Rotor.Feedback feedback,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         PostContent post_content = {
             PostContentType.JSON,
-            yield Jsoner.serialize (feedback, Case.CAMEL)
+            yield ApiBase.Jsoner.serialize_async (feedback, Case.CAMEL)
         };
 
-        yield soup_wrapper.post (
+        yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/rotor/session/$radio_session_id/feedback",
             { "default" },
             post_content,
@@ -1377,8 +1376,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async Rotor.Settings rotor_wave_settings (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
-        var bytes = yield soup_wrapper.get (
+    ) throws CommonError, BadStatusCodeError {
+        var bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/rotor/wave/settings",
             { "default" },
             {
@@ -1389,9 +1388,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (Rotor.Settings) yield jsoner.deserialize_object (typeof (Rotor.Settings));
+        return (Rotor.Settings) yield jsoner.deserialize_object_async (typeof (Rotor.Settings));
     }
 
     /**
@@ -1400,8 +1399,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async Rotor.Wave rotor_wave_last (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
-        var bytes = yield soup_wrapper.get (
+    ) throws CommonError, BadStatusCodeError {
+        var bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/rotor/wave/last",
             { "default" },
             {
@@ -1412,9 +1411,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (Wave) yield jsoner.deserialize_object (typeof (Wave));
+        return (Wave) yield jsoner.deserialize_object_async (typeof (Wave));
     }
 
     /**
@@ -1425,8 +1424,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async bool rotor_wave_last_reset (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
-        var bytes = yield soup_wrapper.post (
+    ) throws CommonError, BadStatusCodeError {
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/rotor/wave/last/reset",
             { "default" },
             null,
@@ -1436,7 +1435,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         if (jsoner.root == null) {
             return false;
@@ -1448,8 +1447,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async Dashboard rotor_stations_dashboard (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
-        var bytes = yield soup_wrapper.get (
+    ) throws CommonError, BadStatusCodeError {
+        var bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/rotor/stations/dashboard",
             { "default", "device" },
             {
@@ -1459,16 +1458,16 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (Dashboard) yield jsoner.deserialize_object (typeof (Dashboard));
+        return (Dashboard) yield jsoner.deserialize_object_async (typeof (Dashboard));
     }
 
     public async Gee.ArrayList<Station> rotor_stations_list (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
-        var bytes = yield soup_wrapper.get (
+    ) throws CommonError, BadStatusCodeError {
+        var bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/rotor/stations/list",
             { "default", "device" },
             {
@@ -1478,10 +1477,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var sl_array = new Gee.ArrayList<Station> ();
-        yield jsoner.deserialize_array (sl_array);
+        yield jsoner.deserialize_array_async (sl_array);
 
         return sl_array;
     }
@@ -1492,7 +1491,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async void search_feedback (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1502,7 +1501,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async void search_instant_mixed (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1526,16 +1525,16 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         Play[] play_objs,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         var plays_obj = new Plays ();
         plays_obj.plays.add_all_array (play_objs);
 
         PostContent post_content = {
             PostContentType.JSON,
-            yield Jsoner.serialize (plays_obj, Case.CAMEL)
+            yield ApiBase.Jsoner.serialize_async (plays_obj, Case.CAMEL)
         };
 
-        Bytes bytes = yield soup_wrapper.post (
+        Bytes bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/plays",
             { "default" },
             post_content,
@@ -1547,7 +1546,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             cancellable
         );
 
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         if (jsoner.root == null) {
             return false;
@@ -1562,7 +1561,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async void rewind_slides_user (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1573,7 +1572,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string artist_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1583,7 +1582,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
     public async void pins (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1594,7 +1593,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         bool pin,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1605,7 +1604,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         bool pin,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1616,7 +1615,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         bool pin,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1627,7 +1626,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         bool pin,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1638,7 +1637,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string tag_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1649,7 +1648,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string promo_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         assert_not_reached ();
     }
 
@@ -1658,7 +1657,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         bool with_positions = false,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         var datalist = Datalist<string> ();
         datalist.set_data ("track-ids", string.joinv (",", id_list));
         datalist.set_data ("with-positions", with_positions.to_string ());
@@ -1666,7 +1665,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
         post_content.set_datalist (datalist);
 
-        var bytes = yield soup_wrapper.post (
+        var bytes = yield soup_wrapper.post_async (
             @"$(YAM_BASE_URL)/tracks",
             { "default" },
             post_content,
@@ -1675,10 +1674,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var array_list = new Gee.ArrayList<Track> ();
-        yield jsoner.deserialize_array (array_list);
+        yield jsoner.deserialize_array_async (array_list);
 
         return array_list;
     }
@@ -1688,7 +1687,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         bool hq = true,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         var di_array = yield tracks_download_info (
             track_id,
             priority,
@@ -1715,8 +1714,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string track_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
-        Bytes bytes = yield soup_wrapper.get (
+    ) throws CommonError, BadStatusCodeError {
+        Bytes bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/tracks/$track_id/download-info",
             { "default" },
             null,
@@ -1724,10 +1723,10 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         var di_array = new Gee.ArrayList<DownloadInfo> ();
-        yield jsoner.deserialize_array (di_array);
+        yield jsoner.deserialize_array_async (di_array);
 
         return di_array;
     }
@@ -1736,7 +1735,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string dl_info_url,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         Bytes bytes = yield get_content_of (
             dl_info_url,
             priority,
@@ -1773,7 +1772,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         bool is_sync,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
+    ) throws CommonError, BadStatusCodeError {
         string format = is_sync ? "LRC" : "TEXT";
         string timestamp = new DateTime.now_utc ().to_unix ().to_string ();
         string msg = @"$track_id$timestamp";
@@ -1785,7 +1784,7 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         hmac.get_digest (hmac_sign, ref digest_length);
         string sign = Base64.encode (hmac_sign);
 
-        Bytes bytes = yield soup_wrapper.get (
+        Bytes bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/tracks/$track_id/lyrics",
             { "default" },
             {
@@ -1797,9 +1796,9 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        var lyrics = (Lyrics) yield jsoner.deserialize_object (typeof (Lyrics));
+        var lyrics = (Lyrics) yield jsoner.deserialize_object_async (typeof (Lyrics));
         lyrics.is_sync = is_sync;
 
         return lyrics;
@@ -1809,8 +1808,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
         string track_id,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws ClientError, BadStatusCodeError {
-        Bytes bytes = yield soup_wrapper.get (
+    ) throws CommonError, BadStatusCodeError {
+        Bytes bytes = yield soup_wrapper.get_async (
             @"$(YAM_BASE_URL)/tracks/$track_id/similar",
             { "default" },
             null,
@@ -1818,8 +1817,8 @@ public sealed class Tape.YaMAPI.YaMClient : Object {
             priority,
             cancellable
         );
-        var jsoner = Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-        return (SimilarTracks) yield jsoner.deserialize_object (typeof (SimilarTracks));
+        return (SimilarTracks) yield jsoner.deserialize_object_async (typeof (SimilarTracks));
     }
 }

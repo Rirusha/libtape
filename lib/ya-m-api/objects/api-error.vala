@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-public class Tape.YaMAPI.ApiError : YaMObject {
+public class Tape.YaMAPI.ApiError : Object {
 
     public string msg {
         owned get {

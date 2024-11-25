@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class Tape.YaMAPI.Playlist : YaMObject, HasCover, HasID, HasTracks {
+public class Tape.YaMAPI.Playlist : Object, HasCover, HasID, HasTracks {
 
     public bool is_public {
         get {

@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class Tape.YaMAPI.Library.AllIds : YaMObject {
+public class Tape.YaMAPI.Library.AllIds : Object {
 
     /**
      * Лайкнутые пользователем треки

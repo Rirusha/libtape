@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-public class Tape.YaMAPI.Label : YaMObject {
+public class Tape.YaMAPI.Label : Object {
 
     public string name { get; set; }
 }

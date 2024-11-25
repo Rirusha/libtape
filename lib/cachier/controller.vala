@@ -26,27 +26,31 @@ class ContentInfo : Object {
     public ContentType content_type { get; construct; }
     public string content_id { get; construct; }
 
-    public ContentInfo (ContentType content_type,
-                        string content_id) {
+    public ContentInfo (
+        ContentType content_type,
+        string content_id
+    ) {
         Object (content_type: content_type, content_id: content_id);
     }
 }
 
 // Контроллер состояния кэширования треков. Все отображалки состояния привязаны к этому контроллеру
-public class Controller : Object {
+public class CacheController : Object {
+
     ArrayList<ContentInfo?> loading_content = new ArrayList<ContentInfo?> ();
 
-    public signal void content_cache_state_changed (ContentType content_type,
-                                                    string content_id,
-                                                    CacheingState state);
+    public signal void content_cache_state_changed (
+        ContentType content_type,
+        string content_id,
+        CacheingState state
+    );
 
-    ContentInfo ? find_content_info (ContentInfo content_info) {
-        /**
-            Поиск информации о контенте в списке сохраняемого. Возвращает null, если не найдено
-
-            content_info: информация о контенте
-         */
-
+    /**
+     * Search cacheing info. Return null when nothing was found
+     *
+     * @param content_info  информация о контенте
+     */
+    ContentInfo? find_content_info (ContentInfo content_info) {
         lock (loading_content) {
             foreach (var ci in loading_content) {
                 if (content_info.content_id == ci.content_id && content_info.content_type == ci.content_type) {

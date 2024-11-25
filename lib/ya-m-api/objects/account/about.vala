@@ -20,7 +20,7 @@
 /**
  * Account information.
  */
-public class Tape.YaMAPI.Account.About : YaMObject, HasCover, HasID {
+public class Tape.YaMAPI.Account.About : Object, HasCover, HasID {
 
     public string oid {
         owned get {
@@ -96,9 +96,9 @@ public class Tape.YaMAPI.Account.About : YaMObject, HasCover, HasID {
                 return "islands-200";
 
             default:
-                Logger.error (_(
-                                  "Wrong avatar size: %d. Available values: 28, 34, 42, 50, 68, 75, 84, 100, 200").
-                              printf (size));
+                Logger.error (_("Wrong avatar size: %d. Available values: 28, 34, 42, 50, 68, 75, 84, 100, 200").
+                    printf (size)
+                );
         }
     }
 

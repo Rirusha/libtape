@@ -22,7 +22,7 @@ using Gee;
 /**
  * Датакласс короткого преставления трека.
  */
-public class Tape.YaMAPI.TrackShort : YaMObject {
+public class Tape.YaMAPI.TrackShort : Object {
 
     /**
      * Id трека.

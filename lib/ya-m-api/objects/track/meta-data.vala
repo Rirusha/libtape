@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-public class Tape.YaMAPI.MetaData : YaMObject {
+public class Tape.YaMAPI.MetaData : Object {
 
     public string? album { get; set; }
 

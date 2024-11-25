@@ -20,7 +20,7 @@
 /**
  *
  */
-public class Tape.YaMAPI.Rotor.Sequence : YaMObject {
+public class Tape.YaMAPI.Rotor.Sequence : Object {
 
     /**
      * Track type.

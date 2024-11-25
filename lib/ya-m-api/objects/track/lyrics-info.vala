@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-public class Tape.YaMAPI.LyricsInfo : YaMObject {
+public class Tape.YaMAPI.LyricsInfo : Object {
 
     public bool has_available_sync_lyrics { get; set; }
 

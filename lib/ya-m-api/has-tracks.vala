@@ -18,7 +18,7 @@
 /**
  * Interface for object that contain tracks.
  */
-public interface Tape.YaMAPI.HasTracks : YaMObject, HasID {
+public interface Tape.YaMAPI.HasTracks : Object, HasID {
 
     /**
      * Get a track list filtered by the parameters passed.

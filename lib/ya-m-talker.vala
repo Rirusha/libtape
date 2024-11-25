@@ -17,6 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+using ApiBase;
 using Tape.YaMAPI;
 
 /**
@@ -32,12 +33,10 @@ public sealed class Tape.YaMTalker : Object {
     public signal void connection_lost ();
 
     public signal void track_likes_start_change (string track_id);
-    public signal void track_likes_end_change (string track_id,
-                                               bool is_liked);
+    public signal void track_likes_end_change (string track_id, bool is_liked);
 
     public signal void track_dislikes_start_change (string track_id);
-    public signal void track_dislikes_end_change (string track_id,
-                                                  bool is_disliked);
+    public signal void track_dislikes_end_change (string track_id, bool is_disliked);
 
     public signal void playlist_changed (YaMAPI.Playlist new_playlist);
     public signal void playlists_updated ();
@@ -55,9 +54,9 @@ public sealed class Tape.YaMTalker : Object {
 
             _me = yam_client.me;
             if (_me == null) {
-                string my_uid = storager.db.get_additional_data ("me");
+                string my_uid = root.cachier.storager.db.get_additional_data ("me");
                 if (my_uid != null) {
-                    _me = (Account.About) storager.load_object (typeof (Account.About), my_uid);
+                    _me = (Account.About) root.cachier.storager.load_object_async (typeof (Account.About), my_uid);
                 }
 
                 if (_me == null) {
@@ -71,13 +70,6 @@ public sealed class Tape.YaMTalker : Object {
 
     construct {
         Logger.error (_("Logger shouldn't be construct"));
-    }
-
-    public static void init () {
-        yam_client = new YaMClient (new SoupWrapper (
-                                        "Cassette Application",
-                                        Cachier.storager.cookies_file.peek_path ()
-                                        ));
     }
 
     public void init_if_not () throws BadStatusCodeError, CantUseError {
@@ -100,23 +92,28 @@ public sealed class Tape.YaMTalker : Object {
         }
     }
 
-    void net_run_wout_code (NetFunc net_func,
-                            bool should_init = true) {
+    void net_run_wout_code (
+        NetFunc net_func,
+        bool should_init = true
+    ) {
 
         try {
             net_run (net_func, should_init);
         } catch (BadStatusCodeError e) {}
     }
 
-    void net_run (NetFunc net_func,
-                  bool should_init = true) throws BadStatusCodeError {
+    void net_run (
+        NetFunc net_func,
+        bool should_init = true
+    ) throws BadStatusCodeError {
         if (should_init) {
             try {
                 init_if_not ();
             } catch (CantUseError e) {
-                Logger.warning ("Can't use error: %s".printf (
-                                    e.message
-                                    ));
+                Logger.warning (
+                    "Can't use error: %s".printf (
+                    e.message
+                ));
                 return;
             }
         }
@@ -125,7 +122,7 @@ public sealed class Tape.YaMTalker : Object {
             net_func ();
 
             connection_established ();
-        } catch (ClientError e) {
+        } catch (CommonError e) {
             Logger.warning ("%s: %s".printf (
                                 e.domain.to_string (),
                                 e.message
@@ -146,16 +143,13 @@ public sealed class Tape.YaMTalker : Object {
         return uid == null || uid == me.uid;
     }
 
-    public bool is_my_liked (string? uid,
-                             string kind) {
+    public bool is_my_liked (string? uid, string kind) {
         return is_me (uid) && kind == "3";
     }
 
     public void init () throws BadStatusCodeError {
-        yam_client.soup_wrapper.reload_cookies (storager.cookies_file);
-
         net_run (() => {
-            yam_client.init ();
+            yield yam_client.init ();
 
             storager.db.set_additional_data ("me", me.oid);
             storager.save_object (me, false);

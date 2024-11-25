@@ -29,8 +29,6 @@ public enum JobDoneStatus {
 // Класс представляющий объект для кэширования объекта ямы и его составных частей по интерфейсам
 public class Job : Object {
 
-    public Client client { get; construct; }
-
     public YaMAPI.HasTracks yam_object { get; construct; }
 
     public string object_id { get; construct; }
@@ -49,7 +47,6 @@ public class Job : Object {
                 unsave_async.begin (() => {
                         Idle.add (() => {
                             job_done (JobDoneStatus.ABORTED);
-
                             return Source.REMOVE;
                         }, Priority.HIGH_IDLE);
                     });
@@ -57,13 +54,17 @@ public class Job : Object {
         }
     }
 
-    public signal void track_saving_started (int saved_tracks_count,
-                                             int total_tracks_count,
-                                             int now_saving_tracks_count);
+    public signal void track_saving_started (
+        int saved_tracks_count,
+        int total_tracks_count,
+        int now_saving_tracks_count
+    );
 
-    public signal void track_saving_ended (int saved_tracks_count,
-                                           int total_tracks_count,
-                                           int now_saving_tracks_count);
+    public signal void track_saving_ended (
+        int saved_tracks_count,
+        int total_tracks_count,
+        int now_saving_tracks_count
+    );
 
     JobDoneStatus? done_status = null;
 
@@ -90,9 +91,8 @@ public class Job : Object {
     // Сделано значимое действие. Например, не проверка, сохранен ли трек, а его загрузка.
     public signal void action_done ();
 
-    public Job (YaMAPI.HasTracks yam_object,
-                Client client) {
-        Object (yam_object : yam_object, Client client);
+    public Job (YaMAPI.HasTracks yam_object) {
+        Object (yam_object : yam_object);
     }
 
     construct {
@@ -101,41 +101,43 @@ public class Job : Object {
         if (yam_object is YaMAPI.Playlist) {
             object_type = ContentType.PLAYLIST;
             object_title = ((YaMAPI.Playlist) yam_object).title;
+
         } else if (yam_object is YaMAPI.Album) {
             object_type = ContentType.ALBUM;
             object_title = ((YaMAPI.Album) yam_object).title;
+
         } else {
             assert_not_reached ();
         }
 
         cancellable.cancelled.connect (() => {
-                cancelled ();
-            });
+            cancelled ();
+        });
 
         job_done.connect ((status) => {
                 done_status = status;
-                cachier.controller.stop_loading (object_type, object_id, null);
+                root.cachier.controller.stop_loading (object_type, object_id, null);
 
                 switch (status) {
                         case JobDoneStatus.SUCCESS:
                             Logger.debug ("Job %s.%s was finished with success".printf (
-                                              object_type.to_string (),
-                                              yam_object.oid
-                                              ));
+                                object_type.to_string (),
+                                yam_object.oid
+                            ));
                             break;
 
                         case JobDoneStatus.ABORTED:
                             Logger.debug ("Job %s.%s was aborted".printf (
-                                              object_type.to_string (),
-                                              yam_object.oid
-                                              ));
+                                object_type.to_string (),
+                                yam_object.oid
+                            ));
                             break;
 
                         case JobDoneStatus.FAILED:
                             Logger.debug ("Job %s.%s was failed".printf (
-                                              object_type.to_string (),
-                                              yam_object.oid
-                                              ));
+                                object_type.to_string (),
+                                yam_object.oid
+                            ));
                             break;
                 }
             });
@@ -149,16 +151,18 @@ public class Job : Object {
 
     public async void abort_with_wait () {
         job_done.connect (() => {
-                Idle.add (abort_with_wait.callback);
-            });
+            Idle.add (abort_with_wait.callback);
+        });
 
         abort ();
 
         yield;
     }
 
-    public async void save_async () {
-        cachier.controller.start_loading (object_type, object_id);
+    public async void save () {
+        root.cachier.controller.start_loading (object_type, object_id);
+
+        var storager = root.cachier.storager;
 
         var need_cache_track_ids = new Gee.ArrayList<string> ();
         var need_uncache_tracks = new Gee.ArrayList<YaMAPI.Track> ();
@@ -166,49 +170,44 @@ public class Job : Object {
         var track_list = yam_object.get_filtered_track_list (true, true);
 
         Logger.debug ("Job %s.%s was started".printf (
-                          object_type.to_string (),
-                          yam_object.oid
-                          ));
+            object_type.to_string (),
+            yam_object.oid
+        ));
 
-        threader.add (() => {
-                foreach (var track_info in track_list) {
-                    need_cache_track_ids.add (track_info.id);
+        foreach (var track_info in track_list) {
+            need_cache_track_ids.add (track_info.id);
+        }
+
+        var obj_location = storager.object_cache_location (yam_object.get_type (), object_id);
+        if (obj_location.is_tmp == false) {
+            var cachied_obj_wt = (YaMAPI.HasTracks) yield storager.load_object (yam_object.get_type (), object_id);
+
+            var cachied_obj_track_list = cachied_obj_wt.get_filtered_track_list (true, true);
+
+            foreach (var track_info in cachied_obj_track_list) {
+                if (!(track_info.id in need_cache_track_ids)) {
+                    need_uncache_tracks.add (track_info);
                 }
+            }
 
-                var obj_location = storager.object_cache_location (yam_object.get_type (), object_id);
-                if (obj_location.is_tmp == false) {
-                    var cachied_obj_wt = (HasTrackList) storager.load_object (yam_object.get_type (), object_id);
+        } else {
+            if (obj_location.file != null) {
+                yield Storager.remove_file (obj_location.file);
+            }
+        }
 
-                    var cachied_obj_track_list = cachied_obj_wt.get_filtered_track_list (true, true);
+        yield root.cachier.storager.save_object (yam_object, false);
 
-                    foreach (var track_info in cachied_obj_track_list) {
-                        if (!(track_info.id in need_cache_track_ids)) {
-                            need_uncache_tracks.add (track_info);
-                        }
-                    }
-                } else {
-                    if (obj_location.file != null) {
-                        storager.remove_file (obj_location.file);
-                    }
-                }
-
-                storager.save_object (yam_object, false);
-
-                Logger.debug ("Job %s.%s, object saved".printf (
-                                  object_type.to_string (),
-                                  yam_object.oid
-                                  ));
-
-                Idle.add (save_async.callback);
-            });
-
-        yield;
+        Logger.debug ("Job %s.%s, object saved".printf (
+            object_type.to_string (),
+            yam_object.oid
+        ));
 
         // Удаление из кэшей треков, которые были удалены из объекта вне текущего клиента
         foreach (var track_info in need_uncache_tracks) {
-            storager.db.remove_content_ref (track_info.id, object_id);
-            if (storager.db.get_content_ref_count (track_info.id) == 0) {
-                yield storager.audio_cache_location (track_info.id).move_to_temp_async ();
+            root.cachier.storager.db.remove_content_ref (track_info.id, object_id);
+            if (root.cachier.storager.db.get_content_ref_count (track_info.id) == 0) {
+                yield storager.move_loc_to_temp (storager.audio_cache_location (track_info.id));
             }
 
             var cover_items = track_info.get_cover_items_by_size (CoverSize.SMALL);
@@ -217,56 +216,51 @@ public class Job : Object {
                 string image_uri = cover_items[0];
                 storager.db.remove_content_ref (image_uri, object_id);
                 if (storager.db.get_content_ref_count (image_uri) == 0) {
-                    yield storager.image_cache_location (image_uri).move_to_temp_async ();
+                    yield storager.move_loc_to_temp (storager.image_cache_location (image_uri));
                 }
 
                 Logger.debug ("Job %s.%s, track %s in db was fixed".printf (
-                                  object_type.to_string (),
-                                  yam_object.oid,
-                                  track_info.form_debug_info ()
-                                  ));
+                    object_type.to_string (),
+                    yam_object.oid,
+                    track_info.form_debug_info ()
+                ));
             }
         }
 
-        threader.add_image (() => {
-                var has_cover_yam_obj = yam_object as HasCover;
-                if (has_cover_yam_obj != null) {
-                    foreach (var cover_uri in has_cover_yam_obj.get_cover_items_by_size (CoverSize.BIG)) {
-                        var image_location = storager.image_cache_location (cover_uri);
-                        if (image_location.file != null) {
-                            image_location.move_to_perm ();
-                        } else {
-                            Gdk.Pixbuf? pixbuf = null;
+        var has_cover_yam_obj = yam_object as YaMAPI.HasCover;
+        if (has_cover_yam_obj != null) {
+            foreach (var cover_uri in has_cover_yam_obj.get_cover_items_by_size (CoverSize.BIG)) {
+                var image_location = storager.image_cache_location (cover_uri);
+                if (image_location.file != null) {
+                    yield storager.move_loc_to_perm (image_location);
 
-                            pixbuf = yam_talker.load_pixbuf (cover_uri);
+                } else {
+                    Gdk.Pixbuf? pixbuf = null;
 
-                            if (pixbuf != null) {
-                                storager.save_image (pixbuf, cover_uri, false);
-                            } else {
-                                Idle.add (() => {
-                                    job_done (JobDoneStatus.FAILED);
+                    pixbuf = yam_talker.load_pixbuf (cover_uri);
 
-                                    return Source.REMOVE;
-                                }, Priority.HIGH_IDLE);
+                    if (pixbuf != null) {
+                        storager.save_image (pixbuf, cover_uri, false);
+                    } else {
+                        Idle.add (() => {
+                            job_done (JobDoneStatus.FAILED);
 
-                                Idle.add (save_async.callback);
-                                return;
-                            }
-                        }
+                            return Source.REMOVE;
+                        }, Priority.HIGH_IDLE);
 
-                        storager.db.set_content_ref (cover_uri, object_id);
+                        Idle.add (save_async.callback);
+                        return;
                     }
-
-                    Logger.debug ("Job %s.%s, cover of object saved".printf (
-                                      object_type.to_string (),
-                                      yam_object.oid
-                                      ));
                 }
 
-                Idle.add (save_async.callback);
-            });
+                storager.db.set_content_ref (cover_uri, object_id);
+            }
 
-        yield;
+            Logger.debug ("Job %s.%s, cover of object saved".printf (
+                                object_type.to_string (),
+                                yam_object.oid
+                                ));
+        }
 
         total_tracks_count = track_list.size;
         foreach (var track_info in track_list) {

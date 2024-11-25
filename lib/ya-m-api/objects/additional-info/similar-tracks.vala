@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class Tape.YaMAPI.SimilarTracks : YaMObject, HasID, HasTracks {
+public class Tape.YaMAPI.SimilarTracks : Object, HasID, HasTracks {
 
     public string oid {
         owned get {

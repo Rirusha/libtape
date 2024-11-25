@@ -16,12 +16,12 @@
  */
 
 /**
- * `YaMObject` that has cover.
+ * `Object` that has cover.
  */
-public interface Tape.YaMAPI.HasCover : YaMObject {
+public interface Tape.YaMAPI.HasCover : Object {
 
     /**
-     * Get all `YaMObject` covers.
+     * Get all `Object` covers.
      *
      * @param size  cover size
      *

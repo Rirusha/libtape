@@ -20,38 +20,11 @@ using Tape.YaMAPI;
 namespace Tape {
 
     public struct ParseUriResult {
-        public YaMObject root_object;
+        public Object root_object;
         public Track? track;
     }
 
-    public delegate void NetFunc () throws ClientError, BadStatusCodeError;
-
-    /**
-     * Client errors.
-     */
-    public errordomain ClientError {
-
-        /**
-         * Error while parsing json.
-         */
-        PARSE_URI,
-
-        /**
-         * Error while trying authorize.
-         */
-        AUTH,
-    }
-
-    public errordomain BadStatusCodeError {
-
-        BAD_REQUEST = 400,
-
-        NOT_FOUND = 404,
-
-        UNAUTHORIZE_ERROR = 403,
-
-        UNKNOWN = 0
-    }
+    public async delegate void NetFunc () throws ApiBase.CommonError, ApiBase.BadStatusCodeError;
 
     /**
      * Errors containing reasons why using the client is not possible
@@ -123,18 +96,18 @@ namespace Tape {
         PERM
     }
 
-    public async void wait_async (uint seconds) {
+    internal async void wait (uint seconds) {
         Timeout.add_seconds_once (seconds, () => {
-            Idle.add (wait_async.callback);
+            Idle.add (wait.callback);
         });
 
         yield;
     }
 
     internal static void check_client_initted () {
-        if (Client.player == null ||
-            Client.cachier == null ||
-            Client.ya_m_talker == null
+        if (root.player == null ||
+            root.cachier == null ||
+            root.ya_m_talker == null
         ) {
             Logger.error (_("Client not initted"));
         }
@@ -148,13 +121,13 @@ namespace Tape {
     public static void roll_shuffle_mode () {
         check_client_initted ();
 
-        switch (Client.player.shuffle_mode) {
+        switch (root.player.shuffle_mode) {
         case ShuffleMode.OFF:
-            Client.player.shuffle_mode = ShuffleMode.ON;
+            root.player.shuffle_mode = ShuffleMode.ON;
             break;
 
         case ShuffleMode.ON:
-            Client.player.shuffle_mode = ShuffleMode.OFF;
+            root.player.shuffle_mode = ShuffleMode.OFF;
             break;
         }
     }
@@ -168,21 +141,21 @@ namespace Tape {
     public static void roll_repeat_mode () {
         check_client_initted ();
 
-        switch (Client.player.repeat_mode) {
+        switch (root.player.repeat_mode) {
         case RepeatMode.OFF:
-            if (Client.player.mode is PlayerFlow) {
-                Client.player.repeat_mode = RepeatMode.ONE;
+            if (root.player.mode is PlayerFlow) {
+                root.player.repeat_mode = RepeatMode.ONE;
             } else {
-                Client.player.repeat_mode = RepeatMode.QUEUE;
+                root.player.repeat_mode = RepeatMode.QUEUE;
             }
             break;
 
         case RepeatMode.QUEUE:
-            Client.player.repeat_mode = RepeatMode.ONE;
+            root.player.repeat_mode = RepeatMode.ONE;
             break;
 
         case RepeatMode.ONE:
-            Client.player.repeat_mode = RepeatMode.OFF;
+            root.player.repeat_mode = RepeatMode.OFF;
             break;
         }
     }
@@ -193,7 +166,7 @@ namespace Tape {
      *          object from the api. And a similar track, if the
      *          uri contained one.
      */
-    public ParseUriResult? parse_uri (string uri) throws ClientError {
+    public ParseUriResult? parse_uri (string uri) throws ApiBase.CommonError {
         string[] uri_parts = {};
         string[] args = {};
 
@@ -271,7 +244,7 @@ namespace Tape {
         }
     }
 
-    public string get_share_link (YaMAPI.YaMObject yam_obj) {
+    public string get_share_link (YaMAPI.Object yam_obj) {
         if (yam_obj is YaMAPI.Track) {
             var track_info = (YaMAPI.Track) yam_obj;
 
@@ -280,30 +253,34 @@ namespace Tape {
                 return "";
             } else {
                 return "https://music.yandex.ru/album/%s/track/%s?utm_medium=copy_link".printf (
-                                                                                                track_info.albums[0].id, track_info.id
+                    track_info.albums[0].id, track_info.id
                 );
             }
+
         } else if (yam_obj is YaMAPI.Playlist) {
             var playlist_info = (YaMAPI.Playlist) yam_obj;
 
             return "https://music.yandex.ru/users/%s/playlists/%s?utm_medium=copy_link".printf (
-                                                                                                playlist_info.owner.login, playlist_info.kind
+                playlist_info.owner.login, playlist_info.kind
             );
+
         } else if (yam_obj is YaMAPI.Album) {
             var album_info = (YaMAPI.Album) yam_obj;
 
             return "https://music.yandex.ru/albums/%s?utm_medium=copy_link".printf (
-                                                                                    album_info.oid
+                album_info.oid
             );
+
         } else if (yam_obj is YaMAPI.Artist) {
             var artist_info = (YaMAPI.Artist) yam_obj;
 
             return "https://music.yandex.ru/artist/%s?utm_medium=copy_link".printf (
-                                                                                    artist_info.oid
+                artist_info.oid
             );
+
         } else {
             Logger.error (_("Can't share '%s' object").printf (
-                                                               yam_obj.get_type ().name ()
+                yam_obj.get_type ().name ()
             ));
         }
     }
@@ -344,39 +321,6 @@ namespace Tape {
     }
 
     /**
-     * Getting the language code to send in api requests.
-     * Gets the language from the system and makes a
-     * "ru_RU.UTF-8" -> "ru" thing.
-     *
-     * @return  language code
-     */
-    public static string get_language () {
-        string? locale = Environment.get_variable ("LANG");
-
-        if (locale == null) {
-            return "en";
-        }
-
-        if ("." in locale) {
-            locale = locale.split (".")[0];
-        } else if ("@" in locale) {
-            locale = locale.split ("@")[0];
-        }
-
-        if ("_" in locale) {
-            locale = locale.split ("_")[0];
-        }
-
-        locale = locale.down ();
-
-        if (locale == "c") {
-            return "en";
-        }
-
-        return locale;
-    }
-
-    /**
      * Milliseconds to seconds.
      *
      * @param ms    milliseconds
@@ -385,49 +329,6 @@ namespace Tape {
      */
     public static int ms2sec (int64 ms) {
         return (int) (ms / 1000);
-    }
-
-    /**
-     * Get api context type by object.
-     *
-     * @param yam_obj   object with id
-     */
-    public static string get_context_type (HasID yam_obj) {
-        if (yam_obj is Playlist) {
-            return "playlist";
-        } else if (yam_obj is Album) {
-            return "album";
-        } else if (yam_obj is Artist) {
-            return "artist";
-        } else if (yam_obj is int) {
-            return "search";
-        } else {
-            return "various";
-        }
-    }
-
-    /**
-     * Get api context description by object.
-     *
-     * @param yam_obj   object with id
-     */
-    public static string ? get_context_description (HasID yam_obj) {
-        if (yam_obj is Playlist) {
-            return ((Playlist) yam_obj).title;
-        } else if (yam_obj is Album) {
-            return ((Album) yam_obj).title;
-        } else if (yam_obj is Artist) {
-            return ((Artist) yam_obj).name;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Get current timestamp.
-     */
-    public static string get_timestamp () {
-        return new DateTime.now_utc ().format_iso8601 ();
     }
 
     /**

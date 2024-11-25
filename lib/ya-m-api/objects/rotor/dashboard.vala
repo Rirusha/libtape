@@ -22,7 +22,7 @@ using Gee;
 /**
  * Dashboard with user stations
  */
-public class Tape.YaMAPI.Rotor.Dashboard : YaMObject {
+public class Tape.YaMAPI.Rotor.Dashboard : Object {
 
     /**
      * Dashboard id
