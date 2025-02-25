@@ -15,9 +15,26 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-using Tape.YaMAPI;
-
 namespace Tape {
+
+    internal void init_gst_if_not () {
+        weak string[]? gst_args = null;
+
+        if (!Gst.is_initialized ()) {
+            Gst.init (ref gst_args);
+        }
+    }
+
+    internal enum AudioSourceType {
+        HTTP,
+        FILE,
+        DATA,
+    }
+
+    errordomain PlayerError {
+        WRONG_SCHEME,
+        NO_SUCH_FILE,
+    }
 
     public struct ParseUriResult {
         public Object root_object;
