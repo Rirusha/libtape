@@ -445,9 +445,9 @@ internal class Tape.Storager : Object {
         return replace_many (Base64.encode (name.data), { '/', '+', '=' }, '-');
     }
 
-    /////////////
-    // Images  //
-    /////////////
+    ////////////
+    // Images //
+    ////////////
 
     File get_image_cache_file (string image_uri, bool is_tmp) {
         return File.new_build_filename (
@@ -541,9 +541,9 @@ internal class Tape.Storager : Object {
         }
     }
 
-    /////////////
-    // Audios  //
-    /////////////
+    ////////////
+    // Audios //
+    ////////////
 
     File get_audio_cache_file (string track_id, bool is_tmp) {
         return File.new_build_filename (
@@ -674,9 +674,9 @@ internal class Tape.Storager : Object {
         }
     }
 
-    ///////////////
-    // Objects  //
-    ///////////////
+    /////////////
+    // Objects //
+    /////////////
 
     string build_id (Type build_type, string oid) {
         return build_type.name () + "-" + oid;
@@ -840,9 +840,9 @@ internal class Tape.Storager : Object {
         }
     }
 
-    /////////////
-    // Other  //
-    /////////////
+    ///////////
+    // Other //
+    ///////////
 
     public async HumanitySize get_temp_size () {
         string size = "";
