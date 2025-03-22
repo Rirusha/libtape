@@ -20,15 +20,15 @@
 
 using Gee;
 
-namespace Tape {
-public class InfoDB : Object {
-    /**
-        Класс-обёртка для базы данных
-        База данных имеет таблицу additional для всякой доп инфы по типу uid пользователя приложения
-            и таблицу tracks_refs, в которой ведется подсчёт обьектов, которые имют трек. Нужна для
-            корректного освобождения кэшей (картинок и треков), то есть данные трека не удаляются, если
-            сохранен обьект, имеющий этот трек.
-     */
+/**
+ * Wrapper class for the database
+ * The database has an additional table for all additional information
+ * about the type of uid of the application user and the tracks_rus table,
+ * which counts objects that have a track. It is necessary for the correct
+ * release of porridge (images and tracks), that is, track data is not
+ * deleted if an object with this track is saved.
+ */
+internal class Tape.InfoDB : Object {
 
     public string db_path { get; construct; }
 
@@ -40,40 +40,45 @@ public class InfoDB : Object {
 
     construct {
         int error_code = Sqlite.Database.open_v2 (
-            db_path, out db, Sqlite.OPEN_FULLMUTEX | Sqlite.OPEN_READWRITE | Sqlite.OPEN_CREATE);
+            db_path,
+            out db,
+            Sqlite.OPEN_FULLMUTEX | Sqlite.OPEN_READWRITE | Sqlite.OPEN_CREATE
+        );
+
         if (error_code != Sqlite.OK) {
-            Logger.error ("Error while opening db %s, Sqlite error code: %s, message: %s".printf (
-                              db_path,
-                              db.errcode ().to_string (),
-                              db.errmsg ()
-                              ));
+            error ("Error while opening db %s, Sqlite error code: %s, message: %s".printf (
+                db_path,
+                db.errcode ().to_string (),
+                db.errmsg ()
+            ));
         }
 
         string query = "CREATE TABLE IF NOT EXISTS additional ("
-                       + "   name    TEXT    PRIMARY KEY NOT NULL,"
-                       + "   data    TEXT                NOT NULL"
-                       + ");"
-                       + "CREATE TABLE IF NOT EXISTS content_refs ("
-                       + "   what_id     TEXT    NOT NULL,"
-                       + "   source_id   TEXT    NOT NULL,"
-                       + "   PRIMARY KEY (what_id, source_id));";
+                     + "   name    TEXT    PRIMARY KEY NOT NULL,"
+                     + "   data    TEXT                NOT NULL"
+                     + ");"
+                     + "CREATE TABLE IF NOT EXISTS content_refs ("
+                     + "   what_id     TEXT    NOT NULL,"
+                     + "   source_id   TEXT    NOT NULL,"
+                     + "   PRIMARY KEY (what_id, source_id));";
 
         error_code = db.exec (query, null);
         if (error_code != Sqlite.OK) {
-            Logger.error ("Error while creating tables %s, Sqlite error code: %s, message: %s".printf (
-                              db_path,
-                              db.errcode ().to_string (),
-                              db.errmsg ()
-                              ));
+            error ("Error while creating tables %s. Sqlite error code: %s, message: %s".printf (
+                db_path,
+                db.errcode ().to_string (),
+                db.errmsg ()
+            ));
         }
     }
 
-    public void set_additional_data (string name,
-                                     string data) {
-        /**
-            Добавляет в базу данных кастомную запись
-         */
-
+    /**
+     * Add or replace an additional data to db
+     *
+     * @param name  name of additional data
+     * @param data  what to store
+     */
+    public void set_additional_data (string name, string data) {
         string query = "REPLACE INTO additional VALUES ($NAME, $DATA)";
 
         Sqlite.Statement statement;
@@ -84,24 +89,22 @@ public class InfoDB : Object {
 
         int error_code = statement.step ();
         if (error_code != Sqlite.DONE) {
-            Logger.error (
-                "Error while replacing additional_data %s=%s in %s, Sqlite error code: %s, message: %s".printf (
-                    name,
-                    data,
-                    db_path,
-                    db.errcode ().to_string (),
-                    db.errmsg ()
-                    )
-                );
+            error ("Error while replacing additional_data %s=%s in %s. Sqlite error code: %s, message: %s".printf (
+                name,
+                data,
+                db_path,
+                db.errcode ().to_string (),
+                db.errmsg ()
+            ));
         }
     }
 
+    /**
+     * Get an additional data from db.
+     *
+     * @param name  name of additional data
+     */
     public string get_additional_data (string name) {
-        /**
-            Получает из базы данны кастомную запись по имени.
-            Получемые данные должны быть в базе данных
-         */
-
         string query = "SELECT * FROM additional WHERE name=$NAME;";
 
         Sqlite.Statement statement;
@@ -111,14 +114,12 @@ public class InfoDB : Object {
 
         int error_code = statement.step ();
         if (error_code != Sqlite.DONE && error_code != Sqlite.ROW) {
-            Logger.error (
-                "Error while getting additional_data %s in %s, Sqlite error code: %s, message: %s".printf (
-                    name,
-                    db_path,
-                    db.errcode ().to_string (),
-                    db.errmsg ()
-                    )
-                );
+            error ("Error while getting additional_data %s in %s. Sqlite error code: %s, message: %s".printf (
+                name,
+                db_path,
+                db.errcode ().to_string (),
+                db.errmsg ()
+            ));
         }
 
         string result = statement.column_text (1);
@@ -127,15 +128,13 @@ public class InfoDB : Object {
         return result;
     }
 
-    public void set_content_ref (string what_id,
-                                 string source_id) {
-        /**
-            Создать запись о сохраненном объекте
-
-            what_id: Индентификатор объекта
-            source_id: Индентификатор держателя объекта
-         */
-
+    /**
+     * Add or replace a content ref to db
+     *
+     * @param what_id   id of content
+     * @param source_id id of content handler
+     */
+    public void set_content_ref (string what_id, string source_id) {
         if (get_content_ref_count (what_id, source_id) != 0) {
             return;
         }
@@ -150,25 +149,23 @@ public class InfoDB : Object {
 
         int error_code = statement.step ();
         if (error_code != Sqlite.DONE) {
-            Logger.error ("Error while set ref for %s %s in %s, Sqlite error code: %s, message: %s".printf (
-                              what_id,
-                              source_id,
-                              db_path,
-                              db.errcode ().to_string (),
-                              db.errmsg ()
-                              ));
+            error ("Error while set ref for %s %s in %s. Sqlite error code: %s, message: %s".printf (
+                what_id,
+                source_id,
+                db_path,
+                db.errcode ().to_string (),
+                db.errmsg ()
+            ));
         }
     }
 
-    public void remove_content_ref (string what_id,
-                                    string source_id) {
-        /**
-            Удалить запись о сохраненном объекте
-
-            what_id: Индентификатор объекта
-            source_id: Индентификатор держателя объекта
-         */
-
+    /**
+     * Remove a content ref from db
+     *
+     * @param what_id   id of content
+     * @param source_id id of content handler
+     */
+    public void remove_content_ref (string what_id, string source_id) {
         string query = "DELETE FROM content_refs WHERE what_id=$WHAT_ID AND source_id=$SOURCE_ID;";
 
         Sqlite.Statement statement;
@@ -179,26 +176,23 @@ public class InfoDB : Object {
 
         int error_code = statement.step ();
         if (error_code != Sqlite.DONE) {
-            Logger.error ("Error while set ref for %s %s in %s, Sqlite error code: %s, message: %s".printf (
-                              what_id,
-                              source_id,
-                              db_path,
-                              db.errcode ().to_string (),
-                              db.errmsg ()
-                              ));
+            error ("Error while set ref for %s %s in %s Sqlite error code: %s, message: %s".printf (
+                what_id,
+                source_id,
+                db_path,
+                db.errcode ().to_string (),
+                db.errmsg ()
+            ));
         }
     }
 
-    public int get_content_ref_count (string what_id,
-                                      string? source_id = null) {
-        /**
-            Получить количество записей об объекте
-
-            what_id: Индентификатор объекта
-            source_id: Индентификатор держателя объекта.
-                       Если null, будут получены все записи, имеющие what_id
-         */
-
+    /**
+     * Get count of content refs in db
+     *
+     * @param what_id   id of content
+     * @param source_id id of content handler. If null, returns all refs
+     */
+    public int get_content_ref_count (string what_id, string? source_id = null) {
         string query = "SELECT COUNT(*) FROM content_refs WHERE what_id=$WHAT_ID";
 
         if (source_id != null) {
@@ -217,11 +211,14 @@ public class InfoDB : Object {
 
         int error_code = statement.step ();
         if (error_code != Sqlite.ROW) {
-            Logger.error ("Error while geting ref for %s in %s, Sqlite error code: %s, message: %s".printf (
-                              what_id, db_path, db.errcode ().to_string (), db.errmsg ()
-                              ));
+            error ("Error while geting ref for %s in %s, Sqlite error code: %s, message: %s".printf (
+                what_id,
+                db_path,
+                db.errcode ().to_string (),
+                db.errmsg ()
+            ));
         }
+
         return statement.column_int (0);
     }
-}
 }
