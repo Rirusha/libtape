@@ -45,7 +45,7 @@ gee_dep = dependency('gee-0.8')
 libxml_dep = dependency('libxml-2.0')
 gstreamer_dep = dependency('gstreamer-1.0')
 gio_dep = dependency('gio-2.0')
-libapi_base_dep = dependency('libapi-base-1', fallback : ['libapi-base', 'libapi_base_dep'])
+libapi_base_dep = dependency('libapi-base-1', fallback : ['libapi-base', 'lib_dep'])
 libyandex_music_api_dep = dependency('libyandex-music-api-0.1', fallback : ['libyandex-music-api', 'lib_dep'])
 
 pgconfig_dependencies = [
