@@ -804,7 +804,7 @@ internal class Tape.Storager : Object {
         File object_file = get_object_cache_file (yam_object.get_type (), yam_object.oid, is_tmp);
 
         try {
-            var object_data = (yield ApiBase.Jsoner.serialize_async (yam_object)).data;
+            var object_data = yam_object.to_json ();
             simple_dencode (ref object_data);
 
             yield object_file.replace_contents_async (
