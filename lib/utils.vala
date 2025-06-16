@@ -41,8 +41,6 @@ namespace Tape {
         public Track? track;
     }
 
-    public async delegate void NetFunc () throws ApiBase.CommonError, ApiBase.BadStatusCodeError;
-
     /**
      * Errors containing reasons why using the client is not possible
      */
