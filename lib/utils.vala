@@ -53,7 +53,7 @@ namespace Tape {
     }
 
     namespace Filenames {
-        public const string ROOT_DIR_NAME = Config.APP_NAME_LOWER;
+        public const string ROOT = Config.APP_NAME_LOWER;
         public const string COOKIES = Config.APP_NAME_LOWER + ".cookies";
         public const string LOG = Config.APP_NAME_LOWER + ".log";
         public const string DATABASE = Config.APP_NAME_LOWER + ".db";
