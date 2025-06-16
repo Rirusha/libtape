@@ -35,106 +35,111 @@ internal class Tape.Storager : Object {
         }
     }
 
-    // Permanent root dir
-    File _data_dir_file;
-    public File data_dir_file {
+    File _root_datadir_file;
+    public File datadir_file {
         get {
-            lock (_data_dir_file) {
-                create_dir_if_not_existing (_data_dir_file);
+            if (_root_datadir_file == null) {
+                _root_datadir_file = File.new_build_filename (Environment.get_user_data_dir (), Filenames.ROOT);
             }
+            create_dir_if_not_existing (_root_datadir_file);
 
-            return _data_dir_file;
+            return _root_datadir_file;
         }
     }
 
-    // Permanent images dir
-    File _data_images_dir_file;
-    public File data_images_dir_file {
+    File _images_datadir_file;
+    public File images_datadir_file {
         get {
-            lock (_data_images_dir_file) {
-                create_dir_if_not_existing (_data_images_dir_file);
+            if (_images_datadir_file == null) {
+                _images_datadir_file = File.new_build_filename (datadir_file.peek_path (), Filenames.IMAGES);
             }
+            create_dir_if_not_existing (_images_datadir_file);
 
-            return _data_images_dir_file;
+            return _images_datadir_file;
         }
     }
 
-    // Permanent audios dir
-    File _data_audios_dir_file;
-    public File data_audios_dir_file {
+    File _audios_datadir_file;
+    public File audios_datadir_file {
         get {
-            lock (_data_audios_dir_file) {
-                create_dir_if_not_existing (_data_audios_dir_file);
+            if (_audios_datadir_file == null) {
+                _audios_datadir_file = File.new_build_filename (datadir_file.peek_path (), Filenames.AUDIOS);
             }
+            create_dir_if_not_existing (_audios_datadir_file);
 
-            return _data_audios_dir_file;
+            return _audios_datadir_file;
         }
     }
 
-    // Permanent objects dir
-    File _data_objects_dir_file;
-    public File data_objects_dir_file {
+    File _objects_datadir_file;
+    public File objects_datadir_file {
         get {
-            lock (_data_objects_dir_file) {
-                create_dir_if_not_existing (_data_objects_dir_file);
+            if (_objects_datadir_file == null) {
+                _objects_datadir_file = File.new_build_filename (datadir_file.peek_path (), Filenames.OBJECTS);
             }
+            create_dir_if_not_existing (_objects_datadir_file);
 
-            return _data_objects_dir_file;
+            return _objects_datadir_file;
         }
     }
 
-    // Temporary root dir
-    File _cache_dir_file;
-    public File cache_dir_file {
+    File _cachedir_file;
+    public File cachedir_file {
         get {
-            lock (_cache_dir_file) {
-                create_dir_if_not_existing (_cache_dir_file);
+            if (_cachedir_file == null) {
+                _cachedir_file = File.new_build_filename (Environment.get_user_cache_dir (), Filenames.ROOT);
             }
+            create_dir_if_not_existing (_cachedir_file);
 
-            return _cache_dir_file;
+            return _cachedir_file;
         }
     }
 
     // Temporary images dir
-    File _cache_images_dir_file;
-    public File cache_images_dir_file {
+    File _images_cachedir_file;
+    public File images_cachedir_file {
         get {
-            lock (_cache_images_dir_file) {
-                create_dir_if_not_existing (_cache_images_dir_file);
+            if (_images_cachedir_file == null) {
+                _images_cachedir_file = File.new_build_filename (cachedir_file.peek_path (), Filenames.IMAGES);
             }
+            create_dir_if_not_existing (_images_cachedir_file);
 
-            return _cache_images_dir_file;
+            return _images_cachedir_file;
         }
     }
 
     // Temporary audios dir
-    File _cache_audios_dir_file;
-    public File cache_audios_dir_file {
+    File _audios_cachedir_file;
+    public File audios_cachedir_file {
         get {
-            lock (_cache_audios_dir_file) {
-                create_dir_if_not_existing (_cache_audios_dir_file);
+            if (_audios_cachedir_file == null) {
+                _audios_cachedir_file = File.new_build_filename (cachedir_file.peek_path (), Filenames.AUDIOS);
             }
+            create_dir_if_not_existing (_audios_cachedir_file);
 
-            return _cache_audios_dir_file;
+            return _audios_cachedir_file;
         }
     }
 
     // Temporary objects dir
-    File _cache_objects_dir_file;
-    public File cache_objects_dir_file {
+    File _objects_cachedir_file;
+    public File objects_cachedir_file {
         get {
-            lock (_cache_objects_dir_file) {
-                create_dir_if_not_existing (_cache_objects_dir_file);
+            if (_objects_cachedir_file == null) {
+                _objects_cachedir_file = File.new_build_filename (cachedir_file.peek_path (), Filenames.OBJECTS);
             }
+            create_dir_if_not_existing (_objects_cachedir_file);
 
-            return _cache_objects_dir_file;
+            return _objects_cachedir_file;
         }
     }
 
     File _log_file;
     public File log_file {
         get {
-            file_exists (_log_file);
+            if (_log_file == null) {
+                _log_file = File.new_build_filename (cachedir_file.peek_path (), Filenames.LOG);
+            }
 
             return _log_file;
         }
@@ -143,7 +148,9 @@ internal class Tape.Storager : Object {
     File _db_file;
     public File db_file {
         get {
-            file_exists (_db_file);
+            if (_db_file == null) {
+                _db_file = File.new_build_filename (datadir_file.peek_path (), Filenames.DATABASE);
+            }
 
             return _db_file;
         }
@@ -152,38 +159,12 @@ internal class Tape.Storager : Object {
     File _cookies_file;
     public File cookies_file {
         get {
-            file_exists (_cookies_file);
+            if (_cookies_file == null) {
+                _cookies_file = File.new_build_filename (datadir_file.peek_path (), Filenames.COOKIES);
+            }
 
             return _cookies_file;
         }
-    }
-
-    File temp_audio_file;
-    string temp_audio_uri;
-
-    construct {
-        _data_dir_file = File.new_build_filename (Environment.get_user_data_dir (), Filenames.ROOT_DIR_NAME);
-
-        _db_file = File.new_build_filename (data_dir_file.peek_path (), Filenames.DATABASE);
-        _cookies_file = File.new_build_filename (data_dir_file.peek_path (), Filenames.COOKIES);
-
-        _data_images_dir_file = File.new_build_filename (data_dir_file.peek_path (), Filenames.IMAGES);
-        _data_audios_dir_file = File.new_build_filename (data_dir_file.peek_path (), Filenames.AUDIOS);
-        _data_objects_dir_file = File.new_build_filename (data_dir_file.peek_path (), Filenames.OBJECTS);
-
-
-        _cache_dir_file = File.new_build_filename (Environment.get_user_cache_dir (), Filenames.ROOT_DIR_NAME);
-
-        _log_file = File.new_build_filename (cache_dir_file.peek_path (), Filenames.LOG);
-
-        _cache_images_dir_file = File.new_build_filename (cache_dir_file.peek_path (), Filenames.IMAGES);
-        _cache_audios_dir_file = File.new_build_filename (cache_dir_file.peek_path (), Filenames.AUDIOS);
-        _cache_objects_dir_file = File.new_build_filename (cache_dir_file.peek_path (), Filenames.OBJECTS);
-
-        temp_audio_file = File.new_build_filename (cache_dir_file.peek_path (), ".track");
-        temp_audio_uri = "file://%s".printf (temp_audio_file.peek_path ());
-
-        debug ("Storager initialized");
     }
 
     /**
@@ -250,7 +231,7 @@ internal class Tape.Storager : Object {
         var b = src_file.peek_path ().split ("/tape/");
 
         File dst_file = File.new_build_filename (
-            is_tmp ? cache_dir_file.peek_path () : data_dir_file.peek_path (),
+            is_tmp ? cachedir_file.peek_path () : datadir_file.peek_path (),
             b[b.length - 1]
         );
 
@@ -391,16 +372,16 @@ internal class Tape.Storager : Object {
      */
     public async void clear_user_data (bool keep_content, bool keep_datadir) {
         if (keep_content) {
-            yield move_file_dir (data_images_dir_file, cache_images_dir_file);
-            yield move_file_dir (data_objects_dir_file, cache_objects_dir_file);
-            yield move_file_dir (data_audios_dir_file, cache_audios_dir_file);
+            yield move_file_dir (images_datadir_file, images_cachedir_file);
+            yield move_file_dir (objects_datadir_file, objects_cachedir_file);
+            yield move_file_dir (audios_datadir_file, audios_cachedir_file);
         }
 
         _db = null;
         yield remove_file (db_file);
 
         if (!keep_datadir) {
-            yield remove_dir_file (data_dir_file);
+            yield remove_dir_file (datadir_file);
         }
     }
 
@@ -408,7 +389,7 @@ internal class Tape.Storager : Object {
      * Remove diractory with cached files
      */
     public async void delete_cache_dir () {
-        yield remove_dir_file (cache_dir_file);
+        yield remove_dir_file (cachedir_file);
     }
 
     /**
@@ -451,7 +432,7 @@ internal class Tape.Storager : Object {
 
     File get_image_cache_file (string image_uri, bool is_tmp) {
         return File.new_build_filename (
-            is_tmp ? cache_images_dir_file.peek_path () : data_images_dir_file.peek_path (),
+            is_tmp ? images_cachedir_file.peek_path () : images_datadir_file.peek_path (),
             encode_name (image_uri)
         );
     }
@@ -547,7 +528,7 @@ internal class Tape.Storager : Object {
 
     File get_audio_cache_file (string track_id, bool is_tmp) {
         return File.new_build_filename (
-            is_tmp ? cache_audios_dir_file.peek_path () : data_audios_dir_file.peek_path (),
+            is_tmp ? audios_cachedir_file.peek_path () : audios_datadir_file.peek_path (),
             encode_name (track_id)
         );
     }
@@ -686,7 +667,7 @@ internal class Tape.Storager : Object {
         var obj_arr = new Array<YaMAPI.HasTracks> ();
 
         try {
-            FileEnumerator? enumerator = data_objects_dir_file.enumerate_children (
+            FileEnumerator? enumerator = objects_datadir_file.enumerate_children (
                 "standard::*",
                 FileQueryInfoFlags.NONE,
                 null
@@ -702,7 +683,7 @@ internal class Tape.Storager : Object {
 
                 while ((file_info = enumerator.next_file ()) != null) {
                     filename = file_info.get_name ();
-                    file = File.new_build_filename (data_objects_dir_file.peek_path (), filename);
+                    file = File.new_build_filename (objects_datadir_file.peek_path (), filename);
 
                     decoded_name = (string) (Base64.decode (filename));
 
@@ -737,7 +718,7 @@ internal class Tape.Storager : Object {
         } catch (Error e) {
             warning (
                 "Can't find '%s'. Error message: %s",
-                data_objects_dir_file.peek_path (),
+                objects_datadir_file.peek_path (),
                 e.message
             );
         }
@@ -751,7 +732,7 @@ internal class Tape.Storager : Object {
         bool is_tmp
     ) {
         return File.new_build_filename (
-            is_tmp ? cache_objects_dir_file.peek_path () : data_objects_dir_file.peek_path (),
+            is_tmp ? objects_cachedir_file.peek_path () : objects_datadir_file.peek_path (),
             encode_name (build_id (obj_type, oid))
         );
     }
@@ -849,7 +830,7 @@ internal class Tape.Storager : Object {
 
         try {
             var sp = new Subprocess.newv (
-                {"du", "-sh", cache_dir_file.peek_path (), "--exclude=\"*.log\""},
+                {"du", "-sh", cachedir_file.peek_path (), "--exclude=\"*.log\""},
                 SubprocessFlags.STDOUT_PIPE
             );
 
@@ -886,7 +867,7 @@ internal class Tape.Storager : Object {
 
         try {
             var sp = new Subprocess.newv (
-                {"du", "-sh", data_dir_file.peek_path (), "--exclude=\"*.db\"", "--exclude=\"*.cookies\""},
+                {"du", "-sh", datadir_file.peek_path (), "--exclude=\"*.db\"", "--exclude=\"*.cookies\""},
                 SubprocessFlags.STDOUT_PIPE
             );
 
