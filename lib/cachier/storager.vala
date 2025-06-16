@@ -586,39 +586,6 @@ internal class Tape.Storager : Object {
         return null;
     }
 
-    // Расшифровывает трек, помещает его во временные файлы и даёт его uri
-    public async string? load_audio (string track_id) {
-        var track_data = yield load_audio_data (track_id);
-
-        if (track_data != null) {
-            try {
-                yield temp_audio_file.replace_contents_async (
-                    track_data,
-                    null,
-                    false,
-                    FileCreateFlags.NONE,
-                    null,
-                    null
-                );
-                return temp_audio_uri;
-
-            } catch (Error e) {
-                warning (
-                    "Can't save temp audio. Error message: %s",
-                    e.message
-                );
-                yield wait (3);
-            }
-
-            warning ("Give up saving temp track with id '%s'.",
-                track_id
-            );
-            return null;
-        } else {
-            return null;
-        }
-    }
-
     public async void clear_temp_audio () {
         yield remove_file (temp_audio_file);
     }
