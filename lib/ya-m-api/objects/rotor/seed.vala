@@ -22,7 +22,7 @@ using Gee;
 /**
  *
  */
-public class YaMAPI.Rotor.Seed : ApiBase.DataObject {
+public class Tape.YaMAPI.Rotor.Seed : ApiBase.DataObject {
 
     /**
      *

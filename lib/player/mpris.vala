@@ -33,7 +33,7 @@ public void init (Tape.Client client) {
 
     bus_id = Bus.own_name (
         BusType.SESSION,
-        "org.mpris.MediaPlayer2.%s".printf (Config.APP_ID),
+        "org.mpris.MediaPlayer2.%s".printf (root.settings.app_id),
         BusNameOwnerFlags.NONE,
         on_bus_aquired
     );
@@ -88,17 +88,17 @@ public class MprisRoot : Object {
     DBusConnection con;
 
     public bool can_quit {
-        get { return Config.CAN_QUIT; }
+        get { return root.settings.can_quit; }
     }
 
     public bool fullscreen { get; set; default = false; }
 
     public bool can_set_fullscreen {
-        get { return Config.CAN_SET_FULLSCREEN; }
+        get { return root.settings.can_set_fullscreen; }
     }
 
     public bool can_raise {
-        get { return Config.CAN_RAISE; }
+        get { return root.settings.can_raise; }
     }
 
     public bool has_tracklist {
@@ -106,11 +106,11 @@ public class MprisRoot : Object {
     }
 
     public string identity {
-        get { return Config.APP_NAME; }
+        get { return root.settings.app_name; }
     }
 
     public string desktop_entry {
-        get { return Config.APP_ID; }
+        get { return root.settings.app_id; }
     }
 
     public string[] supported_uri_schemes {
@@ -148,7 +148,7 @@ public class Player : Object {
     DBusConnection con;
 
     public bool can_control {
-        get { return Config.CAN_CONTROL; }
+        get { return root.settings.can_control; }
     }
 
     public bool can_go_next {
@@ -349,9 +349,9 @@ public class Player : Object {
         return metadata;
     }
 
-    public void next (BusName sender) throws Error {
+    public async void next (BusName sender) throws Error {
         if (can_go_next) {
-            player.next ();
+            yield player.next ();
         }
     }
 

@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-public class YaMAPI.Counts : ApiBase.DataObject {
+public class Tape.YaMAPI.Counts : ApiBase.DataObject {
 
     public int tracks { get; set; }
 

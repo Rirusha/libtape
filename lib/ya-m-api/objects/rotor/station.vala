@@ -20,7 +20,7 @@
 /**
  *
  */
-public class YaMAPI.Rotor.Station : ApiBase.DataObject {
+public class Tape.YaMAPI.Rotor.Station : ApiBase.DataObject {
 
     /**
      * Station id. Doesn't work with `_dashboard` and `_list` rotor methods

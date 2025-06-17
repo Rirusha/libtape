@@ -41,16 +41,10 @@ public sealed class Tape.PlayerFlow : PlayerMode {
             );
     }
 
-    public async bool init_async () {
+    public async bool init_async () throws CantUseError {
         YaMAPI.Rotor.StationTracks? station_tracks = null;
 
-        Threader.add (() => {
-            station_tracks = player.client.yam_talker.start_new_session (station_id);
-
-            Idle.add (init_async.callback);
-        });
-
-        yield;
+        station_tracks = yield root.yam_talker.start_new_session (station_id);
 
         if (station_tracks != null) {
             last_station_tracks = station_tracks;
@@ -69,44 +63,34 @@ public sealed class Tape.PlayerFlow : PlayerMode {
         }
     }
 
-    public async void send_feedback (string feedback_type,
-                                     string? track_id = null,
-                                     double total_played_seconds = 0.0) {
-        Threader.add_single (() => {
-            player.client.yam_talker.send_rotor_feedback (
-                radio_session_id,
-                last_station_tracks.batch_id,
-                feedback_type,
-                track_id,
-                total_played_seconds
-                );
-
-            Idle.add (send_feedback.callback);
-        });
-
-        yield;
+    public async void send_feedback (
+        string feedback_type,
+        string? track_id = null,
+        double total_played_seconds = 0.0
+    ) throws CantUseError {
+        yield root.yam_talker.send_rotor_feedback (
+            radio_session_id,
+            last_station_tracks.batch_id,
+            feedback_type,
+            track_id,
+            total_played_seconds
+        );
     }
 
     /**
      * @return  next track object
      */
-    async YaMAPI.Track? get_next_track_async () {
+    async YaMAPI.Track? get_next_track_async () throws CantUseError {
         YaMAPI.Track? next_track = null;
 
-        Threader.add (() => {
-            ArrayList<string> track_ids = new ArrayList<string> ();
+        ArrayList<string> track_ids = new ArrayList<string> ();
 
-            foreach (var track_info in queue) {
-                track_ids.add (track_info.id);
-            }
+        foreach (var track_info in queue) {
+            track_ids.add (track_info.id);
+        }
 
-            last_station_tracks = player.client.yam_talker.get_session_tracks (radio_session_id, track_ids);
-            next_track = last_station_tracks.sequence[0].track;
-
-            Idle.add (get_next_track_async.callback);
-        });
-
-        yield;
+        last_station_tracks = yield root.yam_talker.get_session_tracks (radio_session_id, track_ids);
+        next_track = last_station_tracks.sequence[0].track;
 
         return next_track;
     }
@@ -158,27 +142,25 @@ public sealed class Tape.PlayerFlow : PlayerMode {
         return index;
     }
 
-    public void prepare_next_track () {
-        get_next_track_async.begin ((obj, res) => {
-            YaMAPI.Track? next_track = get_next_track_async.end (res);
+    public async void prepare_next_track () throws CantUseError {
+        YaMAPI.Track? next_track = yield get_next_track_async ();
 
-            if (next_track != null) {
-                queue.add (next_track);
-                player.next_track_loaded (next_track);
-            }
-        });
+        if (next_track != null) {
+            queue.add (next_track);
+            player.next_track_loaded (next_track);
+        }
     }
 
     public override YaMAPI.Play form_play_obj () {
         var current_track = get_current_track_info ();
 
         return new YaMAPI.Play () {
-                   track_length_seconds = ((double) current_track.duration_ms) / 1000.0,
-                   track_id = current_track.id,
-                   album_id = current_track.albums.size > 0 ? current_track.albums[0].id : null,
-                   context = context_type,
-                   context_item = context_id,
-                   radio_session_id = radio_session_id
+            track_length_seconds = ((double) current_track.duration_ms) / 1000.0,
+            track_id = current_track.id,
+            album_id = current_track.albums.size > 0 ? current_track.albums[0].id : null,
+            context = context_type,
+            context_item = context_id,
+            radio_session_id = radio_session_id
         };
     }
 }

@@ -20,7 +20,7 @@
 /**
  * Account information.
  */
-public class YaMAPI.Account.About : ApiBase.DataObject, HasCover, HasID {
+public class Tape.YaMAPI.Account.About : ApiBase.DataObject, HasCover, HasID {
 
     public string oid {
         owned get {

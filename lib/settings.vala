@@ -22,6 +22,12 @@ public sealed class Tape.Settings : Object {
      */
     public string app_name { get; construct; }
 
+    public string app_name_lower {
+        owned get {
+            return app_name.down ();
+        }
+    }
+
     /**
      * Application ID.
      */
@@ -104,6 +110,6 @@ public sealed class Tape.Settings : Object {
             can_quit: can_quit,
             can_raise: can_raise,
             can_set_fullscreen: can_set_fullscreen
-        )
+        );
     }
 }

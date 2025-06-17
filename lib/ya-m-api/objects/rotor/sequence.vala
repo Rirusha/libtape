@@ -20,7 +20,7 @@
 /**
  *
  */
-public class YaMAPI.Rotor.Sequence : ApiBase.DataObject {
+public class Tape.YaMAPI.Rotor.Sequence : ApiBase.DataObject {
 
     /**
      * Track type.

@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-public class YaMAPI.LyricsMajor : ApiBase.DataObject {
+public class Tape.YaMAPI.LyricsMajor : ApiBase.DataObject {
 
     public string name { get; set; }
 

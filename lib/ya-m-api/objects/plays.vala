@@ -22,7 +22,7 @@ using Gee;
 /**
  *
  */
-public class YaMAPI.Plays : ApiBase.DataObject {
+public class Tape.YaMAPI.Plays : ApiBase.DataObject {
 
     /**
      *

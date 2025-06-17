@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-namespace YaMAPI.Rotor {
+namespace Tape.YaMAPI.Rotor {
 
     namespace ValueHeapType {
         public const string DISCRETE_SCALE = "discrete-scale";
@@ -61,7 +61,39 @@ namespace YaMAPI.Rotor {
     }
 }
 
-namespace YaMAPI {
+namespace Tape.YaMAPI {
+
+    public enum PlaylistVisible {
+
+        PUBLIC,
+        PRIVATE;
+
+        public static PlaylistVisible parse (string str) {
+            switch (str) {
+                case "public":
+                    return PlaylistVisible.PUBLIC;
+
+                case "private":
+                    return PlaylistVisible.PRIVATE;
+
+                default:
+                    assert_not_reached ();
+            }
+        }
+
+        public string to_string () {
+            switch (this) {
+                case PUBLIC:
+                    return "public";
+
+                case PRIVATE:
+                    return "private";
+
+                default:
+                    assert_not_reached ();
+            }
+        }
+    }
 
     public enum TrackType {
         MUSIC,

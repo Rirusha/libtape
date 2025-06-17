@@ -17,12 +17,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-using YaMAPI.Rotor;
+using Tape.YaMAPI.Rotor;
 using ApiBase;
 
-public sealed class YaMAPI.Client : Object {
+public sealed class Tape.YaMAPI.Client : Object {
 
-    const string USER_AGENT = "yandex-music-api-vala";
+    const string USER_AGENT = "libtape";
     const string YAM_BASE_URL = "https://api.music.yandex.net";
 
     public ApiBase.SoupWrapper soup_wrapper { private get; construct; }

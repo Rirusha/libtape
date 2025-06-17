@@ -32,7 +32,7 @@ public sealed class Tape.PlayerEmpty : PlayerMode {
             null,
             -1,
             null
-            );
+        );
     }
 
     public override int get_prev_index () {
@@ -47,8 +47,10 @@ public sealed class Tape.PlayerEmpty : PlayerMode {
         assert_not_reached ();
     }
 
-    public override async void send_play_async (string play_id,
-                                                double end_position_seconds = 0.0,
-                                                double total_played_seconds = 0.0) {
+    public override async void send_play_async (
+        string play_id,
+        double end_position_seconds = 0.0,
+        double total_played_seconds = 0.0
+    ) {
     }
 }

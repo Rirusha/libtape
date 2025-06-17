@@ -21,7 +21,7 @@
 /**
  *
  */
-public class YaMAPI.Rotor.StationInfo : ApiBase.DataObject {
+public class Tape.YaMAPI.Rotor.StationInfo : ApiBase.DataObject {
 
     /**
      *

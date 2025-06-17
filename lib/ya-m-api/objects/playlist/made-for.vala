@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-public class YaMAPI.MadeFor : ApiBase.DataObject {
+public class Tape.YaMAPI.MadeFor : ApiBase.DataObject {
 
     public User user_info { get; set; }
 

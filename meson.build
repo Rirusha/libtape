@@ -69,6 +69,7 @@ gee_girdir = gee_dep.get_variable('datadir') / 'gir-1.0'
 add_project_arguments(
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
   '-include', 'config.h',
+  '-w',
   language: ['c'],
 )
 

@@ -52,11 +52,11 @@ namespace Tape {
         NO_PLUS
     }
 
-    namespace Filenames {
-        public const string ROOT = Config.APP_NAME_LOWER;
-        public const string COOKIES = Config.APP_NAME_LOWER + ".cookies";
-        public const string LOG = Config.APP_NAME_LOWER + ".log";
-        public const string DATABASE = Config.APP_NAME_LOWER + ".db";
+    internal class Filenames {
+        public static string data_root = root.settings.app_name_lower;
+        public static string cookies = root.settings.app_name_lower + ".cookies";
+        public static string log = root.settings.app_name_lower + ".log";
+        public static string database = root.settings.app_name_lower + ".db";
         public const string IMAGES = "images";
         public const string AUDIOS = "audios";
         public const string OBJECTS = "objs";
@@ -122,7 +122,7 @@ namespace Tape {
     internal static void check_client_initted () {
         if (root.player == null ||
             root.cachier == null ||
-            root.ya_m_talker == null
+            root.yam_talker == null
         ) {
             error (_("Client not initted"));
         }
@@ -257,6 +257,8 @@ namespace Tape {
                         return null;
                 }
         }
+
+        return null;
     }
 
     public string get_share_link (ApiBase.DataObject yam_obj) {

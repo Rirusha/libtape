@@ -19,9 +19,6 @@ namespace Tape {
     public static Client root;
 }
 
-/**
- * IMPORTANT: Client settings should be bound or set before init
- */
 [SingleInstance]
 public class Tape.Client : Object {
 
@@ -35,7 +32,7 @@ public class Tape.Client : Object {
     /**
      * YaMTalker module.
      */
-    public YaMTalker ya_m_talker { get; private set; }
+    public YaMTalker yam_talker { get; private set; }
 
     /**
      * Player module.
@@ -54,7 +51,7 @@ public class Tape.Client : Object {
 
     construct {
         cachier = new Cachier ();
-        ya_m_talker = new YaMTalker ();
+        yam_talker = new YaMTalker ();
         player = new Player ();
 
         Mpris.init (this);

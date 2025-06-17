@@ -20,7 +20,7 @@
 /**
  * Wave parameters
  */
-public class YaMAPI.Rotor.Restrictions : ApiBase.DataObject {
+public class Tape.YaMAPI.Rotor.Restrictions : ApiBase.DataObject {
 
     /**
      * Wave language

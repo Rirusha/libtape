@@ -18,7 +18,7 @@
  */
 
 using ApiBase;
-using YaMAPI;
+using Tape.YaMAPI;
 
 /**
  * Класс для выполнения всяких вещей, связанных с интернетом, чтобы
@@ -26,7 +26,7 @@ using YaMAPI;
  */
 public sealed class Tape.YaMTalker : Object {
 
-    public static Client yam_client { get; private set; }
+    public static YaMAPI.Client yam_client { get; private set; }
     public LikesController likes_controller { get; default = new LikesController (); }
 
     public signal void connection_established ();
@@ -56,7 +56,7 @@ public sealed class Tape.YaMTalker : Object {
             if (_me == null) {
                 string my_uid = root.cachier.storager.db.get_additional_data ("me");
                 if (my_uid != null) {
-                    _me = (Account.About) root.cachier.storager.load_object_async (typeof (Account.About), my_uid);
+                    _me = (Account.About) root.cachier.storager.load_object_sync (typeof (Account.About), my_uid);
                 }
 
                 if (_me == null) {
@@ -72,7 +72,7 @@ public sealed class Tape.YaMTalker : Object {
         error (_("Logger shouldn't be construct"));
     }
 
-    public void init_if_not () throws BadStatusCodeError, CantUseError {
+    public async void init_if_not () throws BadStatusCodeError, CantUseError {
         bool is_need_init = false;
 
         if (yam_client == null) {
@@ -82,7 +82,7 @@ public sealed class Tape.YaMTalker : Object {
         }
 
         if (is_need_init) {
-            init ();
+            yield init ();
         }
 
         if (me != null) {
@@ -92,15 +92,11 @@ public sealed class Tape.YaMTalker : Object {
         }
     }
 
-    void prerun () {
+    async void prerun () throws CantUseError {
         try {
-            init_if_not ();
-        } catch (CantUseError e) {
-            warning (
-                "Can't use error: %s".printf (
-                e.message
-            ));
-            return;
+            yield init_if_not ();
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
         }
     }
 
@@ -108,13 +104,13 @@ public sealed class Tape.YaMTalker : Object {
         connection_established ();
     }
 
-    void postrun_error_ignore_bad_code (Error e) {
+    void postrun_error_ignore_bad_code (Error e) throws CantUseError {
         try {
             postrun_error (e);
         } catch (BadStatusCodeError e) {}
     }
 
-    void postrun_error (Error e) throws BadStatusCodeError {
+    void postrun_error (Error e) throws BadStatusCodeError, CantUseError {
         if (e is CommonError) {
             warning ("%s: %s".printf (
                 e.domain.to_string (),
@@ -129,6 +125,11 @@ public sealed class Tape.YaMTalker : Object {
             ));
 
             throw (BadStatusCodeError) e;
+        } else if (e is CantUseError) {
+            warning (
+                "Can't use error: %s".printf (
+                e.message
+            ));
         } else {
             assert_not_reached ();
         }
@@ -148,13 +149,13 @@ public sealed class Tape.YaMTalker : Object {
         try {
             yield yam_client.init ();
 
-            storager.db.set_additional_data ("me", me.oid);
-            storager.save_object (me, false);
+            root.cachier.storager.db.set_additional_data ("me", me.oid);
+            root.cachier.storager.save_object (me, false);
 
             // TODO: replace with lib func
             yield get_playlist_info_old (null, "3");
-            get_likes_playlist_list (null);
-            get_disliked_tracks_short ();
+            yield get_likes_playlist_list (null);
+            yield get_disliked_tracks_short ();
 
             _me = null;
 
@@ -168,10 +169,10 @@ public sealed class Tape.YaMTalker : Object {
     public async Playlist? get_playlist_info_old (
         string? uid = null,
         string kind = "3"
-    ) throws BadStatusCodeError {
+    ) throws BadStatusCodeError, CantUseError {
         Playlist? playlist_info = null;
 
-        prerun ();
+        yield prerun ();
         try {
             playlist_info = yield yam_client.users_playlists_playlist (kind, true, uid);
 
@@ -193,13 +194,13 @@ public sealed class Tape.YaMTalker : Object {
 
             // Сохраняет объект, если он не сохранен в data
             // Постоянными объектами занимается уже Cachier.Job
-            var object_location = storager.object_cache_location (playlist_info.get_type (), playlist_info.oid);
-            if (object_location.is_tmp && settings.get_boolean ("can-cache")) {
-                storager.save_object (playlist_info, true);
-                cachier.controller.change_state (
-                    Cachier.ContentType.PLAYLIST,
+            var object_location = root.cachier.storager.object_cache_location (playlist_info.get_type (), playlist_info.oid);
+            if (object_location.is_tmp && root.settings.can_cache) {
+                root.cachier.storager.save_object (playlist_info, true);
+                root.cachier.controller.change_state (
+                    ContentType.PLAYLIST,
                     playlist_info.oid,
-                    Cachier.CacheingState.TEMP
+                    CacheingState.TEMP
                 );
             }
         } catch (Error e) {
@@ -209,10 +210,10 @@ public sealed class Tape.YaMTalker : Object {
         return playlist_info;
     }
 
-    public async Playlist? get_playlist_info (string playlist_uuid) throws BadStatusCodeError {
+    public async Playlist? get_playlist_info (string playlist_uuid) throws BadStatusCodeError, CantUseError {
         Playlist? playlist_info = null;
 
-        prerun ();
+        yield prerun ();
         try {
             playlist_info = yield yam_client.playlist (playlist_uuid, false, true);
 
@@ -234,13 +235,14 @@ public sealed class Tape.YaMTalker : Object {
 
             // Сохраняет объект, если он не сохранен в data
             // Постоянными объектами занимается уже Cachier.Job
-            var object_location = storager.object_cache_location (playlist_info.get_type (), playlist_info.oid);
-            if (object_location.is_tmp && settings.get_boolean ("can-cache")) {
-                storager.save_object (playlist_info, true);
-                cachier.controller.change_state (
-                    Cachier.ContentType.PLAYLIST,
+            var object_location = root.cachier.storager.object_cache_location (playlist_info.get_type (), playlist_info.oid);
+            if (object_location.is_tmp && root.settings.can_cache) {
+                root.cachier.storager.save_object (playlist_info, true);
+                root.cachier.controller.change_state (
+                    ContentType.PLAYLIST,
                     playlist_info.oid,
-                    Cachier.CacheingState.TEMP);
+                    CacheingState.TEMP
+                );
             }
         } catch (Error e) {
             postrun_error (e);
@@ -249,10 +251,10 @@ public sealed class Tape.YaMTalker : Object {
         return playlist_info;
     }
 
-    public async Gee.ArrayList<Track>? get_tracks_info (string[] ids) {
+    public async Gee.ArrayList<Track>? get_tracks_info (string[] ids) throws CantUseError {
         Gee.ArrayList<Track>? track_list = null;
 
-        prerun ();
+        yield prerun ();
         try {
             track_list = yield yam_client.tracks (ids, true);
         } catch (Error e) {
@@ -262,8 +264,8 @@ public sealed class Tape.YaMTalker : Object {
         return track_list;
     }
 
-    public async void send_play (YaMAPI.Play[] play_objs) {
-        prerun ();
+    public async void send_play (YaMAPI.Play[] play_objs) throws CantUseError {
+        yield prerun ();
         try {
             yield yam_client.plays (play_objs);
         } catch (Error e) {
@@ -271,12 +273,12 @@ public sealed class Tape.YaMTalker : Object {
         }
     }
 
-    public async string? get_download_uri (string track_id, bool is_hq) {
+    public async string? get_download_uri (string track_id, bool is_hq) throws CantUseError {
         string? track_uri = null;
 
-        prerun ();
+        yield prerun ();
         try {
-            track_uri = yield yam_client.track_download_uri (track_id, is_hq);
+            track_uri = yield yam_client.track_download_url (track_id, is_hq);
         } catch (Error e) {
             postrun_error_ignore_bad_code (e);
         }
@@ -289,15 +291,15 @@ public sealed class Tape.YaMTalker : Object {
         string content_id,
         string? playlist_owner = null,
         string? playlist_kind = null
-    ) {
+    ) throws CantUseError {
         track_likes_start_change (content_id);
         bool is_ok = false;
 
-        prerun ();
+        yield prerun ();
         try {
             switch (content_type) {
                 case LikableType.TRACK:
-                    is_ok = yield yam_client.users_likes_tracks_add (content_id) != 0;
+                    is_ok = (yield yam_client.users_likes_tracks_add (content_id)) != 0;
                     break;
 
                 case LikableType.PLAYLIST:
@@ -325,7 +327,7 @@ public sealed class Tape.YaMTalker : Object {
             track_likes_end_change (content_id, true);
             if (content_type == LikableType.TRACK) {
                 likes_controller.remove_disliked (content_id);
-                player.rotor_feedback (Rotor.FeedbackType.LIKE, content_id);
+                root.player.rotor_feedback (Rotor.FeedbackType.LIKE, content_id);
 
                 track_dislikes_end_change (content_id, false);
             }
@@ -335,15 +337,15 @@ public sealed class Tape.YaMTalker : Object {
     public async void unlike (
         LikableType content_type,
         string content_id
-    ) {
+    ) throws CantUseError {
         track_likes_start_change (content_id);
         bool is_ok = false;
 
-        prerun ();
+        yield prerun ();
         try {
             switch (content_type) {
                 case LikableType.TRACK :
-                    is_ok = yield yam_client.users_likes_tracks_remove (content_id) != 0;
+                    is_ok = (yield yam_client.users_likes_tracks_remove (content_id)) != 0;
                     break;
 
                 case LikableType.PLAYLIST :
@@ -368,7 +370,7 @@ public sealed class Tape.YaMTalker : Object {
         if (is_ok) {
             // Add artists support
             likes_controller.remove_liked (content_type, content_id);
-            player.rotor_feedback (Rotor.FeedbackType.UNLIKE, content_id);
+            root.player.rotor_feedback (Rotor.FeedbackType.UNLIKE, content_id);
 
             track_likes_end_change (content_id, false);
         }
@@ -377,15 +379,15 @@ public sealed class Tape.YaMTalker : Object {
     public async void dislike (
         DislikableType content_type,
         string content_id
-    ) {
+    ) throws CantUseError {
         track_dislikes_start_change (content_id);
         bool is_ok = false;
 
-        prerun ();
+        yield prerun ();
         try {
             switch (content_type) {
                 case DislikableType.TRACK:
-                    is_ok = yield yam_client.users_dislikes_tracks_add (content_id) != 0;
+                    is_ok = (yield yam_client.users_dislikes_tracks_add (content_id)) != 0;
                     break;
 
                 case DislikableType.ARTIST:
@@ -402,7 +404,7 @@ public sealed class Tape.YaMTalker : Object {
         if (is_ok) {
             // Add artists support
             likes_controller.add_disliked (content_id);
-            player.rotor_feedback (Rotor.FeedbackType.DISLIKE, content_id);
+            root.player.rotor_feedback (Rotor.FeedbackType.DISLIKE, content_id);
 
             track_dislikes_end_change (content_id, true);
             likes_controller.remove_liked (LikableType.TRACK, content_id);
@@ -413,15 +415,15 @@ public sealed class Tape.YaMTalker : Object {
     public async void undislike (
         DislikableType content_type,
         string content_id
-    ) {
+    ) throws CantUseError {
         track_dislikes_start_change (content_id);
         bool is_ok = false;
 
-        prerun ();
+        yield prerun ();
         try {
             switch (content_type) {
                 case DislikableType.TRACK:
-                    is_ok = yield yam_client.users_dislikes_tracks_remove (content_id) != 0;
+                    is_ok = (yield yam_client.users_dislikes_tracks_remove (content_id)) != 0;
                     break;
 
                 case DislikableType.ARTIST:
@@ -438,16 +440,16 @@ public sealed class Tape.YaMTalker : Object {
         if (is_ok) {
             // Add artists support
             likes_controller.remove_disliked (content_id);
-            player.rotor_feedback (Rotor.FeedbackType.UNDISLIKE, content_id);
+            root.player.rotor_feedback (Rotor.FeedbackType.UNDISLIKE, content_id);
 
             track_dislikes_end_change (content_id, false);
         }
     }
 
-    public async Gee.ArrayList<Playlist>? get_playlist_list (string? uid = null) {
+    public async Gee.ArrayList<Playlist>? get_playlist_list (string? uid = null) throws CantUseError {
         Gee.ArrayList<Playlist>? playlist_list = null;
 
-        prerun ();
+        yield prerun ();
         try {
             playlist_list = yield yam_client.users_playlists_list (uid);
 
@@ -457,7 +459,7 @@ public sealed class Tape.YaMTalker : Object {
                     playlists_kinds[i] = playlist_list[i].kind.to_string ();
                 }
 
-                storager.db.set_additional_data ("my_playlists", string.joinv (",", playlists_kinds));
+                root.cachier.storager.db.set_additional_data ("my_playlists", string.joinv (",", playlists_kinds));
             }
         } catch (Error e) {
             postrun_error_ignore_bad_code (e);
@@ -466,10 +468,10 @@ public sealed class Tape.YaMTalker : Object {
         return playlist_list;
     }
 
-    public async Gee.ArrayList<LikedPlaylist>? get_likes_playlist_list (string? uid = null) {
+    public async Gee.ArrayList<LikedPlaylist>? get_likes_playlist_list (string? uid = null) throws CantUseError {
         Gee.ArrayList<LikedPlaylist>? playlist_list = null;
 
-        prerun ();
+        yield prerun ();
         try {
             playlist_list = yield yam_client.users_likes_playlists (uid);
 
@@ -481,10 +483,10 @@ public sealed class Tape.YaMTalker : Object {
         return playlist_list;
     }
 
-    public async YaMAPI.SimilarTracks? get_track_similar (string track_id) {
+    public async YaMAPI.SimilarTracks? get_track_similar (string track_id) throws CantUseError {
         YaMAPI.SimilarTracks? similar_tracks = null;
 
-        prerun ();
+        yield prerun ();
         try {
             similar_tracks = yield yam_client.tracks_similar (track_id);
         } catch (Error e) {
@@ -494,13 +496,13 @@ public sealed class Tape.YaMTalker : Object {
         return similar_tracks;
     }
 
-    public async YaMAPI.Lyrics? get_lyrics (string track_id, bool is_sync) {
+    public async YaMAPI.Lyrics? get_lyrics (string track_id, bool is_sync) throws CantUseError {
         YaMAPI.Lyrics? lyrics = null;
 
-        prerun ();
+        yield prerun ();
         try {
             lyrics = yield yam_client.track_lyrics (track_id, is_sync);
-            var txt = load_text (lyrics.download_url);
+            var txt = yield load_text (lyrics.download_url);
             lyrics.text = new Gee.ArrayList<string>.wrap (txt.split ("\n"));
         } catch (Error e) {
             postrun_error_ignore_bad_code (e);
@@ -509,10 +511,10 @@ public sealed class Tape.YaMTalker : Object {
         return lyrics;
     }
 
-    public async string? load_text (string uri) {
+    public async string? load_text (string uri) throws CantUseError {
         string? text = null;
 
-        prerun ();
+        yield prerun ();
         try {
             Bytes? bytes = yield yam_client.get_content_of (uri);
             text = (string) bytes.get_data ();
@@ -524,10 +526,10 @@ public sealed class Tape.YaMTalker : Object {
     }
 
     // Получает изображение из сети как pixbuf
-    public async Bytes? load_image_data (string image_uri) {
+    public async Bytes? load_image_data (string image_uri) throws CantUseError {
         Bytes? content = null;
 
-        prerun ();
+        yield prerun ();
         try {
             content = yield yam_client.get_content_of (image_uri);
         } catch (Error e) {
@@ -537,10 +539,10 @@ public sealed class Tape.YaMTalker : Object {
         return content;
     }
 
-    public async Bytes? load_track (string track_uri) {
+    public async Bytes? load_track (string track_uri) throws CantUseError {
         Bytes? content = null;
 
-        prerun ();
+        yield prerun ();
         try {
             content = yield yam_client.get_content_of (track_uri);
         } catch (Error e) {
@@ -550,7 +552,7 @@ public sealed class Tape.YaMTalker : Object {
         return content;
     }
 
-    public async Playlist? add_track_to_playlist (Track track_info, Playlist playlist_info) {
+    public async Playlist? add_track_to_playlist (Track track_info, Playlist playlist_info) throws CantUseError {
         return yield add_tracks_to_playlist ({ track_info }, playlist_info);
     }
 
@@ -562,17 +564,17 @@ public sealed class Tape.YaMTalker : Object {
     public async Playlist? add_tracks_to_playlist (
         Track[] tracks,
         Playlist playlist_info
-    ) {
+    ) throws CantUseError {
         Playlist? new_playlist = null;
 
         var diff = new DifferenceBuilder ();
 
         diff.add_insert (
-            settings.get_boolean ("add-tracks-to-start") ? 0 : playlist_info.track_count,
+            root.settings.add_tracks_to_start ? 0 : playlist_info.track_count,
             tracks
         );
 
-        prerun ();
+        yield prerun ();
         try {
             new_playlist = yield yam_client.users_playlists_change (
                 null,
@@ -592,14 +594,14 @@ public sealed class Tape.YaMTalker : Object {
         string kind,
         int position,
         int revision
-    ) {
+    ) throws CantUseError {
         Playlist? new_playlist = null;
 
         var diff = new DifferenceBuilder ();
 
         diff.add_delete (position, position + 1);
 
-        prerun ();
+        yield prerun ();
         try {
             new_playlist = yield yam_client.users_playlists_change (null, kind, diff.to_json (), revision);
         } catch (Error e) {
@@ -614,10 +616,10 @@ public sealed class Tape.YaMTalker : Object {
     public async Playlist? change_playlist_visibility (
         string kind,
         bool is_public
-    ) {
+    ) throws CantUseError {
         Playlist? new_playlist = null;
 
-        prerun ();
+        yield prerun ();
         try {
             new_playlist = yield yam_client.users_playlists_visibility (null, kind, is_public ? "public" : "private");
             playlist_changed (new_playlist);
@@ -628,10 +630,10 @@ public sealed class Tape.YaMTalker : Object {
         return new_playlist;
     }
 
-    public async Playlist? create_playlist () {
+    public async Playlist? create_playlist () throws CantUseError {
         Playlist? new_playlist = null;
 
-        prerun ();
+        yield prerun ();
         try {
             // Translators: name of new created playlist
             new_playlist = yield yam_client.users_playlists_create (null, _("New Playlist"));
@@ -643,10 +645,10 @@ public sealed class Tape.YaMTalker : Object {
         return new_playlist;
     }
 
-    public async bool delete_playlist (string kind) {
+    public async bool delete_playlist (string kind) throws CantUseError {
         bool is_success = false;
 
-        prerun ();
+        yield prerun ();
         try {
             playlist_start_delete (kind);
             is_success = yield yam_client.users_playlists_delete (null, kind);
@@ -665,10 +667,10 @@ public sealed class Tape.YaMTalker : Object {
     public async Playlist? change_playlist_name (
         string kind,
         string new_name
-    ) {
+    ) throws CantUseError {
         Playlist? new_playlist = null;
 
-        prerun ();
+        yield prerun ();
         try {
             new_playlist = yield yam_client.users_playlists_name (null, kind, new_name);
             playlist_changed (new_playlist);
@@ -679,10 +681,10 @@ public sealed class Tape.YaMTalker : Object {
         return new_playlist;
     }
 
-    async Gee.ArrayList<YaMAPI.TrackShort>? get_disliked_tracks_short () {
+    async Gee.ArrayList<YaMAPI.TrackShort>? get_disliked_tracks_short () throws CantUseError {
         Gee.ArrayList<YaMAPI.TrackShort>? trackshort_list = null;
 
-        prerun ();
+        yield prerun ();
         try {
             trackshort_list = yield yam_client.users_dislikes_tracks (null);
 
@@ -694,12 +696,12 @@ public sealed class Tape.YaMTalker : Object {
         return trackshort_list;
     }
 
-    public async YaMAPI.TrackHeap? get_disliked_tracks () {
+    public async YaMAPI.TrackHeap? get_disliked_tracks () throws CantUseError {
         YaMAPI.TrackHeap? track_list = null;
 
-        prerun ();
+        yield prerun ();
         try {
-            var trackshort_list = get_disliked_tracks_short ();
+            var trackshort_list = yield get_disliked_tracks_short ();
 
             string[] track_ids = new string[trackshort_list.size];
             for (int i = 0; i < track_ids.length; i++) {
@@ -715,10 +717,10 @@ public sealed class Tape.YaMTalker : Object {
         return track_list;
     }
 
-    public async Rotor.StationTracks? start_new_session (string station_id) {
+    public async Rotor.StationTracks? start_new_session (string station_id) throws CantUseError {
         Rotor.StationTracks? station_tracks = null;
 
-        prerun ();
+        yield prerun ();
         try {
             var ses_new = new Rotor.SessionNew ();
             ses_new.seeds.add (station_id);
@@ -737,8 +739,8 @@ public sealed class Tape.YaMTalker : Object {
         string feedback_type,
         string? track_id = null,
         double total_played_seconds = 0.0
-    ) {
-        prerun ();
+    ) throws CantUseError {
+        yield prerun ();
         try {
             var feedback_obj = new Rotor.Feedback () {
                 event = new Rotor.Event () {
@@ -761,10 +763,10 @@ public sealed class Tape.YaMTalker : Object {
     public async Rotor.StationTracks? get_session_tracks (
         string radio_session_id,
         Gee.ArrayList<string> queue
-    ) {
+    ) throws CantUseError {
         Rotor.StationTracks? station_tracks = null;
 
-        prerun ();
+        yield prerun ();
         try {
             var ses_queue = new Rotor.Queue () {
                 queue = queue
@@ -781,10 +783,10 @@ public sealed class Tape.YaMTalker : Object {
 
 
 
-    public async YaMAPI.Rotor.Dashboard? get_stations_dashboard () {
+    public async YaMAPI.Rotor.Dashboard? get_stations_dashboard () throws CantUseError {
         YaMAPI.Rotor.Dashboard? dashboard = null;
 
-        prerun ();
+        yield prerun ();
         try {
             dashboard = yield yam_client.rotor_stations_dashboard ();
         } catch (Error e) {
@@ -794,10 +796,10 @@ public sealed class Tape.YaMTalker : Object {
         return dashboard;
     }
 
-    public async Gee.ArrayList<YaMAPI.Rotor.Station>? get_all_stations () {
+    public async Gee.ArrayList<YaMAPI.Rotor.Station>? get_all_stations () throws CantUseError {
         Gee.ArrayList<YaMAPI.Rotor.Station>? stations_list = null;
 
-        prerun ();
+        yield prerun ();
         try {
             stations_list = yield yam_client.rotor_stations_list ();
         } catch (Error e) {
@@ -807,10 +809,10 @@ public sealed class Tape.YaMTalker : Object {
         return stations_list;
     }
 
-    public async Rotor.Settings? get_wave_settings () {
+    public async Rotor.Settings? get_wave_settings () throws CantUseError {
         Rotor.Settings? wave_settings = null;
 
-        prerun ();
+        yield prerun ();
         try {
             wave_settings = yield yam_client.rotor_wave_settings ();
         } catch (Error e) {
@@ -820,10 +822,10 @@ public sealed class Tape.YaMTalker : Object {
         return wave_settings;
     }
 
-    public async Rotor.Wave? get_last_wave () {
+    public async Rotor.Wave? get_last_wave () throws CantUseError {
         Rotor.Wave? last_wave = null;
 
-        prerun ();
+        yield prerun ();
         try {
             last_wave = yield yam_client.rotor_wave_last ();
         } catch (Error e) {
@@ -833,10 +835,10 @@ public sealed class Tape.YaMTalker : Object {
         return last_wave;
     }
 
-    public async void reset_last_wave () {
+    public async void reset_last_wave () throws CantUseError {
         bool is_success = false;
 
-        prerun ();
+        yield prerun ();
         try {
             is_success = yield yam_client.rotor_wave_last_reset ();
         } catch (Error e) {

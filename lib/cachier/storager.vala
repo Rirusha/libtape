@@ -39,7 +39,7 @@ internal class Tape.Storager : Object {
     public File datadir_file {
         get {
             if (_root_datadir_file == null) {
-                _root_datadir_file = File.new_build_filename (Environment.get_user_data_dir (), Filenames.ROOT);
+                _root_datadir_file = File.new_build_filename (Environment.get_user_data_dir (), Filenames.data_root);
             }
             create_dir_if_not_existing (_root_datadir_file);
 
@@ -87,7 +87,7 @@ internal class Tape.Storager : Object {
     public File cachedir_file {
         get {
             if (_cachedir_file == null) {
-                _cachedir_file = File.new_build_filename (Environment.get_user_cache_dir (), Filenames.ROOT);
+                _cachedir_file = File.new_build_filename (Environment.get_user_cache_dir (), Filenames.data_root);
             }
             create_dir_if_not_existing (_cachedir_file);
 
@@ -138,7 +138,7 @@ internal class Tape.Storager : Object {
     public File log_file {
         get {
             if (_log_file == null) {
-                _log_file = File.new_build_filename (cachedir_file.peek_path (), Filenames.LOG);
+                _log_file = File.new_build_filename (cachedir_file.peek_path (), Filenames.log);
             }
 
             return _log_file;
@@ -149,7 +149,7 @@ internal class Tape.Storager : Object {
     public File db_file {
         get {
             if (_db_file == null) {
-                _db_file = File.new_build_filename (datadir_file.peek_path (), Filenames.DATABASE);
+                _db_file = File.new_build_filename (datadir_file.peek_path (), Filenames.database);
             }
 
             return _db_file;
@@ -160,7 +160,7 @@ internal class Tape.Storager : Object {
     public File cookies_file {
         get {
             if (_cookies_file == null) {
-                _cookies_file = File.new_build_filename (datadir_file.peek_path (), Filenames.COOKIES);
+                _cookies_file = File.new_build_filename (datadir_file.peek_path (), Filenames.cookies);
             }
 
             return _cookies_file;
@@ -586,10 +586,6 @@ internal class Tape.Storager : Object {
         return null;
     }
 
-    public async void clear_temp_audio () {
-        yield remove_file (temp_audio_file);
-    }
-
     /**
      * Save audio data.
      *
@@ -598,14 +594,14 @@ internal class Tape.Storager : Object {
      * @param is_tmp        is track should be save in cache or data
      */
     public async void save_audio (
-        uint8[] audio_data,
+        Bytes audio,
         string track_id,
         bool is_tmp
     ) {
         File audio_file = get_audio_cache_file (track_id, is_tmp);
 
         try {
-            var dencoded_audio_data = audio_data.copy ();
+            var dencoded_audio_data = audio.get_data ().copy ();
             simple_dencode (ref dencoded_audio_data);
 
             yield audio_file.replace_contents_async (
@@ -767,11 +763,50 @@ internal class Tape.Storager : Object {
         return null;
     }
 
+    public YaMAPI.HasID? load_object_sync (Type obj_type, string oid) {
+        Location object_location = object_cache_location (obj_type, oid);
+
+        if (object_location.file == null) {
+            return null;
+        }
+
+        for (int i = 0; i > 5; i++) {
+            try {
+                uint8[] object_data;
+
+                object_location.file.load_contents (
+                    null,
+                    out object_data,
+                    null
+                );
+
+                simple_dencode (ref object_data);
+
+                var jsoner = new ApiBase.Jsoner.from_data (object_data);
+
+                YaMAPI.HasID? des_obj = null;
+
+                try {
+                    des_obj = (YaMAPI.HasID) jsoner.deserialize_object (obj_type);
+
+                } catch (ApiBase.CommonError e) {
+                    warning ("Can't parse object. Error message: %s", e.message);
+                }
+
+                return des_obj;
+
+            } catch (Error e) {}
+        }
+
+        warning ("Give up loading object '%s'.", object_location.file.peek_path ());
+        return null;
+    }
+
     public async void save_object (YaMAPI.HasID yam_object, bool is_tmp) {
         File object_file = get_object_cache_file (yam_object.get_type (), yam_object.oid, is_tmp);
 
         try {
-            var object_data = yam_object.to_json ();
+            var object_data = yam_object.to_json ().data;
             simple_dencode (ref object_data);
 
             yield object_file.replace_contents_async (

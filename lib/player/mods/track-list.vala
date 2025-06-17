@@ -52,18 +52,21 @@ public sealed class Tape.PlayerTrackList : PlayerShufflable {
             );
     }
 
-    public override void next (bool consider_repeat_mode) {
+    public async override void next (bool consider_repeat_mode) throws CantUseError {
         var new_index = get_next_index (consider_repeat_mode);
 
         if (new_index != -1) {
             current_index = new_index;
         } else {
-            player.start_flow (
-                "%s:%s".printf (
-                    context_type,
-                    context_id.replace (":", "_")
+            try {
+                yield player.start_flow (
+                    "%s:%s".printf (
+                        context_type,
+                        context_id.replace (":", "_")
                     ),
-                queue);
+                    queue
+                );
+            } catch (CantUseError e) {}
         }
     }
 

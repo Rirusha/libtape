@@ -20,7 +20,7 @@ using Gee;
 /**
  * Датакласс с фидбеком о прослушивании
  */
-public class YaMAPI.Play : ApiBase.DataObject {
+public class Tape.YaMAPI.Play : ApiBase.DataObject {
 
     /**
      * Id сессии прослушивания

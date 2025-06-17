@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class YaMAPI.Track : ApiBase.DataObject, HasCover {
+public class Tape.YaMAPI.Track : ApiBase.DataObject, HasCover {
 
     public bool is_explicit {
         get {

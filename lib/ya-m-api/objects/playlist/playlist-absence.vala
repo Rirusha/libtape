@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-public class YaMAPI.PlaylistAbsence : ApiBase.DataObject {
+public class Tape.YaMAPI.PlaylistAbsence : ApiBase.DataObject {
 
     public int kind { get; set; }
 

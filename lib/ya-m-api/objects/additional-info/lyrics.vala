@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class YaMAPI.Lyrics : ApiBase.DataObject {
+public class Tape.YaMAPI.Lyrics : ApiBase.DataObject {
 
     public string download_url { get; set; }
 

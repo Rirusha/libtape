@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class YaMAPI.TrackHeap : ApiBase.DataObject, HasID, HasTracks {
+public class Tape.YaMAPI.TrackHeap : ApiBase.DataObject, HasID, HasTracks {
 
     public string oid {
         owned get {

@@ -120,11 +120,13 @@ public sealed class Tape.Player : Object {
         }
     }
 
-    public signal void queue_changed (ArrayList<YaMAPI.Track> queue,
-                                      string context_type,
-                                      string? context_id,
-                                      int current_index,
-                                      string? context_description);
+    public signal void queue_changed (
+        ArrayList<YaMAPI.Track> queue,
+        string context_type,
+        string? context_id,
+        int current_index,
+        string? context_description
+    );
 
     public bool can_go_force_prev {
         get {
@@ -211,7 +213,7 @@ public sealed class Tape.Player : Object {
      */
     public signal void current_track_finish_loading (YaMAPI.Track track_info);
 
-    public signal void playback_callback (double playback_pos_sec);
+    public signal void playback_callback (double position_sec);
 
     public signal void mode_inited ();
 
@@ -233,11 +235,11 @@ public sealed class Tape.Player : Object {
 
         bus.add_signal_watch ();
         bus.message["eos"].connect ((bus, message) => {
-            next_natural ();
+            next_natural.begin ();
         });
 
-        settings.bind ("repeat-mode", this, "repeat-mode", SettingsBindFlags.DEFAULT);
-        settings.bind ("shuffle-mode", this, "shuffle-mode", SettingsBindFlags.DEFAULT);
+        root.settings.bind_property ("repeat-mode", this, "repeat-mode");
+        root.settings.bind_property ("shuffle-mode", this, "shuffle-mode");
 
         current_track_start_loading.connect (() => {
             current_track_loading = true;
@@ -247,10 +249,10 @@ public sealed class Tape.Player : Object {
         });
 
         bind_property ("volume", playbin, "volume", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
-        settings.bind ("volume", this, "volume", SettingsBindFlags.DEFAULT);
+        root.settings.bind_property ("volume", this, "volume");
 
         bind_property ("mute", playbin, "mute", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
-        settings.bind ("mute", this, "mute", SettingsBindFlags.DEFAULT);
+        root.settings.bind_property ("mute", this, "mute");
 
         next_track_loaded.connect (() => {
             update_player ();
@@ -268,14 +270,14 @@ public sealed class Tape.Player : Object {
     }
 
     void send_callback () {
-        if (playback_pos_sec > 0.0 && state == State.PLAYING) {
-            playback_callback (playback_pos_sec);
+        if (position_sec > 0.0 && state == PlayerState.PLAYING) {
+            playback_callback (position_sec);
         }
     }
 
     void update_player () {
         var cgn = mode.get_next_index (true) != -1 && !current_track_loading;
-        var cgp = mode.get_prev_index () != -1 || playback_pos_sec > 3.0 && !current_track_loading;
+        var cgp = mode.get_prev_index () != -1 || position_sec > 3.0 && !current_track_loading;
 
         // Trigger notify::can-go-next and notify::can-go-prev only on changed
         if (cgn != can_go_next) {
@@ -309,8 +311,10 @@ public sealed class Tape.Player : Object {
         playbin.seek_simple (Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, ms * Gst.MSECOND);
     }
 
-    public void start_flow (string station_id,
-                            ArrayList<YaMAPI.Track> queue = new ArrayList<YaMAPI.Track> ()) {
+    public async void start_flow (
+        string station_id,
+        ArrayList<YaMAPI.Track> queue = new ArrayList<YaMAPI.Track> ()
+    ) throws CantUseError {
         stop ();
 
         if (repeat_mode == RepeatMode.QUEUE) {
@@ -335,15 +339,13 @@ public sealed class Tape.Player : Object {
 
         current_track_start_loading ();
 
-        flow.init_async.begin ((obj, res) => {
-            if (flow.init_async.end (res)) {
-                current_track_finish_loading (mode.get_current_track_info ());
+        if (yield flow.init_async ()) {
+            current_track_finish_loading (mode.get_current_track_info ());
 
-                mode_inited ();
+            mode_inited ();
 
-                start_current_track.begin ();
-            }
-        });
+            start_current_track.begin ();
+        }
     }
 
     public void start_track_list (ArrayList<YaMAPI.Track> queue,
@@ -353,7 +355,7 @@ public sealed class Tape.Player : Object {
                                   string? context_description) {
         stop ();
 
-        mode = new TrackList (
+        mode = new PlayerTrackList (
             this,
             queue,
             context_type,
@@ -377,11 +379,11 @@ public sealed class Tape.Player : Object {
 
     public void play_pause () {
         switch (state) {
-            case State.PLAYING :
+            case PlayerState.PLAYING :
                 pause ();
                 break;
 
-            case State.PAUSED :
+            case PlayerState.PAUSED :
                 play ();
                 break;
 
@@ -392,7 +394,7 @@ public sealed class Tape.Player : Object {
     }
 
     public void play () {
-        state = State.PLAYING;
+        state = PlayerState.PLAYING;
 
         var current_track = mode.get_current_track_info ();
 
@@ -402,7 +404,7 @@ public sealed class Tape.Player : Object {
     }
 
     public void pause () {
-        state = State.PAUSED;
+        state = PlayerState.PAUSED;
 
         var current_track = mode.get_current_track_info ();
 
@@ -414,13 +416,13 @@ public sealed class Tape.Player : Object {
     void track_stop (bool natural) {
         playbin.set_property ("uri", Value (Type.STRING));
 
-        state = State.NONE;
+        state = PlayerState.NONE;
 
         var current_track = mode.get_current_track_info ();
 
         mode.send_play_async.begin (
             play_id,
-            natural ? ms2sec (mode.get_current_track_info ().duration_ms) : playback_pos_sec,
+            natural ? ms2sec (mode.get_current_track_info ().duration_ms) : position_sec,
             total_played_seconds
             );
 
@@ -443,7 +445,7 @@ public sealed class Tape.Player : Object {
         stopped ();
     }
 
-    void next_natural () {
+    async void next_natural () throws CantUseError {
         if (mode.current_index == mode.get_next_index (true)) {
             seek (0);
             return;
@@ -451,7 +453,7 @@ public sealed class Tape.Player : Object {
 
         track_stop (true);
 
-        mode.next (true);
+        yield mode.next (true);
 
         if (mode.current_index != -1) {
             start_current_track.begin (() => {
@@ -460,10 +462,10 @@ public sealed class Tape.Player : Object {
         }
     }
 
-    public void next () {
+    public async void next () throws CantUseError {
         track_stop (false);
 
-        mode.next (false);
+        yield mode.next (false);
 
         if (mode.current_index != -1) {
             start_current_track.begin (() => {
@@ -473,7 +475,7 @@ public sealed class Tape.Player : Object {
     }
 
     public void prev (bool ignore_progress = false) {
-        if (playback_pos_sec > 3.0 && !ignore_progress) {
+        if (position_sec > 3.0 && !ignore_progress) {
             seek (0);
             return;
         }
@@ -500,7 +502,7 @@ public sealed class Tape.Player : Object {
         });
     }
 
-    public async void start_current_track () {
+    public async void start_current_track () throws CantUseError {
         var current_track = mode.get_current_track_info ();
 
         if (current_track == null) {
@@ -525,17 +527,19 @@ public sealed class Tape.Player : Object {
             playbin.set_property ("uri", track_uri);
 
             play ();
-            storager.clear_temp_track ();
+            //  root.cachier.storager.clear_temp_track ();
         }
 
         current_track_finish_loading (current_track);
 
-        if (settings.get_boolean ("can-cache")) {
+        if (root.settings.can_cache) {
             cache_next_track ();
         }
 
         if (mode.get_next_index (false) == -1) {
-            (mode as PlayerFlow) ? .prepare_next_track ();
+            if (mode is PlayerFlow) {
+                yield ((PlayerFlow) mode).prepare_next_track ();
+            }
         }
 
         update_player ();
@@ -571,7 +575,7 @@ public sealed class Tape.Player : Object {
             sh_mode.add_track_end (track_info);
         }
 
-        if (settings.get_boolean ("can-cache")) {
+        if (root.settings.can_cache) {
             cache_next_track ();
         }
     }
@@ -596,7 +600,7 @@ public sealed class Tape.Player : Object {
 
         sh_mode.add_many_end (track_list);
 
-        if (settings.get_boolean ("can-cache")) {
+        if (root.settings.can_cache) {
             cache_next_track ();
         }
     }
@@ -610,7 +614,7 @@ public sealed class Tape.Player : Object {
 
         sh_mode.remove_track_by_pos (position);
 
-        if (sh_mode.queue.size != 0 && settings.get_boolean ("can-cache")) {
+        if (sh_mode.queue.size != 0 && root.settings.can_cache) {
             cache_next_track ();
         }
     }
@@ -624,7 +628,7 @@ public sealed class Tape.Player : Object {
 
         sh_mode.remove_track (track_info);
 
-        if (sh_mode.queue.size != 0 && settings.get_boolean ("can-cache")) {
+        if (sh_mode.queue.size != 0 && root.settings.can_cache) {
             cache_next_track ();
         }
     }

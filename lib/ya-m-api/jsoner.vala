@@ -19,7 +19,7 @@
 
 using ApiBase;
 
-internal sealed class YaMAPI.Jsoner : ApiBase.Jsoner {
+internal sealed class Tape.YaMAPI.Jsoner : ApiBase.Jsoner {
 
     public Jsoner (
         string json_string,

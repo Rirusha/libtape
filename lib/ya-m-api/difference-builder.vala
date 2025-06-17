@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class YaMAPI.InsertOperation : Object {
+public class Tape.YaMAPI.InsertOperation : Object {
 
     public int at { get; construct; }
 
@@ -33,7 +33,7 @@ public class YaMAPI.InsertOperation : Object {
     }
 }
 
-public class YaMAPI.DeleteOperation : Object {
+public class Tape.YaMAPI.DeleteOperation : Object {
 
     public int from { get; construct; }
 
@@ -44,7 +44,7 @@ public class YaMAPI.DeleteOperation : Object {
     }
 }
 
-public class YaMAPI.DifferenceBuilder : Object {
+public class Tape.YaMAPI.DifferenceBuilder : Object {
 
     ArrayList<DeleteOperation> delete_operations = new ArrayList<DeleteOperation> ();
     ArrayList<InsertOperation> insert_operations = new ArrayList<InsertOperation> ();

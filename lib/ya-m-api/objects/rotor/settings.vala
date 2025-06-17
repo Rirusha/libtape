@@ -22,7 +22,7 @@ using Gee;
 /**
  * Wave settings.
  */
-public class YaMAPI.Rotor.Settings : ApiBase.DataObject {
+public class Tape.YaMAPI.Rotor.Settings : ApiBase.DataObject {
 
     /**
      *

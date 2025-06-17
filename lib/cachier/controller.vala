@@ -157,15 +157,15 @@ public class CacheController : Object {
         Location location;
         switch (content_type) {
             case ContentType.TRACK :
-                location = storager.audio_cache_location (content_id);
+                location = root.cachier.storager.audio_cache_location (content_id);
                 break;
 
             case ContentType.PLAYLIST :
-                location = storager.object_cache_location (typeof (YaMAPI.Playlist), content_id);
+                location = root.cachier.storager.object_cache_location (typeof (YaMAPI.Playlist), content_id);
                 break;
 
             case ContentType.ALBUM:
-                location = storager.object_cache_location (typeof (YaMAPI.Album), content_id);
+                location = root.cachier.storager.object_cache_location (typeof (YaMAPI.Album), content_id);
                 break;
 
             default:

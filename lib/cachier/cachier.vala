@@ -22,11 +22,11 @@ using Gee;
 [SingleInstance]
 public sealed class Tape.Cachier : Object {
 
-    public Storager storager { get; default = new Storager (); }
+    internal Storager storager { get; default = new Storager (); }
 
     public CacheController controller { get; default = new CacheController (); }
 
-    public Jober jober { get; default = new Jober (); }
+    //  public Jober jober { get; default = new Jober (); }
 
 
 
@@ -62,34 +62,36 @@ public sealed class Tape.Cachier : Object {
         //  get_image.begin (track_info, CoverSize.SMALL);
     }
 
-    public async static void download_audio_async (string track_id,
-                                                   owned string? track_uri = null,
-                                                   bool is_tmp = true) {
+    public async static void download_audio_async (
+        string track_id,
+        owned string? track_uri = null,
+        bool is_tmp = true
+    ) {
         /**
             Скачивание аудио по его id. Если не передан uri трека, то uri будет самостоятельно загружен.
             Аргумент is_tmp определяет место, куда будет загружено аудио
          */
 
-        if (storager.audio_cache_location (track_id).file != null) {
-            cachier.controller.stop_loading (ContentType.TRACK, track_id, null);
+        if (root.cachier.storager.audio_cache_location (track_id).file != null) {
+            root.cachier.controller.stop_loading (ContentType.TRACK, track_id, null);
             return;
         }
 
-        cachier.controller.start_loading (ContentType.TRACK, track_id);
+        root.cachier.controller.start_loading (ContentType.TRACK, track_id);
 
         CacheingState? cacheing_state = null;
 
         if (track_uri == null) {
-            track_uri = yield yam_talker.get_download_uri (
+            track_uri = yield root.yam_talker.get_download_uri (
                 track_id,
-                settings.get_boolean ("is-hq")
+                root.settings.is_hq
             );
         }
 
-        if (track_uri != null && (settings.get_boolean ("can-cache") || !is_tmp)) {
-            Bytes audio_bytes = yield yam_talker.load_track (track_uri);
+        if (track_uri != null && (root.settings.can_cache || !is_tmp)) {
+            Bytes audio_bytes = yield root.yam_talker.load_track (track_uri);
             if (audio_bytes != null) {
-                yield storager.save_audio (audio_bytes, track_id, is_tmp);
+                yield root.cachier.storager.save_audio (audio_bytes, track_id, is_tmp);
                 if (is_tmp) {
                     cacheing_state = CacheingState.TEMP;
                 } else {
@@ -98,45 +100,46 @@ public sealed class Tape.Cachier : Object {
             }
         }
 
-        cachier.controller.stop_loading (ContentType.TRACK, track_id, cacheing_state);
+        root.cachier.controller.stop_loading (ContentType.TRACK, track_id, cacheing_state);
     }
 
     public async static string? get_track_uri (string track_id) {
-        /**
-            Выдает uri трека: локальный, если трек сохранен; интернет ссылку в ином случае.
-            Если трек не был сохранен, то сохраняет его
-         */
+        return null;
+        //  /**
+        //      Выдает uri трека: локальный, если трек сохранен; интернет ссылку в ином случае.
+        //      Если трек не был сохранен, то сохраняет его
+        //   */
 
-        string? track_uri = null;
+        //  string? track_uri = null;
 
-        threader.add_audio (() => {
-            track_uri = storager.load_audio (track_id);
+        //  threader.add_audio (() => {
+        //      track_uri = storager.load_audio (track_id);
 
-            Idle.add (get_track_uri.callback);
-        });
+        //      Idle.add (get_track_uri.callback);
+        //  });
 
-        yield;
+        //  yield;
 
-        if (track_uri != null) {
-            return track_uri;
-        }
+        //  if (track_uri != null) {
+        //      return track_uri;
+        //  }
 
-        threader.add_audio (() => {
-            track_uri = yam_talker.get_download_uri (
-                track_id,
-                settings.get_boolean ("is-hq")
-                );
+        //  threader.add_audio (() => {
+        //      track_uri = root.yam_talker.get_download_uri (
+        //          track_id,
+        //          settings.get_boolean ("is-hq")
+        //          );
 
-            Idle.add (get_track_uri.callback);
-        });
+        //      Idle.add (get_track_uri.callback);
+        //  });
 
-        yield;
+        //  yield;
 
-        if (track_uri != null) {
-            download_audio_async.begin (track_id, track_uri);
-        }
+        //  if (track_uri != null) {
+        //      download_audio_async.begin (track_id, track_uri);
+        //  }
 
-        return track_uri;
+        //  return track_uri;
     }
 
     // Получение изображения ямобъекта, если есть, иначе получение из сети и сохранение
@@ -161,7 +164,7 @@ public sealed class Tape.Cachier : Object {
         //              pixbufs[i] = storager.load_image (cover_uris[i]);
 
         //              if (pixbufs[i] == null) {
-        //                  pixbufs[i] = yam_talker.load_pixbuf (cover_uris[i]);
+        //                  pixbufs[i] = root.yam_talker.load_pixbuf (cover_uris[i]);
 
         //                  if (pixbufs[i] != null && settings.get_boolean ("can-cache")) {
         //                      storager.save_image (pixbufs[i], cover_uris[i], true);

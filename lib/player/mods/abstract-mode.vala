@@ -104,7 +104,7 @@ public abstract class Tape.PlayerMode : Object {
      * @param consider_repeat_mode  if `true`, ignore repeat mode and go to next
      *                              else consider repeat
      */
-    public virtual void next (bool consider_repeat_mode) {
+    public async virtual void next (bool consider_repeat_mode) throws CantUseError {
         var new_index = get_next_index (consider_repeat_mode);
 
         if (new_index != -1) {
@@ -154,13 +154,13 @@ public abstract class Tape.PlayerMode : Object {
         play_obj.total_played_seconds = total_played_seconds;
 
         debug ("Track id %s: end: %f; total: %f, dur: %f".printf (
-                          play_obj.track_id,
-                          play_obj.end_position_seconds,
-                          play_obj.total_played_seconds,
-                          play_obj.track_length_seconds
-                          ));
+            play_obj.track_id,
+            play_obj.end_position_seconds,
+            play_obj.total_played_seconds,
+            play_obj.track_length_seconds
+        ));
 
-        yield player.client.yam_talker.send_play ({ play_obj });
+        yield root.yam_talker.send_play ({ play_obj });
     }
 
     /**

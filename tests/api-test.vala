@@ -1,7 +1,7 @@
 // ind-check=skip-file
 // vala-lint=skip-file
 
-using YaMAPI;
+using Tape.YaMAPI;
 
 public async void account_about_test () {
     var client = new Client.with_token (TestConfig.TOKEN);
