@@ -51,7 +51,7 @@ public class Tape.Client : Object {
 
     construct {
         cachier = new Cachier ();
-        yam_talker = new YaMTalker ();
+        yam_talker = new YaMTalker (cachier.storager.cookies_file.peek_path ());
         player = new Player ();
 
         Mpris.init (this);

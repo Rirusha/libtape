@@ -20,7 +20,7 @@
 /**
  * A class for working with client files
  */
-internal class Tape.Storager : Object {
+public class Tape.Storager : Object {
 
     InfoDB? _db = null;
     public InfoDB db {

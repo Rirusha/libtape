@@ -26,7 +26,7 @@ using Tape.YaMAPI;
  */
 public sealed class Tape.YaMTalker : Object {
 
-    public static YaMAPI.Client yam_client { get; private set; }
+    public YaMAPI.Client yam_client { get; construct; }
     public LikesController likes_controller { get; default = new LikesController (); }
 
     public signal void connection_established ();
@@ -68,8 +68,23 @@ public sealed class Tape.YaMTalker : Object {
         }
     }
 
-    construct {
-        error (_("Logger shouldn't be construct"));
+    internal YaMTalker (
+        string? cookies_path = null,
+        string? token = null
+    ) {
+        assert ((cookies_path != null || token != null) && (cookies_path == null || token == null));
+
+        YaMAPI.Client c;
+
+        if (cookies_path != null) {
+            c = new YaMAPI.Client.with_cookie (cookies_path, ApiBase.CookieJarType.DB);
+        } else if (token != null) {
+            c = new YaMAPI.Client.with_token (token);
+        } else {
+            assert_not_reached ();
+        }
+
+        Object (yam_client: c);
     }
 
     public async void init_if_not () throws BadStatusCodeError, CantUseError {

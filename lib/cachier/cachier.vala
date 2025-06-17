@@ -22,7 +22,7 @@ using Gee;
 [SingleInstance]
 public sealed class Tape.Cachier : Object {
 
-    internal Storager storager { get; default = new Storager (); }
+    public Storager storager { get; default = new Storager (); }
 
     public CacheController controller { get; default = new CacheController (); }
 

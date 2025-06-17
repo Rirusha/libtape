@@ -28,7 +28,7 @@ using Gee;
  * release of porridge (images and tracks), that is, track data is not
  * deleted if an object with this track is saved.
  */
-internal class Tape.InfoDB : Object {
+public class Tape.InfoDB : Object {
 
     public string db_path { get; construct; }
 
