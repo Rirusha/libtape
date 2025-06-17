@@ -332,39 +332,38 @@ public sealed class Tape.YaMTalker : Object {
         }
     }
 
-    public async void unlike (LikableType content_type,
-                              string content_id) {
+    public async void unlike (
+        LikableType content_type,
+        string content_id
+    ) {
         track_likes_start_change (content_id);
         bool is_ok = false;
 
-        threader.add (() => {
-            net_run_wout_code (() => {
-                switch (content_type) {
-                        case LikableType.TRACK :
-                            is_ok = client.users_likes_tracks_remove (content_id) != 0;
-                            break;
+        prerun ();
+        try {
+            switch (content_type) {
+                case LikableType.TRACK :
+                    is_ok = yield yam_client.users_likes_tracks_remove (content_id) != 0;
+                    break;
 
-                        case LikableType.PLAYLIST :
-                            is_ok = client.users_likes_playlists_remove (content_id);
-                            break;
+                case LikableType.PLAYLIST :
+                    is_ok = yield yam_client.users_likes_playlists_remove (content_id);
+                    break;
 
-                        case LikableType.ALBUM:
-                            is_ok = client.users_likes_albums_remove (content_id);
-                            break;
+                case LikableType.ALBUM:
+                    is_ok = yield yam_client.users_likes_albums_remove (content_id);
+                    break;
 
-                        case LikableType.ARTIST:
-                            is_ok = client.users_likes_artists_remove (content_id);
-                            break;
+                case LikableType.ARTIST:
+                    is_ok = yield yam_client.users_likes_artists_remove (content_id);
+                    break;
 
-                        default:
-                            assert_not_reached ();
-                }
-            });
-
-            Idle.add (unlike.callback);
-        });
-
-        yield;
+                default:
+                    assert_not_reached ();
+            }
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         if (is_ok) {
             // Add artists support
@@ -375,31 +374,30 @@ public sealed class Tape.YaMTalker : Object {
         }
     }
 
-    public async void dislike (DislikableType content_type,
-                               string content_id) {
+    public async void dislike (
+        DislikableType content_type,
+        string content_id
+    ) {
         track_dislikes_start_change (content_id);
         bool is_ok = false;
 
-        threader.add (() => {
-            net_run_wout_code (() => {
-                switch (content_type) {
-                        case DislikableType.TRACK:
-                            is_ok = client.users_dislikes_tracks_add (content_id) != 0;
-                            break;
+        prerun ();
+        try {
+            switch (content_type) {
+                case DislikableType.TRACK:
+                    is_ok = yield yam_client.users_dislikes_tracks_add (content_id) != 0;
+                    break;
 
-                        case DislikableType.ARTIST:
-                            is_ok = client.users_dislikes_artists_add (content_id);
-                            break;
+                case DislikableType.ARTIST:
+                    is_ok = yield yam_client.users_dislikes_artists_add (content_id);
+                    break;
 
-                        default:
-                            assert_not_reached ();
-                }
-            });
-
-            Idle.add (dislike.callback);
-        });
-
-        yield;
+                default:
+                    assert_not_reached ();
+            }
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         if (is_ok) {
             // Add artists support
@@ -412,31 +410,30 @@ public sealed class Tape.YaMTalker : Object {
         }
     }
 
-    public async void undislike (DislikableType content_type,
-                                 string content_id) {
+    public async void undislike (
+        DislikableType content_type,
+        string content_id
+    ) {
         track_dislikes_start_change (content_id);
         bool is_ok = false;
 
-        threader.add (() => {
-            net_run_wout_code (() => {
-                switch (content_type) {
-                        case DislikableType.TRACK:
-                            is_ok = client.users_dislikes_tracks_remove (content_id) != 0;
-                            break;
+        prerun ();
+        try {
+            switch (content_type) {
+                case DislikableType.TRACK:
+                    is_ok = yield yam_client.users_dislikes_tracks_remove (content_id) != 0;
+                    break;
 
-                        case DislikableType.ARTIST:
-                            is_ok = client.users_dislikes_artists_remove (content_id);
-                            break;
+                case DislikableType.ARTIST:
+                    is_ok = yield yam_client.users_dislikes_artists_remove (content_id);
+                    break;
 
-                        default:
-                            assert_not_reached ();
-                }
-            });
-
-            Idle.add (undislike.callback);
-        });
-
-        yield;
+                default:
+                    assert_not_reached ();
+            }
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         if (is_ok) {
             // Add artists support
@@ -447,11 +444,12 @@ public sealed class Tape.YaMTalker : Object {
         }
     }
 
-    public Gee.ArrayList<Playlist>? get_playlist_list (string? uid = null) {
+    public async Gee.ArrayList<Playlist>? get_playlist_list (string? uid = null) {
         Gee.ArrayList<Playlist>? playlist_list = null;
 
-        net_run_wout_code (() => {
-            playlist_list = yam_client.users_playlists_list (uid);
+        prerun ();
+        try {
+            playlist_list = yield yam_client.users_playlists_list (uid);
 
             if (uid == null) {
                 string[] playlists_kinds = new string[playlist_list.size];
@@ -461,52 +459,66 @@ public sealed class Tape.YaMTalker : Object {
 
                 storager.db.set_additional_data ("my_playlists", string.joinv (",", playlists_kinds));
             }
-        });
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return playlist_list;
     }
 
-    public Gee.ArrayList<LikedPlaylist>? get_likes_playlist_list (string? uid = null) {
+    public async Gee.ArrayList<LikedPlaylist>? get_likes_playlist_list (string? uid = null) {
         Gee.ArrayList<LikedPlaylist>? playlist_list = null;
 
-        net_run_wout_code (() => {
-            playlist_list = yam_client.users_likes_playlists (uid);
+        prerun ();
+        try {
+            playlist_list = yield yam_client.users_likes_playlists (uid);
 
             likes_controller.update_liked_playlists (playlist_list);
-        });
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return playlist_list;
     }
 
-    public YaMAPI.SimilarTracks? get_track_similar (string track_id) {
+    public async YaMAPI.SimilarTracks? get_track_similar (string track_id) {
         YaMAPI.SimilarTracks? similar_tracks = null;
 
-        net_run_wout_code (() => {
-            similar_tracks = yam_client.tracks_similar (track_id);
-        });
+        prerun ();
+        try {
+            similar_tracks = yield yam_client.tracks_similar (track_id);
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return similar_tracks;
     }
 
-    public YaMAPI.Lyrics? get_lyrics (string track_id, bool is_sync) {
+    public async YaMAPI.Lyrics? get_lyrics (string track_id, bool is_sync) {
         YaMAPI.Lyrics? lyrics = null;
 
-        net_run_wout_code (() => {
-            lyrics = yam_client.track_lyrics (track_id, is_sync);
+        prerun ();
+        try {
+            lyrics = yield yam_client.track_lyrics (track_id, is_sync);
             var txt = load_text (lyrics.download_url);
             lyrics.text = new Gee.ArrayList<string>.wrap (txt.split ("\n"));
-        });
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return lyrics;
     }
 
-    public string ? load_text (string uri) {
+    public async string? load_text (string uri) {
         string? text = null;
 
-        net_run_wout_code (() => {
-            Bytes? bytes = yam_client.get_content_of (uri);
+        prerun ();
+        try {
+            Bytes? bytes = yield yam_client.get_content_of (uri);
             text = (string) bytes.get_data ();
-        });
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return text;
     }
@@ -530,7 +542,7 @@ public sealed class Tape.YaMTalker : Object {
 
         prerun ();
         try {
-            content = yam_client.get_content_of (track_uri);
+            content = yield yam_client.get_content_of (track_uri);
         } catch (Error e) {
             postrun_error_ignore_bad_code (e);
         }
@@ -538,8 +550,8 @@ public sealed class Tape.YaMTalker : Object {
         return content;
     }
 
-    public Playlist? add_track_to_playlist (Track track_info, Playlist playlist_info) {
-        return add_tracks_to_playlist ({ track_info }, playlist_info);
+    public async Playlist? add_track_to_playlist (Track track_info, Playlist playlist_info) {
+        return yield add_tracks_to_playlist ({ track_info }, playlist_info);
     }
 
     // playlist_info.kind,
@@ -547,8 +559,10 @@ public sealed class Tape.YaMTalker : Object {
     // storager.settings.get_boolean ("add-tracks-to-start") ? 0 : playlist_info.track_count,
     // playlist_info.revision
 
-    public Playlist ? add_tracks_to_playlist (Track[] tracks,
-                                              Playlist playlist_info) {
+    public async Playlist? add_tracks_to_playlist (
+        Track[] tracks,
+        Playlist playlist_info
+    ) {
         Playlist? new_playlist = null;
 
         var diff = new DifferenceBuilder ();
@@ -556,148 +570,176 @@ public sealed class Tape.YaMTalker : Object {
         diff.add_insert (
             settings.get_boolean ("add-tracks-to-start") ? 0 : playlist_info.track_count,
             tracks
-            );
+        );
 
-        net_run_wout_code (() => {
-            new_playlist = yam_client.users_playlists_change (
+        prerun ();
+        try {
+            new_playlist = yield yam_client.users_playlists_change (
                 null,
                 playlist_info.kind,
                 diff.to_json (),
                 playlist_info.revision
-                );
+            );
             playlist_changed (new_playlist);
-        });
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return new_playlist;
     }
 
-    public async Playlist ? remove_tracks_from_playlist (string kind,
-                                                         int position,
-                                                         int revision) {
+    public async Playlist? remove_tracks_from_playlist (
+        string kind,
+        int position,
+        int revision
+    ) {
         Playlist? new_playlist = null;
 
         var diff = new DifferenceBuilder ();
 
         diff.add_delete (position, position + 1);
 
-        threader.add (() => {
-            net_run_wout_code (() => {
-                new_playlist = client.users_playlists_change (null, kind, diff.to_json (), revision);
-            });
-
-            Idle.add (remove_tracks_from_playlist.callback);
-        });
-
-        yield;
+        prerun ();
+        try {
+            new_playlist = yield yam_client.users_playlists_change (null, kind, diff.to_json (), revision);
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         playlist_changed (new_playlist);
 
         return new_playlist;
     }
 
-    public Playlist ? change_playlist_visibility (string kind,
-                                                  bool is_public) {
+    public async Playlist? change_playlist_visibility (
+        string kind,
+        bool is_public
+    ) {
         Playlist? new_playlist = null;
 
-        net_run_wout_code (() => {
-            new_playlist = yam_client.users_playlists_visibility (null, kind, is_public ? "public" : "private");
+        prerun ();
+        try {
+            new_playlist = yield yam_client.users_playlists_visibility (null, kind, is_public ? "public" : "private");
             playlist_changed (new_playlist);
-        });
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return new_playlist;
     }
 
-    public Playlist ? create_playlist () {
+    public async Playlist? create_playlist () {
         Playlist? new_playlist = null;
 
-        net_run_wout_code (() => {
+        prerun ();
+        try {
             // Translators: name of new created playlist
-            new_playlist = yam_client.users_playlists_create (null, _("New Playlist"));
+            new_playlist = yield yam_client.users_playlists_create (null, _("New Playlist"));
             playlists_updated ();
-        });
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return new_playlist;
     }
 
-    public bool delete_playlist (string kind) {
+    public async bool delete_playlist (string kind) {
         bool is_success = false;
 
-        net_run_wout_code (() => {
+        prerun ();
+        try {
             playlist_start_delete (kind);
-            is_success = yam_client.users_playlists_delete (null, kind);
+            is_success = yield yam_client.users_playlists_delete (null, kind);
             if (is_success) {
                 playlists_updated ();
             } else {
                 playlist_stop_delete (kind);
             }
-        });
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return is_success;
     }
 
-    public Playlist ? change_playlist_name (string kind,
-                                            string new_name) {
+    public async Playlist? change_playlist_name (
+        string kind,
+        string new_name
+    ) {
         Playlist? new_playlist = null;
 
-        net_run_wout_code (() => {
-            new_playlist = yam_client.users_playlists_name (null, kind, new_name);
+        prerun ();
+        try {
+            new_playlist = yield yam_client.users_playlists_name (null, kind, new_name);
             playlist_changed (new_playlist);
-        });
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return new_playlist;
     }
 
-    Gee.ArrayList<YaMAPI.TrackShort>? get_disliked_tracks_short () {
+    async Gee.ArrayList<YaMAPI.TrackShort>? get_disliked_tracks_short () {
         Gee.ArrayList<YaMAPI.TrackShort>? trackshort_list = null;
 
-        net_run_wout_code (() => {
-            trackshort_list = yam_client.users_dislikes_tracks (null);
+        prerun ();
+        try {
+            trackshort_list = yield yam_client.users_dislikes_tracks (null);
 
             likes_controller.update_disliked_tracks (trackshort_list);
-        });
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return trackshort_list;
     }
 
-    public YaMAPI.TrackHeap? get_disliked_tracks () {
+    public async YaMAPI.TrackHeap? get_disliked_tracks () {
         YaMAPI.TrackHeap? track_list = null;
 
-        net_run_wout_code (() => {
+        prerun ();
+        try {
             var trackshort_list = get_disliked_tracks_short ();
 
             string[] track_ids = new string[trackshort_list.size];
             for (int i = 0; i < track_ids.length; i++) {
                 track_ids[i] = trackshort_list[i].id;
             }
-            var tracks = yam_client.tracks (track_ids);
+            var tracks = yield yam_client.tracks (track_ids);
             track_list = new YaMAPI.TrackHeap ();
             track_list.tracks = tracks;
-        });
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return track_list;
     }
 
-    public Rotor.StationTracks? start_new_session (
-        string station_id
-        ) {
+    public async Rotor.StationTracks? start_new_session (string station_id) {
         Rotor.StationTracks? station_tracks = null;
 
-        net_run_wout_code (() => {
+        prerun ();
+        try {
             var ses_new = new Rotor.SessionNew ();
             ses_new.seeds.add (station_id);
 
-            station_tracks = yam_client.rotor_session_new (ses_new);
-        });
+            station_tracks = yield yam_client.rotor_session_new (ses_new);
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return station_tracks;
     }
 
-    public void send_rotor_feedback (string radio_session_id,
-                                     string batch_id,
-                                     string feedback_type,
-                                     string? track_id = null,
-                                     double total_played_seconds = 0.0) {
-        net_run_wout_code (() => {
+    public async void send_rotor_feedback (
+        string radio_session_id,
+        string batch_id,
+        string feedback_type,
+        string? track_id = null,
+        double total_played_seconds = 0.0
+    ) {
+        prerun ();
+        try {
             var feedback_obj = new Rotor.Feedback () {
                 event = new Rotor.Event () {
                     type_ = feedback_type,
@@ -707,26 +749,31 @@ public sealed class Tape.YaMTalker : Object {
                 batch_id = batch_id
             };
 
-            yam_client.rotor_session_feedback (
+            yield yam_client.rotor_session_feedback (
                 radio_session_id,
                 feedback_obj
-                );
-        });
+            );
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
     }
 
-    public Rotor.StationTracks? get_session_tracks (
+    public async Rotor.StationTracks? get_session_tracks (
         string radio_session_id,
         Gee.ArrayList<string> queue
-        ) {
+    ) {
         Rotor.StationTracks? station_tracks = null;
 
-        net_run_wout_code (() => {
+        prerun ();
+        try {
             var ses_queue = new Rotor.Queue () {
                 queue = queue
             };
 
-            station_tracks = yam_client.rotor_session_tracks (radio_session_id, ses_queue);
-        });
+            station_tracks = yield yam_client.rotor_session_tracks (radio_session_id, ses_queue);
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return station_tracks;
     }
@@ -737,15 +784,12 @@ public sealed class Tape.YaMTalker : Object {
     public async YaMAPI.Rotor.Dashboard? get_stations_dashboard () {
         YaMAPI.Rotor.Dashboard? dashboard = null;
 
-        threader.add (() => {
-            net_run_wout_code (() => {
-                dashboard = client.rotor_stations_dashboard ();
-            });
-
-            Idle.add (get_stations_dashboard.callback);
-        });
-
-        yield;
+        prerun ();
+        try {
+            dashboard = yield yam_client.rotor_stations_dashboard ();
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return dashboard;
     }
@@ -753,15 +797,12 @@ public sealed class Tape.YaMTalker : Object {
     public async Gee.ArrayList<YaMAPI.Rotor.Station>? get_all_stations () {
         Gee.ArrayList<YaMAPI.Rotor.Station>? stations_list = null;
 
-        threader.add (() => {
-            net_run_wout_code (() => {
-                stations_list = client.rotor_stations_list ();
-            });
-
-            Idle.add (get_all_stations.callback);
-        });
-
-        yield;
+        prerun ();
+        try {
+            stations_list = yield yam_client.rotor_stations_list ();
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return stations_list;
     }
@@ -769,15 +810,12 @@ public sealed class Tape.YaMTalker : Object {
     public async Rotor.Settings? get_wave_settings () {
         Rotor.Settings? wave_settings = null;
 
-        threader.add (() => {
-            net_run_wout_code (() => {
-                wave_settings = client.rotor_wave_settings ();
-            });
-
-            Idle.add (get_wave_settings.callback);
-        });
-
-        yield;
+        prerun ();
+        try {
+            wave_settings = yield yam_client.rotor_wave_settings ();
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return wave_settings;
     }
@@ -785,15 +823,12 @@ public sealed class Tape.YaMTalker : Object {
     public async Rotor.Wave? get_last_wave () {
         Rotor.Wave? last_wave = null;
 
-        threader.add (() => {
-            net_run_wout_code (() => {
-                last_wave = client.rotor_wave_last ();
-            });
-
-            Idle.add (get_last_wave.callback);
-        });
-
-        yield;
+        prerun ();
+        try {
+            last_wave = yield yam_client.rotor_wave_last ();
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         return last_wave;
     }
@@ -801,13 +836,12 @@ public sealed class Tape.YaMTalker : Object {
     public async void reset_last_wave () {
         bool is_success = false;
 
-        threader.add (() => {
-            net_run_wout_code (() => {
-                is_success = client.rotor_wave_last_reset ();
-            });
-
-            Idle.add (reset_last_wave.callback);
-        });
+        prerun ();
+        try {
+            is_success = yield yam_client.rotor_wave_last_reset ();
+        } catch (Error e) {
+            postrun_error_ignore_bad_code (e);
+        }
 
         yield;
     }
