@@ -120,21 +120,21 @@ public class Job : Object {
 
                 switch (status) {
                         case JobDoneStatus.SUCCESS:
-                            Logger.debug ("Job %s.%s was finished with success".printf (
+                            debug ("Job %s.%s was finished with success".printf (
                                 object_type.to_string (),
                                 yam_object.oid
                             ));
                             break;
 
                         case JobDoneStatus.ABORTED:
-                            Logger.debug ("Job %s.%s was aborted".printf (
+                            debug ("Job %s.%s was aborted".printf (
                                 object_type.to_string (),
                                 yam_object.oid
                             ));
                             break;
 
                         case JobDoneStatus.FAILED:
-                            Logger.debug ("Job %s.%s was failed".printf (
+                            debug ("Job %s.%s was failed".printf (
                                 object_type.to_string (),
                                 yam_object.oid
                             ));
@@ -142,7 +142,7 @@ public class Job : Object {
                 }
             });
 
-        Logger.debug ("Job %s.%s was created".printf (object_type.to_string (), yam_object.oid));
+        debug ("Job %s.%s was created".printf (object_type.to_string (), yam_object.oid));
     }
 
     public void abort () {
@@ -160,352 +160,352 @@ public class Job : Object {
     }
 
     public async void save () {
-        root.cachier.controller.start_loading (object_type, object_id);
+        //  root.cachier.controller.start_loading (object_type, object_id);
 
-        var storager = root.cachier.storager;
+        //  var storager = root.cachier.storager;
 
-        var need_cache_track_ids = new Gee.ArrayList<string> ();
-        var need_uncache_tracks = new Gee.ArrayList<YaMAPI.Track> ();
+        //  var need_cache_track_ids = new Gee.ArrayList<string> ();
+        //  var need_uncache_tracks = new Gee.ArrayList<YaMAPI.Track> ();
 
-        var track_list = yam_object.get_filtered_track_list (true, true);
+        //  var track_list = yam_object.get_filtered_track_list (true, true);
 
-        Logger.debug ("Job %s.%s was started".printf (
-            object_type.to_string (),
-            yam_object.oid
-        ));
+        //  debug ("Job %s.%s was started".printf (
+        //      object_type.to_string (),
+        //      yam_object.oid
+        //  ));
 
-        foreach (var track_info in track_list) {
-            need_cache_track_ids.add (track_info.id);
-        }
+        //  foreach (var track_info in track_list) {
+        //      need_cache_track_ids.add (track_info.id);
+        //  }
 
-        var obj_location = storager.object_cache_location (yam_object.get_type (), object_id);
-        if (obj_location.is_tmp == false) {
-            var cachied_obj_wt = (YaMAPI.HasTracks) yield storager.load_object (yam_object.get_type (), object_id);
+        //  var obj_location = storager.object_cache_location (yam_object.get_type (), object_id);
+        //  if (obj_location.is_tmp == false) {
+        //      var cachied_obj_wt = (YaMAPI.HasTracks) yield storager.load_object (yam_object.get_type (), object_id);
 
-            var cachied_obj_track_list = cachied_obj_wt.get_filtered_track_list (true, true);
+        //      var cachied_obj_track_list = cachied_obj_wt.get_filtered_track_list (true, true);
 
-            foreach (var track_info in cachied_obj_track_list) {
-                if (!(track_info.id in need_cache_track_ids)) {
-                    need_uncache_tracks.add (track_info);
-                }
-            }
+        //      foreach (var track_info in cachied_obj_track_list) {
+        //          if (!(track_info.id in need_cache_track_ids)) {
+        //              need_uncache_tracks.add (track_info);
+        //          }
+        //      }
 
-        } else {
-            if (obj_location.file != null) {
-                yield Storager.remove_file (obj_location.file);
-            }
-        }
+        //  } else {
+        //      if (obj_location.file != null) {
+        //          yield Storager.remove_file (obj_location.file);
+        //      }
+        //  }
 
-        yield root.cachier.storager.save_object (yam_object, false);
+        //  yield root.cachier.storager.save_object (yam_object, false);
 
-        Logger.debug ("Job %s.%s, object saved".printf (
-            object_type.to_string (),
-            yam_object.oid
-        ));
+        //  debug ("Job %s.%s, object saved".printf (
+        //      object_type.to_string (),
+        //      yam_object.oid
+        //  ));
 
-        // Удаление из кэшей треков, которые были удалены из объекта вне текущего клиента
-        foreach (var track_info in need_uncache_tracks) {
-            root.cachier.storager.db.remove_content_ref (track_info.id, object_id);
-            if (root.cachier.storager.db.get_content_ref_count (track_info.id) == 0) {
-                yield storager.move_loc_to_temp (storager.audio_cache_location (track_info.id));
-            }
+        //  // Удаление из кэшей треков, которые были удалены из объекта вне текущего клиента
+        //  foreach (var track_info in need_uncache_tracks) {
+        //      root.cachier.storager.db.remove_content_ref (track_info.id, object_id);
+        //      if (root.cachier.storager.db.get_content_ref_count (track_info.id) == 0) {
+        //          yield storager.move_loc_to_temp (storager.audio_cache_location (track_info.id));
+        //      }
 
-            var cover_items = track_info.get_cover_items_by_size (CoverSize.SMALL);
+        //      var cover_items = track_info.get_cover_items_by_size (CoverSize.SMALL);
 
-            if (cover_items.size != 0) {
-                string image_uri = cover_items[0];
-                storager.db.remove_content_ref (image_uri, object_id);
-                if (storager.db.get_content_ref_count (image_uri) == 0) {
-                    yield storager.move_loc_to_temp (storager.image_cache_location (image_uri));
-                }
+        //      if (cover_items.size != 0) {
+        //          string image_uri = cover_items[0];
+        //          storager.db.remove_content_ref (image_uri, object_id);
+        //          if (storager.db.get_content_ref_count (image_uri) == 0) {
+        //              yield storager.move_loc_to_temp (storager.image_cache_location (image_uri));
+        //          }
 
-                Logger.debug ("Job %s.%s, track %s in db was fixed".printf (
-                    object_type.to_string (),
-                    yam_object.oid,
-                    track_info.form_debug_info ()
-                ));
-            }
-        }
+        //          debug ("Job %s.%s, track %s in db was fixed".printf (
+        //              object_type.to_string (),
+        //              yam_object.oid,
+        //              track_info.form_debug_info ()
+        //          ));
+        //      }
+        //  }
 
-        var has_cover_yam_obj = yam_object as YaMAPI.HasCover;
-        if (has_cover_yam_obj != null) {
-            foreach (var cover_uri in has_cover_yam_obj.get_cover_items_by_size (CoverSize.BIG)) {
-                var image_location = storager.image_cache_location (cover_uri);
-                if (image_location.file != null) {
-                    yield storager.move_loc_to_perm (image_location);
+        //  var has_cover_yam_obj = yam_object as YaMAPI.HasCover;
+        //  if (has_cover_yam_obj != null) {
+        //      foreach (var cover_uri in has_cover_yam_obj.get_cover_items_by_size (CoverSize.BIG)) {
+        //          var image_location = storager.image_cache_location (cover_uri);
+        //          if (image_location.file != null) {
+        //              yield storager.move_loc_to_perm (image_location);
 
-                } else {
-                    Gdk.Pixbuf? pixbuf = null;
+        //          } else {
+        //              Gdk.Pixbuf? pixbuf = null;
 
-                    pixbuf = yam_talker.load_pixbuf (cover_uri);
+        //              pixbuf = yam_talker.load_pixbuf (cover_uri);
 
-                    if (pixbuf != null) {
-                        storager.save_image (pixbuf, cover_uri, false);
-                    } else {
-                        Idle.add (() => {
-                            job_done (JobDoneStatus.FAILED);
+        //              if (pixbuf != null) {
+        //                  storager.save_image (pixbuf, cover_uri, false);
+        //              } else {
+        //                  Idle.add (() => {
+        //                      job_done (JobDoneStatus.FAILED);
 
-                            return Source.REMOVE;
-                        }, Priority.HIGH_IDLE);
+        //                      return Source.REMOVE;
+        //                  }, Priority.HIGH_IDLE);
 
-                        Idle.add (save_async.callback);
-                        return;
-                    }
-                }
+        //                  Idle.add (save_async.callback);
+        //                  return;
+        //              }
+        //          }
 
-                storager.db.set_content_ref (cover_uri, object_id);
-            }
+        //          storager.db.set_content_ref (cover_uri, object_id);
+        //      }
 
-            Logger.debug ("Job %s.%s, cover of object saved".printf (
-                                object_type.to_string (),
-                                yam_object.oid
-                                ));
-        }
+        //      debug ("Job %s.%s, cover of object saved".printf (
+        //                          object_type.to_string (),
+        //                          yam_object.oid
+        //                          ));
+        //  }
 
-        total_tracks_count = track_list.size;
-        foreach (var track_info in track_list) {
-            save_track_async.begin (track_info);
-        }
+        //  total_tracks_count = track_list.size;
+        //  foreach (var track_info in track_list) {
+        //      save_track_async.begin (track_info);
+        //  }
 
-        if (total_tracks_count == 0) {
-            Idle.add_once (() => {
-                    job_done (JobDoneStatus.SUCCESS);
-                });
-        }
+        //  if (total_tracks_count == 0) {
+        //      Idle.add_once (() => {
+        //              job_done (JobDoneStatus.SUCCESS);
+        //          });
+        //  }
     }
 
     public async void unsave_async () {
-        Logger.debug ("Job %s.%s, uncache object started".printf (
-                          object_type.to_string (),
-                          yam_object.oid
-                          ));
+        //  debug ("Job %s.%s, uncache object started".printf (
+        //                    object_type.to_string (),
+        //                    yam_object.oid
+        //                    ));
 
-        string object_id = yam_object.oid;
+        //  string object_id = yam_object.oid;
 
-        var has_cover_yam_obj = yam_object as HasCover;
-        if (has_cover_yam_obj != null) {
-            foreach (var cover_uri in has_cover_yam_obj.get_cover_items_by_size (CoverSize.BIG)) {
-                storager.db.remove_content_ref (cover_uri, object_id);
+        //  var has_cover_yam_obj = yam_object as HasCover;
+        //  if (has_cover_yam_obj != null) {
+        //      foreach (var cover_uri in has_cover_yam_obj.get_cover_items_by_size (CoverSize.BIG)) {
+        //          storager.db.remove_content_ref (cover_uri, object_id);
 
-                if (storager.db.get_content_ref_count (cover_uri) == 0) {
-                    var image_location = storager.image_cache_location (cover_uri);
-                    yield image_location.move_to_temp_async ();
-                }
-            }
-        }
+        //          if (storager.db.get_content_ref_count (cover_uri) == 0) {
+        //              var image_location = storager.image_cache_location (cover_uri);
+        //              yield image_location.move_to_temp_async ();
+        //          }
+        //      }
+        //  }
 
-        var object_location = storager.object_cache_location (yam_object.get_type (), yam_object.oid);
-        yield object_location.move_to_temp_async ();
+        //  var object_location = storager.object_cache_location (yam_object.get_type (), yam_object.oid);
+        //  yield object_location.move_to_temp_async ();
 
-        if (settings.get_boolean ("can-cache")) {
-            cachier.controller.change_state (object_type, object_id, CacheingState.TEMP);
-        } else {
-            cachier.controller.change_state (object_type, object_id, CacheingState.NONE);
-        }
+        //  if (settings.get_boolean ("can-cache")) {
+        //      cachier.controller.change_state (object_type, object_id, CacheingState.TEMP);
+        //  } else {
+        //      cachier.controller.change_state (object_type, object_id, CacheingState.NONE);
+        //  }
 
-        var track_list = yam_object.get_filtered_track_list (true, true);
+        //  var track_list = yam_object.get_filtered_track_list (true, true);
 
-        foreach (var track_info in track_list) {
-            var cover_items = track_info.get_cover_items_by_size (CoverSize.SMALL);
+        //  foreach (var track_info in track_list) {
+        //      var cover_items = track_info.get_cover_items_by_size (CoverSize.SMALL);
 
-            if (cover_items.size != 0) {
-                string image_cover_uri = cover_items[0];
-                storager.db.remove_content_ref (image_cover_uri, track_info.id);
-                if (storager.db.get_content_ref_count (image_cover_uri) == 0) {
-                    var image_location = storager.image_cache_location (image_cover_uri);
-                    yield image_location.move_to_temp_async ();
-                }
-            }
+        //      if (cover_items.size != 0) {
+        //          string image_cover_uri = cover_items[0];
+        //          storager.db.remove_content_ref (image_cover_uri, track_info.id);
+        //          if (storager.db.get_content_ref_count (image_cover_uri) == 0) {
+        //              var image_location = storager.image_cache_location (image_cover_uri);
+        //              yield image_location.move_to_temp_async ();
+        //          }
+        //      }
 
-            storager.db.remove_content_ref (track_info.id, object_id);
-            if (storager.db.get_content_ref_count (track_info.id) == 0) {
-                var track_location = storager.audio_cache_location (track_info.id);
-                yield track_location.move_to_temp_async ();
+        //      storager.db.remove_content_ref (track_info.id, object_id);
+        //      if (storager.db.get_content_ref_count (track_info.id) == 0) {
+        //          var track_location = storager.audio_cache_location (track_info.id);
+        //          yield track_location.move_to_temp_async ();
 
-                if (track_location.file != null && settings.get_boolean ("can-cache")) {
-                    cachier.controller.change_state (ContentType.TRACK, track_info.id, CacheingState.TEMP);
-                } else {
-                    cachier.controller.change_state (ContentType.TRACK, track_info.id, CacheingState.NONE);
-                }
-            }
+        //          if (track_location.file != null && settings.get_boolean ("can-cache")) {
+        //              cachier.controller.change_state (ContentType.TRACK, track_info.id, CacheingState.TEMP);
+        //          } else {
+        //              cachier.controller.change_state (ContentType.TRACK, track_info.id, CacheingState.NONE);
+        //          }
+        //      }
 
-            Idle.add (unsave_async.callback);
-            yield;
-        }
+        //      Idle.add (unsave_async.callback);
+        //      yield;
+        //  }
 
-        Logger.debug ("Job %s.%s, uncache object finished".printf (
-                          object_type.to_string (),
-                          yam_object.oid
-                          ));
+        //  debug ("Job %s.%s, uncache object finished".printf (
+        //                    object_type.to_string (),
+        //                    yam_object.oid
+        //                    ));
     }
 
     async void save_track_async (YaMAPI.Track track_info) {
-        Logger.debug ("Job %s.%s, saving track %s was started".printf (
-                          object_type.to_string (),
-                          yam_object.oid,
-                          track_info.form_debug_info ()
-                          ));
+        //  debug ("Job %s.%s, saving track %s was started".printf (
+        //                    object_type.to_string (),
+        //                    yam_object.oid,
+        //                    track_info.form_debug_info ()
+        //                    ));
 
-        threader.add_cache (() => {
-                lock (now_saving_tracks_count) {
-                    now_saving_tracks_count++;
-                    Idle.add_once (() => {
-                        track_saving_started (saved_tracks_count, total_tracks_count, now_saving_tracks_count);
-                    });
-                }
+        //  threader.add_cache (() => {
+        //          lock (now_saving_tracks_count) {
+        //              now_saving_tracks_count++;
+        //              Idle.add_once (() => {
+        //                  track_saving_started (saved_tracks_count, total_tracks_count, now_saving_tracks_count);
+        //              });
+        //          }
 
-                Logger.debug ("Job %s.%s, audio of track %s was started".printf (
-                                  object_type.to_string (),
-                                  yam_object.oid,
-                                  track_info.form_debug_info ()
-                                  ));
+        //          debug ("Job %s.%s, audio of track %s was started".printf (
+        //                            object_type.to_string (),
+        //                            yam_object.oid,
+        //                            track_info.form_debug_info ()
+        //                            ));
 
-                Idle.add (() => {
-                    cachier.controller.start_loading (ContentType.TRACK, track_info.id);
+        //          Idle.add (() => {
+        //              cachier.controller.start_loading (ContentType.TRACK, track_info.id);
 
-                    return Source.REMOVE;
-                }, Priority.HIGH_IDLE);
+        //              return Source.REMOVE;
+        //          }, Priority.HIGH_IDLE);
 
-                var track_location = storager.audio_cache_location (track_info.id);
-                if (track_location.file != null) {
-                    if (track_location.is_tmp == true) {
-                        track_location.move_to_perm ();
+        //          var track_location = storager.audio_cache_location (track_info.id);
+        //          if (track_location.file != null) {
+        //              if (track_location.is_tmp == true) {
+        //                  track_location.move_to_perm ();
 
-                        Idle.add_once (() => {
-                            action_done ();
-                        });
-                    }
-                } else {
-                    string? track_uri = null;
+        //                  Idle.add_once (() => {
+        //                      action_done ();
+        //                  });
+        //              }
+        //          } else {
+        //              string? track_uri = null;
 
-                    track_uri = yam_talker.get_download_uri (track_info.id, true);
+        //              track_uri = yam_talker.get_download_uri (track_info.id, true);
 
-                    if (track_uri != null) {
-                        Bytes? audio_bytes = null;
+        //              if (track_uri != null) {
+        //                  Bytes? audio_bytes = null;
 
-                        audio_bytes = yam_talker.load_track (track_uri);
+        //                  audio_bytes = yam_talker.load_track (track_uri);
 
-                        if (audio_bytes != null) {
-                            storager.save_audio (audio_bytes, track_info.id, false);
+        //                  if (audio_bytes != null) {
+        //                      storager.save_audio (audio_bytes, track_info.id, false);
 
-                            Idle.add_once (() => {
-                                action_done ();
-                            });
-                        }
-                    } else {
-                        cancellable.cancel ();
-                        Idle.add (() => {
-                            job_done (JobDoneStatus.FAILED);
+        //                      Idle.add_once (() => {
+        //                          action_done ();
+        //                      });
+        //                  }
+        //              } else {
+        //                  cancellable.cancel ();
+        //                  Idle.add (() => {
+        //                      job_done (JobDoneStatus.FAILED);
 
-                            return Source.REMOVE;
-                        }, Priority.HIGH_IDLE);
+        //                      return Source.REMOVE;
+        //                  }, Priority.HIGH_IDLE);
 
-                        Idle.add (save_track_async.callback);
-                        return;
-                    }
-                }
+        //                  Idle.add (save_track_async.callback);
+        //                  return;
+        //              }
+        //          }
 
-                storager.db.set_content_ref (track_info.id, object_id);
+        //          storager.db.set_content_ref (track_info.id, object_id);
 
-                Logger.debug ("Job %s.%s, audio of track %s was saved".printf (
-                                  object_type.to_string (),
-                                  yam_object.oid,
-                                  track_info.form_debug_info ()
-                                  ));
+        //          debug ("Job %s.%s, audio of track %s was saved".printf (
+        //                            object_type.to_string (),
+        //                            yam_object.oid,
+        //                            track_info.form_debug_info ()
+        //                            ));
 
-                Logger.debug ("Job %s.%s, cover of track %s was started".printf (
-                                  object_type.to_string (),
-                                  yam_object.oid,
-                                  track_info.form_debug_info ()
-                                  ));
+        //          debug ("Job %s.%s, cover of track %s was started".printf (
+        //                            object_type.to_string (),
+        //                            yam_object.oid,
+        //                            track_info.form_debug_info ()
+        //                            ));
 
-                var cover_items = track_info.get_cover_items_by_size (CoverSize.SMALL);
+        //          var cover_items = track_info.get_cover_items_by_size (CoverSize.SMALL);
 
-                if (cover_items.size != 0) {
-                    string image_cover_uri = cover_items[0];
-                    var image_location = storager.image_cache_location (image_cover_uri);
-                    if (image_location.file != null) {
-                        if (image_location.is_tmp == true) {
-                            image_location.move_to_perm ();
+        //          if (cover_items.size != 0) {
+        //              string image_cover_uri = cover_items[0];
+        //              var image_location = storager.image_cache_location (image_cover_uri);
+        //              if (image_location.file != null) {
+        //                  if (image_location.is_tmp == true) {
+        //                      image_location.move_to_perm ();
 
-                            Idle.add_once (() => {
-                                action_done ();
-                            });
-                        }
-                    } else {
-                        Gdk.Pixbuf? pixbuf = null;
+        //                      Idle.add_once (() => {
+        //                          action_done ();
+        //                      });
+        //                  }
+        //              } else {
+        //                  Gdk.Pixbuf? pixbuf = null;
 
-                        pixbuf = yam_talker.load_pixbuf (image_cover_uri);
+        //                  pixbuf = yam_talker.load_pixbuf (image_cover_uri);
 
-                        if (pixbuf != null) {
-                            storager.save_image (pixbuf, image_cover_uri, false);
+        //                  if (pixbuf != null) {
+        //                      storager.save_image (pixbuf, image_cover_uri, false);
 
-                            Idle.add_once (() => {
-                                action_done ();
-                            });
-                        } else {
-                            cancellable.cancel ();
-                            Idle.add (() => {
-                                job_done (JobDoneStatus.FAILED);
+        //                      Idle.add_once (() => {
+        //                          action_done ();
+        //                      });
+        //                  } else {
+        //                      cancellable.cancel ();
+        //                      Idle.add (() => {
+        //                          job_done (JobDoneStatus.FAILED);
 
-                                return Source.REMOVE;
-                            }, Priority.HIGH_IDLE);
+        //                          return Source.REMOVE;
+        //                      }, Priority.HIGH_IDLE);
 
-                            Idle.add (save_track_async.callback);
-                            return;
-                        }
-                    }
+        //                      Idle.add (save_track_async.callback);
+        //                      return;
+        //                  }
+        //              }
 
-                    storager.db.set_content_ref (image_cover_uri, track_info.id);
+        //              storager.db.set_content_ref (image_cover_uri, track_info.id);
 
-                    Logger.debug ("Job %s.%s, cover of track %s was saved".printf (
-                                      object_type.to_string (),
-                                      yam_object.oid,
-                                      track_info.form_debug_info ()
-                                      ));
-                }
+        //              debug ("Job %s.%s, cover of track %s was saved".printf (
+        //                                object_type.to_string (),
+        //                                yam_object.oid,
+        //                                track_info.form_debug_info ()
+        //                                ));
+        //          }
 
-                Idle.add (() => {
-                    cachier.controller.stop_loading (ContentType.TRACK, track_info.id, CacheingState.PERM);
+        //          Idle.add (() => {
+        //              cachier.controller.stop_loading (ContentType.TRACK, track_info.id, CacheingState.PERM);
 
-                    Logger.debug ("Job %s.%s, saving track %s was finished".printf (
-                                      object_type.to_string (),
-                                      yam_object.oid,
-                                      track_info.form_debug_info ()
-                                      ));
+        //              debug ("Job %s.%s, saving track %s was finished".printf (
+        //                                object_type.to_string (),
+        //                                yam_object.oid,
+        //                                track_info.form_debug_info ()
+        //                                ));
 
-                    return Source.REMOVE;
-                }, Priority.HIGH_IDLE);
+        //              return Source.REMOVE;
+        //          }, Priority.HIGH_IDLE);
 
-                lock (now_saving_tracks_count) {
-                    now_saving_tracks_count--;
-                }
+        //          lock (now_saving_tracks_count) {
+        //              now_saving_tracks_count--;
+        //          }
 
-                Idle.add (save_track_async.callback);
-            }, cancellable);
+        //          Idle.add (save_track_async.callback);
+        //      }, cancellable);
 
-        yield;
+        //  yield;
 
-        lock (saved_tracks_count) {
-            saved_tracks_count++;
-        }
+        //  lock (saved_tracks_count) {
+        //      saved_tracks_count++;
+        //  }
 
-        Idle.add_once (() => {
-                track_saving_ended (saved_tracks_count, total_tracks_count, now_saving_tracks_count);
-            });
+        //  Idle.add_once (() => {
+        //          track_saving_ended (saved_tracks_count, total_tracks_count, now_saving_tracks_count);
+        //      });
 
-        if (!cancellable.is_cancelled ()) {
-            lock (saved_tracks_count) {
-                Idle.add_once (() => {
-                        if (saved_tracks_count == total_tracks_count && done_status == null) {
-                            job_done (JobDoneStatus.SUCCESS);
-                        }
-                    });
-            }
-        }
+        //  if (!cancellable.is_cancelled ()) {
+        //      lock (saved_tracks_count) {
+        //          Idle.add_once (() => {
+        //                  if (saved_tracks_count == total_tracks_count && done_status == null) {
+        //                      job_done (JobDoneStatus.SUCCESS);
+        //                  }
+        //              });
+        //      }
+        //  }
 
-        Idle.add (save_track_async.callback);
-        yield;
+        //  Idle.add (save_track_async.callback);
+        //  yield;
     }
 }
 }

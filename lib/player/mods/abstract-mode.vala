@@ -43,11 +43,11 @@ public abstract class Tape.PlayerMode : Object {
     public string? context_description { get; construct set; }
 
     construct {
-        Logger.debug ("Created player mode");
-        Logger.debug ("Context type: %s".printf (context_type));
-        Logger.debug ("Context id: %s".printf (context_id));
-        Logger.debug ("Current index: %d".printf (current_index));
-        Logger.debug ("Context descriprion: %s".printf (context_description));
+        debug ("Created player mode");
+        debug ("Context type: %s".printf (context_type));
+        debug ("Context id: %s".printf (context_id));
+        debug ("Current index: %d".printf (current_index));
+        debug ("Context descriprion: %s".printf (context_description));
     }
 
     /**
@@ -89,7 +89,7 @@ public abstract class Tape.PlayerMode : Object {
         if (current_index != -1) {
             if (current_index >= queue.size) {
                 current_index = 0;
-                Logger.warning (_("Problems with queue"));
+                warning (_("Problems with queue"));
             }
 
             return queue[current_index];
@@ -153,20 +153,14 @@ public abstract class Tape.PlayerMode : Object {
         play_obj.end_position_seconds = end_position_seconds;
         play_obj.total_played_seconds = total_played_seconds;
 
-        Logger.debug ("Track id %s: end: %f; total: %f, dur: %f".printf (
+        debug ("Track id %s: end: %f; total: %f, dur: %f".printf (
                           play_obj.track_id,
                           play_obj.end_position_seconds,
                           play_obj.total_played_seconds,
                           play_obj.track_length_seconds
                           ));
 
-        Threader.add_single (() => {
-            player.client.yam_talker.send_play ({ play_obj });
-
-            Idle.add (send_play_async.callback);
-        });
-
-        yield;
+        yield player.client.yam_talker.send_play ({ play_obj });
     }
 
     /**

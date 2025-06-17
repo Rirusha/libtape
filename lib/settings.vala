@@ -18,6 +18,36 @@
 public sealed class Tape.Settings : Object {
 
     /**
+     * Application name.
+     */
+    public string app_name { get; construct; }
+
+    /**
+     * Application ID.
+     */
+    public string app_id { get; construct; }
+
+    /**
+     * If `true`, the player can be controlled via mpris.
+     */
+    public bool can_control { get; construct; }
+
+    /**
+     * If `true`, the player can be quit via mpris.
+     */
+    public bool can_quit { get; construct; }
+
+    /**
+     * If `true`, the player can be raised via mpris.
+     */
+    public bool can_raise { get; construct; }
+
+    /**
+     * If `true`, the player can be set fullscreen via mpris.
+     */
+    public bool can_set_fullscreen { get; construct; }
+
+    /**
      * Player's repeat mode. Should be used instead of `player.repat_mode`.
      */
     public RepeatMode repeat_mode { get; set; default = RepeatMode.OFF; }
@@ -58,4 +88,22 @@ public sealed class Tape.Settings : Object {
      * It is NOT maximized window.
      */
     public bool fullscreen { get; set; default = false; }
+
+    public Settings (
+        string app_name,
+        string app_id,
+        bool can_control = true,
+        bool can_quit = true,
+        bool can_raise = true,
+        bool can_set_fullscreen = true
+    ) {
+        Object (
+            app_name: app_name,
+            app_id: app_id,
+            can_control: can_control,
+            can_quit: can_quit,
+            can_raise: can_raise,
+            can_set_fullscreen: can_set_fullscreen
+        )
+    }
 }

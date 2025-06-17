@@ -37,8 +37,8 @@ namespace Tape {
     }
 
     public struct ParseUriResult {
-        public Object root_object;
-        public Track? track;
+        public ApiBase.DataObject root_object;
+        public YaMAPI.Track? track;
     }
 
     /**
@@ -124,7 +124,7 @@ namespace Tape {
             root.cachier == null ||
             root.ya_m_talker == null
         ) {
-            Logger.error (_("Client not initted"));
+            error (_("Client not initted"));
         }
     }
 
@@ -221,7 +221,7 @@ namespace Tape {
                 switch (uri_parts[2]) {
                     case "playlists":
                         return_val_if_fail (uri_parts.length > 3, null);
-                        var playlist_dummy = new Playlist () {
+                        var playlist_dummy = new YaMAPI.Playlist () {
                             uid = user_id,
                             kind = uri_parts[3]
                         };
@@ -235,7 +235,7 @@ namespace Tape {
 
             case "album":
                 return_val_if_fail (uri_parts.length > 1, null);
-                Album album_dummy = new Album () {
+                var album_dummy = new YaMAPI.Album () {
                     id = uri_parts[1]
                 };
 
@@ -247,7 +247,7 @@ namespace Tape {
                 switch (uri_parts[2]) {
                     case "track":
                         return_val_if_fail (uri_parts.length > 3, null);
-                        var track_dummy = new Track () {
+                        var track_dummy = new YaMAPI.Track () {
                             id = uri_parts[3]
                         };
 
@@ -259,12 +259,12 @@ namespace Tape {
         }
     }
 
-    public string get_share_link (YaMAPI.Object yam_obj) {
+    public string get_share_link (ApiBase.DataObject yam_obj) {
         if (yam_obj is YaMAPI.Track) {
             var track_info = (YaMAPI.Track) yam_obj;
 
             if (track_info.albums.size == 0) {
-                Logger.warning (_("User owned tracks can't be shared"));
+                warning (_("User owned tracks can't be shared"));
                 return "";
             } else {
                 return "https://music.yandex.ru/album/%s/track/%s?utm_medium=copy_link".printf (
@@ -294,7 +294,7 @@ namespace Tape {
             );
 
         } else {
-            Logger.error (_("Can't share '%s' object").printf (
+            error (_("Can't share '%s' object").printf (
                 yam_obj.get_type ().name ()
             ));
         }

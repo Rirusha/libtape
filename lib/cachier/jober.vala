@@ -66,60 +66,60 @@ public class Tape.Jober : Object {
      * @return          `Job` object or `null` if object already
      *                  cacheing
      */
-    public Job ? start_cache_obj (YaMAPI.HasTracks yam_obj) {
+    public Job? start_cache_obj (YaMAPI.HasTracks yam_obj) {
         /**
             Начать сохранение объекта с треками
          */
 
-        Job? job;
+        Job? job = null;
 
-        job = find_job (yam_obj);
+        //  job = find_job (yam_obj);
 
-        if (job != null) {
-            return null;
-        }
+        //  if (job != null) {
+        //      return null;
+        //  }
 
-        job = new Job (yam_obj, client);
-        job_list.add (job);
-        job_created (job);
+        //  job = new Job (yam_obj, client);
+        //  job_list.add (job);
+        //  job_created (job);
 
-        job.job_done.connect (() => {
-            job_list.remove (job);
-            job_removed (job);
-        });
+        //  job.job_done.connect (() => {
+        //      job_list.remove (job);
+        //      job_removed (job);
+        //  });
 
-        job.save_async.begin ();
+        //  job.save_async.begin ();
 
         return job;
     }
 
     public async void check_all_cache () {
-        Logger.debug ("Started full saves check");
+        //  debug ("Started full saves check");
 
-        var objs = yield client.cachier.storager.get_saved_objects_async ();
+        //  var objs = yield client.cachier.storager.get_saved_objects_async ();
 
-        foreach (var obj in objs) {
-            YaMAPI.HasTracks new_obj = null;
+        //  foreach (var obj in objs) {
+        //      YaMAPI.HasTracks new_obj = null;
 
-            if (obj is YaMAPI.Playlist) {
-                var pl_obj = (YaMAPI.Playlist) obj;
+        //      if (obj is YaMAPI.Playlist) {
+        //          var pl_obj = (YaMAPI.Playlist) obj;
 
-                try {
-                    new_obj = yield client.yam_talker.get_playlist_info_async (pl_obj.playlist_uuid);
-                } catch (BadStatusCodeError e) {}
-            } else {
-                assert_not_reached ();
-            }
+        //          try {
+        //              new_obj = yield client.yam_talker.get_playlist_info_async (pl_obj.playlist_uuid);
+        //          } catch (BadStatusCodeError e) {}
+        //      } else {
+        //          assert_not_reached ();
+        //      }
 
-            if (new_obj != null) {
-                start_cache_obj (new_obj);
-            }
-        }
+        //      if (new_obj != null) {
+        //          start_cache_obj (new_obj);
+        //      }
+        //  }
     }
 
     public async void uncache_all () {
-        var objs = yield client.cachier.storager.get_saved_objects_async ();
+        //  var objs = yield client.cachier.storager.get_saved_objects_async ();
 
-        yield uncache_obj_many_async (objs);
+        //  yield uncache_obj_many_async (objs);
     }
 }

@@ -226,7 +226,7 @@ public sealed class Tape.Player : Object {
     construct {
         init (null);
 
-        mode = new Empty (this);
+        mode = new PlayerEmpty (this);
 
         playbin = Gst.ElementFactory.make ("playbin", null);
         var bus = playbin.get_bus ();
@@ -325,7 +325,7 @@ public sealed class Tape.Player : Object {
             }
         }
 
-        var flow = new Flow (
+        var flow = new PlayerFlow (
             this,
             station_id,
             flow_queue
@@ -370,7 +370,7 @@ public sealed class Tape.Player : Object {
     public void clear_mode () {
         stop ();
 
-        mode = new Empty (this);
+        mode = new PlayerEmpty (this);
 
         mode_inited ();
     }
@@ -424,8 +424,8 @@ public sealed class Tape.Player : Object {
             total_played_seconds
             );
 
-        if (mode is Flow) {
-            ((Flow) mode).send_feedback.begin (
+        if (mode is PlayerFlow) {
+            ((PlayerFlow) mode).send_feedback.begin (
                 natural ? YaMAPI.Rotor.FeedbackType.TRACK_FINISHED : YaMAPI.Rotor.FeedbackType.SKIP,
                 current_track.id,
                 total_played_seconds
@@ -510,8 +510,8 @@ public sealed class Tape.Player : Object {
         current_track_start_loading ();
 
         mode.send_play_async.begin (play_id);
-        if (mode is Flow) {
-            ((Flow) mode).send_feedback.begin (
+        if (mode is PlayerFlow) {
+            ((PlayerFlow) mode).send_feedback.begin (
                 YaMAPI.Rotor.FeedbackType.TRACK_STARTED,
                 current_track.id
                 );
@@ -535,7 +535,7 @@ public sealed class Tape.Player : Object {
         }
 
         if (mode.get_next_index (false) == -1) {
-            (mode as Flow) ? .prepare_next_track ();
+            (mode as PlayerFlow) ? .prepare_next_track ();
         }
 
         update_player ();
@@ -551,7 +551,7 @@ public sealed class Tape.Player : Object {
 
     public void add_track (YaMAPI.Track track_info,
                            bool is_next) {
-        if (mode is Empty) {
+        if (mode is PlayerEmpty) {
             var track_list = new ArrayList<YaMAPI.Track> ();
             track_list.add (track_info);
 
@@ -559,7 +559,7 @@ public sealed class Tape.Player : Object {
             return;
         }
 
-        var sh_mode = mode as Shufflable;
+        var sh_mode = mode as PlayerShufflable;
 
         if (sh_mode == null) {
             return;
@@ -577,7 +577,7 @@ public sealed class Tape.Player : Object {
     }
 
     public void add_many (ArrayList<YaMAPI.Track> track_list) {
-        if (mode is Empty) {
+        if (mode is PlayerEmpty) {
             start_track_list (
                 track_list,
                 "various",
@@ -588,7 +588,7 @@ public sealed class Tape.Player : Object {
             return;
         }
 
-        var sh_mode = mode as Shufflable;
+        var sh_mode = mode as PlayerShufflable;
 
         if (sh_mode == null) {
             return;
@@ -602,7 +602,7 @@ public sealed class Tape.Player : Object {
     }
 
     public void remove_track_by_pos (int position) {
-        var sh_mode = mode as Shufflable;
+        var sh_mode = mode as PlayerShufflable;
 
         if (sh_mode == null) {
             return;
@@ -616,7 +616,7 @@ public sealed class Tape.Player : Object {
     }
 
     public void remove_track (YaMAPI.Track track_info) {
-        var sh_mode = mode as Shufflable;
+        var sh_mode = mode as PlayerShufflable;
 
         if (sh_mode == null) {
             return;
@@ -631,8 +631,8 @@ public sealed class Tape.Player : Object {
 
     public void rotor_feedback (string feedback_type,
                                 string track_id) {
-        if (mode is Flow && mode.get_current_track_info ().id == track_id) {
-            ((Flow) mode).send_feedback.begin (
+        if (mode is PlayerFlow && mode.get_current_track_info ().id == track_id) {
+            ((PlayerFlow) mode).send_feedback.begin (
                 feedback_type,
                 track_id,
                 total_played_seconds

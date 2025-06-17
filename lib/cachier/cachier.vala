@@ -54,12 +54,12 @@ public sealed class Tape.Cachier : Object {
 
 
     public async static void save_track (YaMAPI.Track track_info) {
-        /**
-            Функция удобства, объединяющая сохранение аудио и изображения
-         */
+        //  /**
+        //      Функция удобства, объединяющая сохранение аудио и изображения
+        //   */
 
-        download_audio_async.begin (track_info.id);
-        get_image.begin (track_info, CoverSize.SMALL);
+        //  download_audio_async.begin (track_info.id);
+        //  get_image.begin (track_info, CoverSize.SMALL);
     }
 
     public async static void download_audio_async (string track_id,
@@ -79,35 +79,29 @@ public sealed class Tape.Cachier : Object {
 
         CacheingState? cacheing_state = null;
 
-        Threader.add_audio (() => {
-            if (track_uri == null) {
-                track_uri = yam_talker.get_download_uri (
-                    track_id,
-                    settings.get_boolean ("is-hq")
-                    );
-            }
+        if (track_uri == null) {
+            track_uri = yield yam_talker.get_download_uri (
+                track_id,
+                settings.get_boolean ("is-hq")
+            );
+        }
 
-            if (track_uri != null && (settings.get_boolean ("can-cache") || !is_tmp)) {
-                Bytes audio_bytes = yam_talker.load_track (track_uri);
-                if (audio_bytes != null) {
-                    storager.save_audio (audio_bytes, track_id, is_tmp);
-                    if (is_tmp) {
-                        cacheing_state = CacheingState.TEMP;
-                    } else {
-                        cacheing_state = CacheingState.PERM;
-                    }
+        if (track_uri != null && (settings.get_boolean ("can-cache") || !is_tmp)) {
+            Bytes audio_bytes = yield yam_talker.load_track (track_uri);
+            if (audio_bytes != null) {
+                yield storager.save_audio (audio_bytes, track_id, is_tmp);
+                if (is_tmp) {
+                    cacheing_state = CacheingState.TEMP;
+                } else {
+                    cacheing_state = CacheingState.PERM;
                 }
             }
-
-            Idle.add (download_audio_async.callback);
-        });
-
-        yield;
+        }
 
         cachier.controller.stop_loading (ContentType.TRACK, track_id, cacheing_state);
     }
 
-    public async static string ? get_track_uri (string track_id) {
+    public async static string? get_track_uri (string track_id) {
         /**
             Выдает uri трека: локальный, если трек сохранен; интернет ссылку в ином случае.
             Если трек не был сохранен, то сохраняет его
@@ -146,157 +140,158 @@ public sealed class Tape.Cachier : Object {
     }
 
     // Получение изображения ямобъекта, если есть, иначе получение из сети и сохранение
-    public async static Gdk.Pixbuf? get_image (YaMAPI.HasCover yam_object, int size) {
-        /**
-            Выдает объект Pixbuf с артом трека. Если изображение не найдено локально, загружает его.
-            Если арт не был сохранен, то сохраняет его
-         */
+    public async static Bytes? get_image (YaMAPI.HasCover yam_object, int size) {
+        return null;
+        //  /**
+        //      Выдает объект Pixbuf с артом трека. Если изображение не найдено локально, загружает его.
+        //      Если арт не был сохранен, то сохраняет его
+        //   */
 
-        Gee.ArrayList<string> cover_uris = yam_object.get_cover_items_by_size (size);
-        if (cover_uris.size == 0) {
-            return null;
-        }
+        //  Gee.ArrayList<string> cover_uris = yam_object.get_cover_items_by_size (size);
+        //  if (cover_uris.size == 0) {
+        //      return null;
+        //  }
 
-        var pixbufs = new Gdk.Pixbuf ? [cover_uris.size];
+        //  var pixbufs = new Gdk.Pixbuf ? [cover_uris.size];
 
-        threader.add_image (() => {
-            for (int i = 0; i < cover_uris.size; i++) {
+        //  threader.add_image (() => {
+        //      for (int i = 0; i < cover_uris.size; i++) {
 
-                if (cover_uris[i] != null) {
-                    pixbufs[i] = storager.load_image (cover_uris[i]);
+        //          if (cover_uris[i] != null) {
+        //              pixbufs[i] = storager.load_image (cover_uris[i]);
 
-                    if (pixbufs[i] == null) {
-                        pixbufs[i] = yam_talker.load_pixbuf (cover_uris[i]);
+        //              if (pixbufs[i] == null) {
+        //                  pixbufs[i] = yam_talker.load_pixbuf (cover_uris[i]);
 
-                        if (pixbufs[i] != null && settings.get_boolean ("can-cache")) {
-                            storager.save_image (pixbufs[i], cover_uris[i], true);
-                        }
-                    }
-                } else {
-                    Logger.info ("Hello, send this to developer: %s, %d".printf (
-                                     yam_object.get_type ().to_string (),
-                                     cover_uris.size
-                                     ));
-                }
-            }
+        //                  if (pixbufs[i] != null && settings.get_boolean ("can-cache")) {
+        //                      storager.save_image (pixbufs[i], cover_uris[i], true);
+        //                  }
+        //              }
+        //          } else {
+        //              info ("Hello, send this to developer: %s, %d".printf (
+        //                               yam_object.get_type ().to_string (),
+        //                               cover_uris.size
+        //                               ));
+        //          }
+        //      }
 
-            Idle.add (get_image.callback);
-        });
+        //      Idle.add (get_image.callback);
+        //  });
 
-        yield;
+        //  yield;
 
-        if (null in pixbufs) {
-            return null;
-        }
+        //  if (null in pixbufs) {
+        //      return null;
+        //  }
 
-        if (pixbufs.length == 1) {
-            return pixbufs[0];
-        }
+        //  if (pixbufs.length == 1) {
+        //      return pixbufs[0];
+        //  }
 
-        int new_size = size / 2;
-        var pixbuf = new Gdk.Pixbuf (Gdk.Colorspace.RGB, true, 8, size, size);
+        //  int new_size = size / 2;
+        //  var pixbuf = new Gdk.Pixbuf (Gdk.Colorspace.RGB, true, 8, size, size);
 
-        if (pixbufs.length >= 2) {
-            pixbufs[0].composite (
-                pixbuf,
-                0,
-                0, new_size,
-                new_size,
-                0,
-                0,
-                0.5,
-                0.5,
-                Gdk.InterpType.BILINEAR,
-                255
-                );
-            pixbufs[1].composite (
-                pixbuf,
-                new_size,
-                0,
-                new_size,
-                new_size,
-                new_size,
-                0,
-                0.5,
-                0.5,
-                Gdk.InterpType.BILINEAR,
-                255
-                );
-        }
+        //  if (pixbufs.length >= 2) {
+        //      pixbufs[0].composite (
+        //          pixbuf,
+        //          0,
+        //          0, new_size,
+        //          new_size,
+        //          0,
+        //          0,
+        //          0.5,
+        //          0.5,
+        //          Gdk.InterpType.BILINEAR,
+        //          255
+        //          );
+        //      pixbufs[1].composite (
+        //          pixbuf,
+        //          new_size,
+        //          0,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          0,
+        //          0.5,
+        //          0.5,
+        //          Gdk.InterpType.BILINEAR,
+        //          255
+        //          );
+        //  }
 
-        if (pixbufs.length >= 3) {
-            pixbufs[2].composite (
-                pixbuf,
-                0,
-                new_size,
-                new_size,
-                new_size,
-                0,
-                new_size,
-                0.5,
-                0.5,
-                Gdk.InterpType.BILINEAR,
-                255
-                );
-        } else {
-            pixbufs[1].composite (
-                pixbuf,
-                0,
-                new_size,
-                new_size,
-                new_size,
-                0,
-                new_size,
-                0.5,
-                0.5,
-                Gdk.InterpType.BILINEAR,
-                255
-                );
-            pixbufs[0].composite (
-                pixbuf,
-                new_size,
-                new_size,
-                new_size,
-                new_size,
-                new_size,
-                new_size,
-                0.5,
-                0.5,
-                Gdk.InterpType.BILINEAR,
-                255
-                );
+        //  if (pixbufs.length >= 3) {
+        //      pixbufs[2].composite (
+        //          pixbuf,
+        //          0,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          0,
+        //          new_size,
+        //          0.5,
+        //          0.5,
+        //          Gdk.InterpType.BILINEAR,
+        //          255
+        //          );
+        //  } else {
+        //      pixbufs[1].composite (
+        //          pixbuf,
+        //          0,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          0,
+        //          new_size,
+        //          0.5,
+        //          0.5,
+        //          Gdk.InterpType.BILINEAR,
+        //          255
+        //          );
+        //      pixbufs[0].composite (
+        //          pixbuf,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          0.5,
+        //          0.5,
+        //          Gdk.InterpType.BILINEAR,
+        //          255
+        //          );
 
-            return pixbuf;
-        }
+        //      return pixbuf;
+        //  }
 
-        if (pixbufs.length == 4) {
-            pixbufs[3].composite (
-                pixbuf,
-                new_size,
-                new_size,
-                new_size,
-                new_size,
-                new_size,
-                new_size,
-                0.5,
-                0.5,
-                Gdk.InterpType.BILINEAR,
-                255
-                );
-        } else {
-            pixbufs[0].composite (
-                pixbuf,
-                new_size,
-                new_size,
-                new_size,
-                new_size,
-                new_size,
-                new_size,
-                0.5,
-                0.5,
-                Gdk.InterpType.BILINEAR,
-                255);
-        }
-        return pixbuf;
+        //  if (pixbufs.length == 4) {
+        //      pixbufs[3].composite (
+        //          pixbuf,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          0.5,
+        //          0.5,
+        //          Gdk.InterpType.BILINEAR,
+        //          255
+        //          );
+        //  } else {
+        //      pixbufs[0].composite (
+        //          pixbuf,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          new_size,
+        //          0.5,
+        //          0.5,
+        //          Gdk.InterpType.BILINEAR,
+        //          255);
+        //  }
+        //  return pixbuf;
     }
 }

@@ -151,7 +151,7 @@ public sealed class Tape.PlayerFlow : PlayerMode {
                 break;
 
             default:
-                Logger.error ("Flow with `RepeatMode.QUEUE unsupported");
+                error ("Flow with `RepeatMode.QUEUE unsupported");
                 break;
         }
 

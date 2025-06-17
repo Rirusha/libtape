@@ -48,7 +48,7 @@ public class Tape.Client : Object {
 
     public signal void mpris_uri_open (string uri);
 
-    public Client (Tape.Settings settings = new Tape.Settings ()) {
+    public Client (Tape.Settings settings) {
         Object (settings: settings);
     }
 
