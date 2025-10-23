@@ -76,7 +76,6 @@ vala_sources = files(
   'ya-m-api/has-cover.vala',
   'ya-m-api/has-id.vala',
   'ya-m-api/has-tracks.vala',
-  'ya-m-api/jsoner.vala',
   'ya-m-api/utils.vala',
 
   'client.vala',

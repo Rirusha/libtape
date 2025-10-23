@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Vladimir Vaskov
+ * Copyright (C) 2024 Vladimir Romanov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -670,9 +670,9 @@ public class Tape.Storager : Object {
                     var jsoner = new ApiBase.Jsoner.from_data (idata);
 
                     try {
-                        obj_arr.append_val ((YaMAPI.HasTracks) (yield jsoner.deserialize_object_async (obj_type)));
+                        obj_arr.append_val (yield jsoner.deserialize_object_async<YaMAPI.HasTracks> ());
 
-                    } catch (ApiBase.CommonError e) {
+                    } catch (ApiBase.JsonError e) {
                         warning ("Can't parse object. Error message: %s", e.message);
                     }
                 }
@@ -740,9 +740,9 @@ public class Tape.Storager : Object {
                 YaMAPI.HasID? des_obj = null;
 
                 try {
-                    des_obj = (YaMAPI.HasID) (yield jsoner.deserialize_object_async (obj_type));
+                    des_obj = yield jsoner.deserialize_object_async<YaMAPI.HasID> ();
 
-                } catch (ApiBase.CommonError e) {
+                } catch (ApiBase.JsonError e) {
                     warning ("Can't parse object. Error message: %s", e.message);
                 }
 
@@ -787,9 +787,9 @@ public class Tape.Storager : Object {
                 YaMAPI.HasID? des_obj = null;
 
                 try {
-                    des_obj = (YaMAPI.HasID) jsoner.deserialize_object (obj_type);
+                    des_obj = jsoner.deserialize_object<YaMAPI.HasID> ();
 
-                } catch (ApiBase.CommonError e) {
+                } catch (ApiBase.JsonError e) {
                     warning ("Can't parse object. Error message: %s", e.message);
                 }
 

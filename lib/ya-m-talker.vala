@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Vladimir Vaskov
+ * Copyright (C) 2024 Vladimir Romanov
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -126,7 +126,7 @@ public sealed class Tape.YaMTalker : Object {
     }
 
     void postrun_error (Error e) throws BadStatusCodeError, CantUseError {
-        if (e is CommonError) {
+        if (e is SoupError) {
             warning ("%s: %s".printf (
                 e.domain.to_string (),
                 e.message
