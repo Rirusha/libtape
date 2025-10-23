@@ -160,7 +160,7 @@ public abstract class Tape.PlayerMode : Object {
             play_obj.track_length_seconds
         ));
 
-        yield root.yam_talker.send_play ({ play_obj });
+        //  yield root.yam_talker.send_play ({ play_obj });
     }
 
     /**

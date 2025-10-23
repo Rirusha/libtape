@@ -44,7 +44,7 @@ public sealed class Tape.PlayerFlow : PlayerMode {
     public async bool init_async () throws CantUseError {
         YaMAPI.Rotor.StationTracks? station_tracks = null;
 
-        station_tracks = yield root.yam_talker.start_new_session (station_id);
+        //  station_tracks = yield root.yam_talker.start_new_session (station_id);
 
         if (station_tracks != null) {
             last_station_tracks = station_tracks;
@@ -68,13 +68,13 @@ public sealed class Tape.PlayerFlow : PlayerMode {
         string? track_id = null,
         double total_played_seconds = 0.0
     ) throws CantUseError {
-        yield root.yam_talker.send_rotor_feedback (
-            radio_session_id,
-            last_station_tracks.batch_id,
-            feedback_type,
-            track_id,
-            total_played_seconds
-        );
+        //  yield root.yam_talker.send_rotor_feedback (
+        //      radio_session_id,
+        //      last_station_tracks.batch_id,
+        //      feedback_type,
+        //      track_id,
+        //      total_played_seconds
+        //  );
     }
 
     /**
@@ -89,7 +89,7 @@ public sealed class Tape.PlayerFlow : PlayerMode {
             track_ids.add (track_info.id);
         }
 
-        last_station_tracks = yield root.yam_talker.get_session_tracks (radio_session_id, track_ids);
+        //  last_station_tracks = yield root.yam_talker.get_session_tracks (radio_session_id, track_ids);
         next_track = last_station_tracks.sequence[0].track;
 
         return next_track;

@@ -1668,35 +1668,36 @@ public sealed class Tape.YaMAPI.Client : Object {
     //      assert_not_reached ();
     //  }
 
-    //  public async Gee.ArrayList<Track> tracks (
-    //      string[] id_list,
-    //      bool with_positions = false,
-    //      int priority = Priority.DEFAULT,
-    //      Cancellable? cancellable = null
-    //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      var datalist = Datalist<string> ();
-    //      datalist.set_data ("track-ids", string.joinv (",", id_list));
-    //      datalist.set_data ("with-positions", with_positions.to_string ());
+    public async Gee.ArrayList<Track> tracks (
+        string[] id_list,
+        bool with_positions = false,
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws SoupError, JsonError, BadStatusCodeError {
+        var datalist = Datalist<string> ();
+        with (datalist) {
+            set_data ("track-ids", string.joinv (",", id_list));
+            set_data ("with-positions", with_positions.to_string ());
+        }
 
-    //      PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
-    //      post_content.set_datalist (datalist);
+        PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
+        post_content.set_datalist (datalist);
 
-    //      var bytes = yield session.post_async (
-    //          @"$(YAM_BASE_URL)/tracks",
-    //          { "default" },
-    //          post_content,
-    //          null,
-    //          null,
-    //          priority,
-    //          cancellable
-    //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var request = new Request.POST (@"$(YAM_BASE_URL)/tracks");
+        with (request) {
+            presets = { "default" };
+            add_post_content (post_content);
+        }
 
-    //      var array_list = new Gee.ArrayList<Track> ();
-    //      yield jsoner.deserialize_array_into_async (array_list);
+        var bytes = yield session.exec_async (
+            request,
+            priority,
+            cancellable
+        );
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
-    //      return array_list;
-    //  }
+        return yield jsoner.deserialize_array_async<Track> ();
+    }
 
     //  public async string track_download_url (
     //      string track_id,

@@ -82,7 +82,7 @@ vala_sources = files(
   'likes-controller.vala',
   'settings.vala',
   'utils.vala',
-  'ya-m-talker.vala',
+  'ya-m-helper.vala',
 )
 
 sources = [

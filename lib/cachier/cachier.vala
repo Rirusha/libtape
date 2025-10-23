@@ -82,22 +82,22 @@ public sealed class Tape.Cachier : Object {
         CacheingState? cacheing_state = null;
 
         if (track_uri == null) {
-            track_uri = yield root.yam_talker.get_download_uri (
-                track_id,
-                root.settings.is_hq
-            );
+            //  track_uri = yield root.yam_talker.get_download_uri (
+            //      track_id,
+            //      root.settings.is_hq
+            //  );
         }
 
         if (track_uri != null && (root.settings.can_cache || !is_tmp)) {
-            Bytes audio_bytes = yield root.yam_talker.load_track (track_uri);
-            if (audio_bytes != null) {
-                yield root.cachier.storager.save_audio (audio_bytes, track_id, is_tmp);
-                if (is_tmp) {
-                    cacheing_state = CacheingState.TEMP;
-                } else {
-                    cacheing_state = CacheingState.PERM;
-                }
-            }
+            //  Bytes audio_bytes = yield root.yam_talker.load_track (track_uri);
+            //  if (audio_bytes != null) {
+            //      yield root.cachier.storager.save_audio (audio_bytes, track_id, is_tmp);
+            //      if (is_tmp) {
+            //          cacheing_state = CacheingState.TEMP;
+            //      } else {
+            //          cacheing_state = CacheingState.PERM;
+            //      }
+            //  }
         }
 
         root.cachier.controller.stop_loading (ContentType.TRACK, track_id, cacheing_state);

@@ -32,7 +32,7 @@ public class Tape.Client : Object {
     /**
      * YaMTalker module.
      */
-    public YaMTalker yam_talker { get; private set; }
+    public YaMHelper yam_helper { get; private set; }
 
     /**
      * Player module.
@@ -51,7 +51,7 @@ public class Tape.Client : Object {
 
     construct {
         cachier = new Cachier ();
-        yam_talker = new YaMTalker (cachier.storager.cookies_file.peek_path ());
+        yam_helper = new YaMHelper (cachier.storager.cookies_file.peek_path ());
         player = new Player ();
 
         Mpris.init (this);
