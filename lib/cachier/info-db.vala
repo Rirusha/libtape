@@ -104,7 +104,7 @@ public class Tape.InfoDB : Object {
      *
      * @param name  name of additional data
      */
-    public string get_additional_data (string name) {
+    public string? get_additional_data (string name) {
         string query = "SELECT * FROM additional WHERE name=$NAME;";
 
         Sqlite.Statement statement;
@@ -122,7 +122,7 @@ public class Tape.InfoDB : Object {
             ));
         }
 
-        string result = statement.column_text (1);
+        string? result = statement.column_text (1);
         statement.reset ();
 
         return result;

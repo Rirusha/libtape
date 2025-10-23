@@ -39,7 +39,7 @@ public class Tape.Storager : Object {
     public File datadir_file {
         get {
             if (_root_datadir_file == null) {
-                _root_datadir_file = File.new_build_filename (Environment.get_user_data_dir (), Filenames.data_root);
+                _root_datadir_file = File.new_build_filename (Environment.get_user_data_dir (), Filenames.data_root ());
             }
             create_dir_if_not_existing (_root_datadir_file);
 
@@ -87,7 +87,7 @@ public class Tape.Storager : Object {
     public File cachedir_file {
         get {
             if (_cachedir_file == null) {
-                _cachedir_file = File.new_build_filename (Environment.get_user_cache_dir (), Filenames.data_root);
+                _cachedir_file = File.new_build_filename (Environment.get_user_cache_dir (), Filenames.data_root ());
             }
             create_dir_if_not_existing (_cachedir_file);
 
@@ -138,7 +138,7 @@ public class Tape.Storager : Object {
     public File log_file {
         get {
             if (_log_file == null) {
-                _log_file = File.new_build_filename (cachedir_file.peek_path (), Filenames.log);
+                _log_file = File.new_build_filename (cachedir_file.peek_path (), Filenames.LOG);
             }
 
             return _log_file;
@@ -149,7 +149,7 @@ public class Tape.Storager : Object {
     public File db_file {
         get {
             if (_db_file == null) {
-                _db_file = File.new_build_filename (datadir_file.peek_path (), Filenames.database);
+                _db_file = File.new_build_filename (datadir_file.peek_path (), Filenames.DATABASE);
             }
 
             return _db_file;
@@ -160,7 +160,7 @@ public class Tape.Storager : Object {
     public File cookies_file {
         get {
             if (_cookies_file == null) {
-                _cookies_file = File.new_build_filename (datadir_file.peek_path (), Filenames.cookies);
+                _cookies_file = File.new_build_filename (datadir_file.peek_path (), Filenames.COOKIES);
             }
 
             return _cookies_file;
@@ -362,6 +362,35 @@ public class Tape.Storager : Object {
                 e.message
             );
         }
+    }
+
+    internal void save_token (string token) {
+        uint8[] token_data = token.data.copy ();
+        simple_dencode (ref token_data);
+
+        var ar = new string[token_data.length];
+        for (int i = 0; i < token_data.length; i++) {
+            ar[i] = token_data[i].to_string ();
+        }
+
+        db.set_additional_data ("token", string.joinv ("/", ar));
+    }
+
+    internal string? load_token () {
+        var token_datas = db.get_additional_data ("token");
+
+        if (token_datas == null) {
+            return null;
+        }
+
+        var token_datas_splitted = token_datas.split ("/");
+        var token_data = new uint8[token_datas_splitted.length];
+        for (int i = 0; i < token_data.length; i++) {
+            token_data[i] = (uint8) uint.parse (token_datas_splitted[i]);
+        }
+
+        simple_dencode (ref token_data);
+        return (string) token_data;
     }
 
     /**

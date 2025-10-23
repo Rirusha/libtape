@@ -82,7 +82,7 @@ public sealed class Tape.Settings : Object {
     /**
      * Download hight quality tracks or not.
      */
-    public bool is_hq { get; set; default = true; }
+    public MusicQuality music_quality { get; set; default = NQ; }
 
     /**
      * Save content on disk or not.

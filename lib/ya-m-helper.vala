@@ -98,34 +98,28 @@ public sealed class Tape.YaMHelper : Object {
         return is_me (uid) && kind == "3";
     }
 
-    public async void init () throws CantUseError, BadStatusCodeError {
-        try {
-            assert (!client.is_init_complete);
+    public async void init () throws JsonError, SoupError, CantUseError, BadStatusCodeError {
+        assert (!client.is_init_complete);
 
-            yield client.init ();
+        yield client.init ();
 
-            root.cachier.storager.db.set_additional_data ("me", me.oid);
-            yield root.cachier.storager.save_object (me, false);
+        root.cachier.storager.db.set_additional_data ("me", me.oid);
+        yield root.cachier.storager.save_object (me, false);
 
-            // TODO: replace with lib func
-            yield get_playlist_info_old (null, "3");
-            //  yield get_likes_playlist_list (null);
-            //  yield get_disliked_tracks_short ();
+        // TODO: replace with lib func
+        yield get_playlist_info_old (null, "3");
+        //  yield get_likes_playlist_list (null);
+        //  yield get_disliked_tracks_short ();
 
-            _me = null;
+        _me = null;
 
-            if (me != null) {
-                if (!me.has_plus) {
-                    throw new CantUseError.NO_PLUS ("No Plus Subscription");
-                }
+        if (me != null) {
+            if (!me.has_plus) {
+                throw new CantUseError.NO_PLUS ("No Plus Subscription");
             }
-
-            init_end ();
-        } catch (JsonError e) {
-            warning (e.message);
-        } catch (SoupError e) {
-            warning (e.message);
         }
+
+        init_end ();
     }
 
     // TODO: remove this

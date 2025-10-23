@@ -16,7 +16,7 @@
  */
 
 namespace Tape {
-    public static Client root;
+    internal static Client root;
 }
 
 [SingleInstance]
@@ -50,10 +50,52 @@ public class Tape.Client : Object {
     }
 
     construct {
+        root = this;
+
         cachier = new Cachier ();
-        yam_helper = new YaMHelper (cachier.storager.cookies_file.peek_path ());
+    }
+
+    public async bool init (string? yam_token = null) throws CantUseError, ApiBase.BadStatusCodeError, ApiBase.SoupError {
+        string? token = yam_token;
+        string? cookies_path = null;
+
+        if (token == null) {
+            if (cachier.storager.cookies_file.query_exists ()) {
+                cookies_path = cachier.storager.cookies_file.peek_path ();
+            } else {
+                token = cachier.storager.load_token ();
+            }
+        }
+
+        if (token == null && cookies_path == null) {
+            return false;
+        }
+
+        yam_helper = new YaMHelper (
+            cookies_path,
+            token
+        );
+
         player = new Player ();
 
+        try {
+            yield yam_helper.init ();
+        } catch (ApiBase.JsonError e) {
+            error (e.message);
+        } catch (ApiBase.BadStatusCodeError e) {
+            if (e is ApiBase.BadStatusCodeError.UNAUTHORIZED) {
+                return false;
+            } else {
+                throw e;
+            }
+        }
+
         Mpris.init (this);
+
+        if (yam_helper.client.auth_type == TOKEN) {
+            cachier.storager.save_token (yam_helper.client.token);
+        }
+
+        return true;
     }
 }

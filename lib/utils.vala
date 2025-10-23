@@ -52,14 +52,14 @@ namespace Tape {
         NO_PLUS
     }
 
-    internal class Filenames {
-        public static string data_root = root.settings.app_name_lower;
-        public static string cookies = root.settings.app_name_lower + ".cookies";
-        public static string log = root.settings.app_name_lower + ".log";
-        public static string database = root.settings.app_name_lower + ".db";
-        public const string IMAGES = "images";
-        public const string AUDIOS = "audios";
-        public const string OBJECTS = "objs";
+    namespace Filenames {
+        internal string data_root () { return root.settings.app_name_lower; }
+        internal const string COOKIES = "session.cookies";
+        internal const string LOG = "log";
+        internal const string DATABASE = "info.db";
+        internal const string IMAGES = "images";
+        internal const string AUDIOS = "audios";
+        internal const string OBJECTS = "objs";
     }
 
     /**
@@ -90,6 +90,12 @@ namespace Tape {
         OFF,
         ONE,
         QUEUE
+    }
+
+    public enum MusicQuality {
+        LQ,
+        NQ,
+        LOSSLESS;
     }
 
     public enum ShuffleMode {

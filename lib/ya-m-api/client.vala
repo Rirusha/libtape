@@ -29,7 +29,7 @@ public sealed class Tape.YaMAPI.Client : Object {
 
     public AuthType auth_type { get; construct; }
 
-    public string token { get; set construct; default = ""; }
+    public string token { internal get; set construct; default = ""; }
 
     public Account.About? me { get; private set; default = null; }
 
