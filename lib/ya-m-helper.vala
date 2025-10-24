@@ -21,8 +21,7 @@ using ApiBase;
 using Tape.YaMAPI;
 
 /**
- * Класс для выполнения всяких вещей, связанных с интернетом, чтобы
- * можно было оповестить пользователя о проблемах с соединением
+ * Class with helper methods. It may include auto saving some of the objects.
  */
 public sealed class Tape.YaMHelper : Object {
 
