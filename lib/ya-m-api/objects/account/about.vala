@@ -101,6 +101,12 @@ public class Tape.YaMAPI.Account.About : ApiBase.DataObject, HasCover, HasID {
         }
     }
 
+    public string geo_region_iso { get; set; }
+
+    public string user_session_region_iso { get; set; }
+
+    public bool service_available { get; set; }
+
     /**
      * Get avatar uri by size.
      *
