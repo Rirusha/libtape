@@ -26,7 +26,8 @@ using Tape.YaMAPI;
 public sealed class Tape.YaMHelper : Object {
 
     public YaMAPI.Client client { get; construct; }
-    public LikesHandler likes_chandler { get; default = new LikesHandler (); }
+    public LikesHandler likes_handler { get; default = new LikesHandler (); }
+    public ContentHandler content_handler { get; default = new ContentHandler (); }
 
     public signal void track_likes_start_change (string track_id);
     public signal void track_likes_end_change (string track_id, bool is_liked);
@@ -105,7 +106,7 @@ public sealed class Tape.YaMHelper : Object {
         root.cachier.storager.db.set_additional_data ("me", me.oid);
         yield root.cachier.storager.save_object (me, false);
 
-        likes_chandler.full_update (yield client.library_all_ids ());
+        likes_handler.full_update (yield client.library_all_ids ());
 
         _me = null;
 
