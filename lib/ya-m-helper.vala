@@ -26,7 +26,7 @@ using Tape.YaMAPI;
 public sealed class Tape.YaMHelper : Object {
 
     public YaMAPI.Client client { get; construct; }
-    public LikesController likes_controller { get; default = new LikesController (); }
+    public LikesHandler likes_chandler { get; default = new LikesHandler (); }
 
     public signal void track_likes_start_change (string track_id);
     public signal void track_likes_end_change (string track_id, bool is_liked);
@@ -105,10 +105,7 @@ public sealed class Tape.YaMHelper : Object {
         root.cachier.storager.db.set_additional_data ("me", me.oid);
         yield root.cachier.storager.save_object (me, false);
 
-        // TODO: replace with lib func
-        yield get_playlist_info_old (null, "3");
-        //  yield get_likes_playlist_list (null);
-        //  yield get_disliked_tracks_short ();
+        likes_chandler.full_update (yield client.library_all_ids ());
 
         _me = null;
 
@@ -122,88 +119,88 @@ public sealed class Tape.YaMHelper : Object {
     }
 
     // TODO: remove this
-    public async Playlist? get_playlist_info_old (
-        string? uid = null,
-        string kind = "3"
-    ) throws BadStatusCodeError, CantUseError {
-        Playlist? playlist_info = null;
+    //  public async Playlist? get_playlist_info_old (
+    //      string? uid = null,
+    //      string kind = "3"
+    //  ) throws BadStatusCodeError, CantUseError {
+    //      Playlist? playlist_info = null;
 
-        try {
-            playlist_info = yield client.users_playlists_playlist (kind, true, uid);
+    //      try {
+    //          playlist_info = yield client.users_playlists_playlist (kind, true, uid);
 
-            if (is_my_liked (uid, kind)) {
-                likes_controller.update_liked_tracks (playlist_info.tracks);
-            }
+    //          if (is_my_liked (uid, kind)) {
+    //              likes_controller.update_liked_tracks (playlist_info.tracks);
+    //          }
 
-            if (playlist_info.tracks.size != 0) {
-                if (playlist_info.tracks[0].track == null) {
-                    string[] tracks_ids = new string[playlist_info.tracks.size];
-                    for (int i = 0; i < tracks_ids.length; i++) {
-                        tracks_ids[i] = playlist_info.tracks[i].id;
-                    }
+    //          if (playlist_info.tracks.size != 0) {
+    //              if (playlist_info.tracks[0].track == null) {
+    //                  string[] tracks_ids = new string[playlist_info.tracks.size];
+    //                  for (int i = 0; i < tracks_ids.length; i++) {
+    //                      tracks_ids[i] = playlist_info.tracks[i].id;
+    //                  }
 
-                    var track_list = yield client.tracks (tracks_ids);
-                    playlist_info.set_track_list (track_list);
-                }
-            }
+    //                  var track_list = yield client.tracks (tracks_ids);
+    //                  playlist_info.set_track_list (track_list);
+    //              }
+    //          }
 
-            // Сохраняет объект, если он не сохранен в data
-            // Постоянными объектами занимается уже Cachier.Job
-            var object_location = root.cachier.storager.object_cache_location (playlist_info.get_type (), playlist_info.oid);
-            if (object_location.is_tmp && root.settings.can_cache) {
-                root.cachier.storager.save_object (playlist_info, true);
-                root.cachier.controller.change_state (
-                    ContentType.PLAYLIST,
-                    playlist_info.oid,
-                    CacheingState.TEMP
-                );
-            }
-        } catch (Error e) {
+    //          // Сохраняет объект, если он не сохранен в data
+    //          // Постоянными объектами занимается уже Cachier.Job
+    //          var object_location = root.cachier.storager.object_cache_location (playlist_info.get_type (), playlist_info.oid);
+    //          if (object_location.is_tmp && root.settings.can_cache) {
+    //              root.cachier.storager.save_object (playlist_info, true);
+    //              root.cachier.controller.change_state (
+    //                  ContentType.PLAYLIST,
+    //                  playlist_info.oid,
+    //                  CacheingState.TEMP
+    //              );
+    //          }
+    //      } catch (Error e) {
 
-        }
+    //      }
 
-        return playlist_info;
-    }
+    //      return playlist_info;
+    //  }
 
-    public async Playlist? get_playlist_info (string playlist_uuid) throws BadStatusCodeError, CantUseError {
-        Playlist? playlist_info = null;
+    //  public async Playlist? get_playlist_info (string playlist_uuid) throws BadStatusCodeError, CantUseError {
+    //      Playlist? playlist_info = null;
 
-        try {
-            playlist_info = yield client.playlist (playlist_uuid, false, true);
+    //      try {
+    //          playlist_info = yield client.playlist (playlist_uuid, false, true);
 
-            if (is_my_liked (playlist_info.uid, playlist_info.kind)) {
-                likes_controller.update_liked_tracks (playlist_info.tracks);
-            }
+    //          if (is_my_liked (playlist_info.uid, playlist_info.kind)) {
+    //              likes_controller.update_liked_tracks (playlist_info.tracks);
+    //          }
 
-            if (playlist_info.tracks.size != 0) {
-                if (playlist_info.tracks[0].track == null) {
-                    string[] tracks_ids = new string[playlist_info.tracks.size];
-                    for (int i = 0; i < tracks_ids.length; i++) {
-                        tracks_ids[i] = playlist_info.tracks[i].id;
-                    }
+    //          if (playlist_info.tracks.size != 0) {
+    //              if (playlist_info.tracks[0].track == null) {
+    //                  string[] tracks_ids = new string[playlist_info.tracks.size];
+    //                  for (int i = 0; i < tracks_ids.length; i++) {
+    //                      tracks_ids[i] = playlist_info.tracks[i].id;
+    //                  }
 
-                    var track_list = yield client.tracks (tracks_ids);
-                    playlist_info.set_track_list (track_list);
-                }
-            }
+    //                  var track_list = yield client.tracks (tracks_ids);
+    //                  playlist_info.set_track_list (track_list);
+    //              }
+    //          }
 
-            // Сохраняет объект, если он не сохранен в data
-            // Постоянными объектами занимается уже Cachier.Job
-            var object_location = root.cachier.storager.object_cache_location (playlist_info.get_type (), playlist_info.oid);
-            if (object_location.is_tmp && root.settings.can_cache) {
-                root.cachier.storager.save_object (playlist_info, true);
-                root.cachier.controller.change_state (
-                    ContentType.PLAYLIST,
-                    playlist_info.oid,
-                    CacheingState.TEMP
-                );
-            }
-        } catch (Error e) {
+    //          // Сохраняет объект, если он не сохранен в data
+    //          // Постоянными объектами занимается уже Cachier.Job
+    //          var object_location = root.cachier.storager.object_cache_location (playlist_info.get_type (), playlist_info.oid);
+    //          if (object_location.is_tmp && root.settings.can_cache) {
+    //              root.cachier.storager.save_object (playlist_info, true);
+    //              root.cachier.controller.change_state (
+    //                  ContentType.PLAYLIST,
+    //                  playlist_info.oid,
+    //                  CacheingState.TEMP
+    //              );
+    //          }
+    //      } catch (Error e) {
 
-        }
+    //      }
 
-        return playlist_info;
-    }
+    //      return playlist_info;
+    //  }
 
     //  public async void send_play (YaMAPI.Play[] play_objs) throws CantUseError {
 

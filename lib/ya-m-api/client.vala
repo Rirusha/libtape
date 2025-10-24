@@ -165,22 +165,16 @@ public sealed class Tape.YaMAPI.Client : Object {
         return yield session.exec_async (new Request.GET (url), priority, cancellable);
     }
 
-    /**
-     * Проверить uid пользователя на наличие
-     */
-    void check_uid (ref string? uid) throws SoupError {
-        if (uid == null) {
-            if (me != null) {
-                return;
-            }
-
-            uid = me.uid;
-            if (uid != null) {
-                return;
-            }
-
-            throw new SoupError.INTERNAL (_("Authorization not completed"));
+    string fix_uid (string? uid) throws SoupError {
+        if (uid != null) {
+            return uid;
         }
+
+        if (me != null) {
+            return me.uid;
+        }
+
+        throw new SoupError.INTERNAL (_("Authorization not completed"));
     }
 
     /**
@@ -377,36 +371,36 @@ public sealed class Tape.YaMAPI.Client : Object {
      *
      */
     public async void users_playlists_list_kinds (
-        owned string? uid = null,
+        string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, JsonError, BadStatusCodeError {
-        check_uid (ref uid);
+        var real_uid = fix_uid (uid);
     }
 
     /**
      *
      */
     public async void users_playlists (
-        owned string? uid = null,
+        string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, JsonError, BadStatusCodeError {
-        check_uid (ref uid);
+        var real_uid = fix_uid (uid);
     }
 
     /**
      *
      */
     public async Gee.ArrayList<Playlist> users_playlists_list (
-        owned string? uid = null,
+        string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, JsonError,
     BadStatusCodeError {
-        check_uid (ref uid);
+        var real_uid = fix_uid (uid);
 
-        var request = new Request.GET (@"$(YAM_BASE_URL)/users/$uid/playlists/list");
+        var request = new Request.GET (@"$(YAM_BASE_URL)/users/$real_uid/playlists/list");
         request.presets = { "default" };
 
         Bytes bytes = yield session.exec_async (
@@ -425,13 +419,13 @@ public sealed class Tape.YaMAPI.Client : Object {
     public async Playlist users_playlists_playlist (
         string playlist_kind,
         bool rich_tracks,
-        owned string? uid = null,
+        string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, JsonError, BadStatusCodeError {
-        check_uid (ref uid);
+        var real_uid = fix_uid (uid);
 
-        var request = new Request.GET (@"$(YAM_BASE_URL)/users/$uid/playlists/$playlist_kind");
+        var request = new Request.GET (@"$(YAM_BASE_URL)/users/$real_uid/playlists/$playlist_kind");
         with (request) {
             presets = { "default" };
             add_param ("richTracks", rich_tracks.to_string ());
@@ -452,22 +446,22 @@ public sealed class Tape.YaMAPI.Client : Object {
      */
     public async void users_playlists_playlist_change_relative (
         string playlist_kind,
-        owned string? uid = null,
+        string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, JsonError, BadStatusCodeError {
-        check_uid (ref uid);
+        var real_uid = fix_uid (uid);
     }
 
     public async bool users_playlists_delete (
-        owned string? uid,
+        string? uid,
         string kind,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, JsonError, BadStatusCodeError {
-        check_uid (ref uid);
+        var real_uid = fix_uid (uid);
 
-        var request = new Request.POST (@"$(YAM_BASE_URL)/users/$uid/playlists/$kind/delete");
+        var request = new Request.POST (@"$(YAM_BASE_URL)/users/$real_uid/playlists/$kind/delete");
         with (request) {
             presets = { "default" };
         }
@@ -487,14 +481,14 @@ public sealed class Tape.YaMAPI.Client : Object {
     }
 
     public async Playlist users_playlists_change (
-        owned string? uid,
+        string? uid,
         string kind,
         string diff,
         int revision = 1,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, JsonError, BadStatusCodeError {
-        check_uid (ref uid);
+        var real_uid = fix_uid (uid);
 
         var datalist = Datalist<string> ();
         with (datalist) {
@@ -506,7 +500,7 @@ public sealed class Tape.YaMAPI.Client : Object {
         PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
         post_content.set_datalist (datalist);
 
-        var request = new Request.POST (@"$(YAM_BASE_URL)/users/$(uid)/playlists/$kind/change");
+        var request = new Request.POST (@"$(YAM_BASE_URL)/users/$real_uid/playlists/$kind/change");
         with (request) {
             presets = { "default" };
             add_post_content (post_content);
@@ -524,13 +518,13 @@ public sealed class Tape.YaMAPI.Client : Object {
     }
 
     public async Playlist users_playlists_create (
-        owned string? uid,
+        string? uid,
         string title,
         PlaylistVisible visibility = PlaylistVisible.PRIVATE,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, JsonError, BadStatusCodeError {
-        check_uid (ref uid);
+        var real_uid = fix_uid (uid);
 
         var datalist = Datalist<string> ();
         with (datalist) {
@@ -541,7 +535,7 @@ public sealed class Tape.YaMAPI.Client : Object {
         PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
         post_content.set_datalist (datalist);
 
-        var request = new Request.POST (@"$(YAM_BASE_URL)/users/$uid/playlists/create");
+        var request = new Request.POST (@"$(YAM_BASE_URL)/users/$real_uid/playlists/create");
         with (request) {
             presets = { "default" };
             add_post_content (post_content);
@@ -559,13 +553,13 @@ public sealed class Tape.YaMAPI.Client : Object {
     }
 
     public async Playlist users_playlists_name (
-        owned string? uid,
+        string? uid,
         string kind,
         string new_name,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, JsonError, BadStatusCodeError {
-        check_uid (ref uid);
+        var real_uid = fix_uid (uid);
 
         var datalist = Datalist<string> ();
         datalist.set_data ("value", new_name);
@@ -573,7 +567,7 @@ public sealed class Tape.YaMAPI.Client : Object {
         PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
         post_content.set_datalist (datalist);
 
-        var request = new Request.POST (@"$(YAM_BASE_URL)/users/$uid/playlists/$kind/name");
+        var request = new Request.POST (@"$(YAM_BASE_URL)/users/$real_uid/playlists/$kind/name");
         with (request) {
             presets = { "default" };
             add_post_content (post_content);
@@ -591,15 +585,15 @@ public sealed class Tape.YaMAPI.Client : Object {
     }
 
     public async PlaylistRecommendations users_playlists_recommendations (
-        owned string? uid,
+        string? uid,
         string kind,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
     ) throws SoupError, JsonError,
     BadStatusCodeError {
-        check_uid (ref uid);
+        var real_uid = fix_uid (uid);
 
-        var request = new Request.GET (@"$(YAM_BASE_URL)/users/$uid/playlists/$kind/recommendations");
+        var request = new Request.GET (@"$(YAM_BASE_URL)/users/$real_uid/playlists/$kind/recommendations");
         request.presets = { "default" };
 
         var bytes = yield session.exec_async (
@@ -607,19 +601,20 @@ public sealed class Tape.YaMAPI.Client : Object {
             priority,
             cancellable
         );
+
         var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
 
         return yield jsoner.deserialize_object_async<PlaylistRecommendations> ();
     }
 
     //  public async Playlist users_playlists_visibility (
-    //      owned string? uid,
+    //      string? uid,
     //      string kind,
     //      string visibility,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var datalist = Datalist<string> ();
     //      datalist.set_data ("value", visibility);
@@ -643,7 +638,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //  }
 
     //  public async Playlist users_palylists_cover_upload (
-    //      owned string? uid,
+    //      string? uid,
     //      string kind,
     //      uint8[] new_cover,
     //      string filename,
@@ -651,7 +646,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var post_builder = new StringBuilder ();
 
@@ -680,13 +675,13 @@ public sealed class Tape.YaMAPI.Client : Object {
     //  }
 
     //  public async Playlist users_palylists_cover_clear (
-    //      owned string? uid,
+    //      string? uid,
     //      string kind,
     //      uint8[] new_cover,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      Bytes bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/playlists/$kind/cover/clear",
@@ -707,33 +702,33 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   *
     //   */
     //  public async void users_likes_albums (
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
     //  }
 
     //  /**
     //   *
     //   */
     //  public async void users_likes_artists (
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
     //  }
 
     //  /**
     //   *
     //   */
     //  public async Gee.ArrayList<LikedPlaylist> users_likes_playlists (
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      Bytes bytes = yield session.get_async (
     //          @"$(YAM_BASE_URL)/users/$uid/likes/playlists",
@@ -755,11 +750,11 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   */
     //  public async int64 users_likes_tracks_add (
     //      string track_id,
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/likes/tracks/add",
@@ -785,11 +780,11 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   */
     //  public async int64 users_likes_tracks_remove (
     //      string track_id,
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/likes/tracks/$track_id/remove",
@@ -811,13 +806,13 @@ public sealed class Tape.YaMAPI.Client : Object {
     //  }
 
     //  public async Gee.ArrayList<TrackShort> users_dislikes_tracks (
-    //      owned string? uid,
+    //      string? uid,
     //      int if_modified_since_revision = 0,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError,
     //  BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.get_async (
     //          @"$(YAM_BASE_URL)/users/$uid/dislikes/tracks",
@@ -842,11 +837,11 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   */
     //  public async int64 users_dislikes_tracks_add (
     //      string track_id,
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/dislikes/tracks/add",
@@ -874,11 +869,11 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   */
     //  public async int64 users_dislikes_tracks_remove (
     //      string track_id,
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/dislikes/tracks/$track_id/remove",
@@ -904,11 +899,11 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   */
     //  public async bool users_likes_artists_add (
     //      string artist_id,
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/likes/artists/add",
@@ -936,11 +931,11 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   */
     //  public async bool users_likes_artists_remove (
     //      string artist_id,
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/likes/artists/$artist_id/remove",
@@ -966,11 +961,11 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   */
     //  public async bool users_dislikes_artists_add (
     //      string artist_id,
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/dislikes/artists/add",
@@ -998,11 +993,11 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   */
     //  public async bool users_dislikes_artists_remove (
     //      string artist_id,
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/dislikes/artists/$artist_id/remove",
@@ -1028,11 +1023,11 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   */
     //  public async bool users_likes_albums_add (
     //      string album_id,
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/likes/albums/add",
@@ -1060,11 +1055,11 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   */
     //  public async bool users_likes_albums_remove (
     //      string album_id,
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/likes/albums/$album_id/remove",
@@ -1092,11 +1087,11 @@ public sealed class Tape.YaMAPI.Client : Object {
     //      string playlist_uid,
     //      string owner_uid,
     //      string playlist_kind,
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/likes/playlists/add",
@@ -1126,11 +1121,11 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   */
     //  public async bool users_likes_playlists_remove (
     //      string playlist_uid,
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
 
     //      var bytes = yield session.post_async (
     //          @"$(YAM_BASE_URL)/users/$uid/likes/playlists/$playlist_uid/remove",
@@ -1155,66 +1150,66 @@ public sealed class Tape.YaMAPI.Client : Object {
     //   *
     //   */
     //  public async void users_presaves_add (
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
     //  }
 
     //  /**
     //   *
     //   */
     //  public async void users_presaves_remove (
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
     //  }
 
     //  /**
     //   *
     //   */
     //  public async void users_search_history (
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
     //  }
 
     //  /**
     //   *
     //   */
     //  public async void users_search_history_clear (
-    //      owned string? uid = null,
+    //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      check_uid (ref uid);
+    //      var real_uid = fix_uid (uid);
     //  }
 
-    //  /**
-    //   * Получение данных о библиотеке пользователя
-    //   */
-    //  public async Library.AllIds library_all_ids (
-    //      int priority = Priority.DEFAULT,
-    //      Cancellable? cancellable = null
-    //  ) throws SoupError, JsonError, BadStatusCodeError {
-    //      var bytes = yield session.get_async (
-    //          @"$(YAM_BASE_URL)/library/all-ids",
-    //          { "default" },
-    //          null,
-    //          null,
-    //          priority,
-    //          cancellable
-    //      );
+    /**
+     * Получение данных о библиотеке пользователя
+     */
+    public async Library.AllIds library_all_ids (
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) throws SoupError, JsonError, BadStatusCodeError {
+        var request = new Request.GET (@"$(YAM_BASE_URL)/library/all-ids");
+        request.presets = { "default" };
 
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var bytes = yield session.exec_async (
+            request,
+            priority,
+            cancellable
+        );
 
-    //      return yield jsoner.deserialize_lib_data ();
-    //  }
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+
+        return yield jsoner.deserialize_object_async<Library.AllIds> ();
+    }
 
     //  /**
     //   *

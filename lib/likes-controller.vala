@@ -19,105 +19,61 @@
 
 using Gee;
 
-namespace Tape {
+public sealed class Tape.LikesHandler : Object {
 
-public enum LikableType {
-    TRACK,
-    PLAYLIST,
-    ALBUM,
-    ARTIST
-}
-
-public enum DislikableType {
-    TRACK,
-    ARTIST
-}
-
-// Контроллер лайков различного контента. Хранит в себе все лайки пользователя.
-public class LikesController : Object {
-
-    HashSet<string> disliked_tracks_ids = new HashSet<string> ();
-    HashSet<string> liked_tracks_ids = new HashSet<string> ();
-    HashSet<string> liked_playlists_ids = new HashSet<string> ();
-    HashSet<string> liked_albums_ids = new HashSet<string> ();
-
-    public LikesController () {
-        Object ();
+    HashModel _liked_tracks = new HashModel ();
+    HashModel liked_tracks {
+        get {
+            return _liked_tracks;
+        }
     }
-
-    HashSet<string> get_id_array (LikableType content_type) {
-        switch (content_type) {
-            case LikableType.TRACK:
-                return liked_tracks_ids;
-
-            case LikableType.PLAYLIST:
-                return liked_playlists_ids;
-
-            case LikableType.ALBUM:
-                return liked_albums_ids;
-
-            default:
-                assert_not_reached ();
+    HashModel _liked_playlists = new HashModel ();
+    HashModel liked_playlists {
+        get {
+            return _liked_playlists;
+        }
+    }
+    HashModel _liked_albums = new HashModel ();
+    HashModel liked_albums {
+        get {
+            return _liked_albums;
+        }
+    }
+    HashModel _liked_artists = new HashModel ();
+    HashModel liked_artists {
+        get {
+            return _liked_artists;
         }
     }
 
-    public bool get_content_is_liked (LikableType content_type,
-                                      string object_id) {
-        return object_id in get_id_array (content_type);
+    HashModel _disliked_tracks = new HashModel ();
+    HashModel disliked_tracks {
+        get {
+            return _disliked_tracks;
+        }
     }
-
-    public void update_liked_tracks (ArrayList<YaMAPI.TrackShort> track_list) {
-        liked_tracks_ids.clear ();
-
-        foreach (var track in track_list) {
-            liked_tracks_ids.add (track.track.id.dup ());
+    HashModel _disliked_artists = new HashModel ();
+    HashModel disliked_artists {
+        get {
+            return _disliked_artists;
         }
     }
 
-    public void update_liked_playlists (ArrayList<YaMAPI.LikedPlaylist> playlist_list) {
-        liked_playlists_ids.clear ();
+    public void full_update (YaMAPI.Library.AllIds ids) {
+        _liked_tracks.set_iterator (filter_and_map (ids.default_library, 1));
+        _liked_playlists.set_iterator (filter_and_map (ids.playlists, 1));
+        _liked_albums.set_iterator (filter_and_map (ids.albums, 1));
+        _liked_artists.set_iterator (filter_and_map (ids.artists, 1));
 
-        foreach (var playlist in playlist_list) {
-            liked_playlists_ids.add (playlist.playlist.oid);
-        }
+        _disliked_tracks.set_iterator (filter_and_map (ids.default_library, -1));
+        _disliked_artists.set_iterator (filter_and_map (ids.artists, -1));
     }
 
-    public void update_liked_albums (ArrayList<YaMAPI.Album> album_list) {
-        liked_albums_ids.clear ();
-
-        foreach (var album in album_list) {
-            liked_albums_ids.add (album.id);
-        }
+    Iterator<string> filter_and_map (HashMap<string, int> map, int filter_value) {
+        return map.filter ((pred) => {
+            return pred.value == filter_value;
+        }).map<string> ((pred) => {
+            return pred.key;
+        });
     }
-
-    public void add_liked (LikableType content_type,
-                           owned string object_id) {
-        get_id_array (content_type).add (object_id);
-    }
-
-    public void remove_liked (LikableType content_type,
-                              owned string object_id) {
-        get_id_array (content_type).remove (object_id);
-    }
-
-    public void update_disliked_tracks (ArrayList<YaMAPI.TrackShort> track_list) {
-        disliked_tracks_ids.clear ();
-
-        foreach (var track in track_list) {
-            disliked_tracks_ids.add (track.id);
-        }
-    }
-
-    public void add_disliked (owned string object_id) {
-        disliked_tracks_ids.add (object_id);
-    }
-
-    public void remove_disliked (owned string object_id) {
-        disliked_tracks_ids.remove (object_id);
-    }
-
-    public bool get_content_is_disliked (string object_id) {
-        return object_id in disliked_tracks_ids;
-    }
-}
 }

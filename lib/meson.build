@@ -79,6 +79,9 @@ vala_sources = files(
   'ya-m-api/utils.vala',
 
   'client.vala',
+  'content-handler.vala',
+  'enums.vala',
+  'hash-store.vala',
   'likes-controller.vala',
   'settings.vala',
   'utils.vala',

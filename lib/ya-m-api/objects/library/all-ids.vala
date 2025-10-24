@@ -21,53 +21,19 @@ using Gee;
 
 public class Tape.YaMAPI.Library.AllIds : ApiBase.DataObject {
 
-    /**
-     * Лайкнутые пользователем треки
-     */
-    public ArrayList<string> liked_tracks { get; set; default = new ArrayList<string> (); }
+    public HashMap<string, int> default_library { get; set; default = new HashMap<string, int> (); }
 
-    /**
-     * Дизлайкнутые пользователем треки
-     */
-    public ArrayList<string> disliked_tracks { get; set; default = new ArrayList<string> (); }
+    public HashMap<string, int> artists { get; set; default = new HashMap<string, int> (); }
 
-    /**
-     * Любимые исполнители пользователя
-     */
-    public ArrayList<string> liked_artists { get; set; default = new ArrayList<string> (); }
+    public HashMap<string, int> albums { get; set; default = new HashMap<string, int> (); }
 
-    /**
-     * Нелюбимые исполнители пользователя
-     */
-    public ArrayList<string> disliked_artists { get; set; default = new ArrayList<string> (); }
+    public HashMap<string, int> playlists { get; set; default = new HashMap<string, int> (); }
 
-    /**
-     * Любимые альбомы пользователя
-     */
-    public ArrayList<string> albums { get; set; default = new ArrayList<string> (); }
+    public HashMap<string, int> users { get; set; default = new HashMap<string, int> (); }
 
-    /**
-     * Любимые плейлисты пользователя
-     */
-    public ArrayList<string> playlists { get; set; default = new ArrayList<string> (); }
+    public HashMap<string, int> genres { get; set; default = new HashMap<string, int> (); }
 
-    /**
-     *
-     */
-    public ArrayList<string> users { get; set; default = new ArrayList<string> (); }
+    public HashMap<string, int> labels { get; set; default = new HashMap<string, int> (); }
 
-    /**
-     * Любимые жанры пользователя
-     */
-    public ArrayList<string> genres { get; set; default = new ArrayList<string> (); }
-
-    /**
-     * Любимые лейблы пользователя
-     */
-    public ArrayList<string> labels { get; set; default = new ArrayList<string> (); }
-
-    /**
-     * Все треки в библиотеке пользователя
-     */
-    public ArrayList<string> library { get; set; default = new ArrayList<string> (); }
+    public HashMap<string, int> library { get; set; default = new HashMap<string, int> (); }
 }
