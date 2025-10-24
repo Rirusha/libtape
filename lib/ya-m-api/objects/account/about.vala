@@ -114,7 +114,7 @@ public class Tape.YaMAPI.Account.About : ApiBase.DataObject, HasCover, HasID {
      *
      * @return      avatar uri
      */
-    public string ? get_avatar_uri (int size = 200) {
+    public string? get_avatar_uri (int size = 200) {
         if (avatar_id == null) {
             return null;
         }
@@ -124,7 +124,7 @@ public class Tape.YaMAPI.Account.About : ApiBase.DataObject, HasCover, HasID {
         return "https://avatars.yandex.net/get-yapic/%s/%s".printf (
             avatar_id,
             avatar_size
-            );
+        );
     }
 
     public Gee.ArrayList<string> get_cover_items_by_size (int size) {
