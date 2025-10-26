@@ -40,6 +40,7 @@ deps_pkgs = [
 
 gee_dep = dependency('gee-0.8')
 gio_dep = dependency('gio-2.0')
+gstreamer_app_dep = dependency('gstreamer-app-1.0')
 gstreamer_dep = dependency('gstreamer-1.0')
 json_glib_dep = dependency('json-glib-1.0')
 libapi_base_dep = dependency('libapi-base-4', fallback : ['libapi-base', 'lib_dep'])
@@ -50,6 +51,7 @@ sqlite3_dep = dependency('sqlite3')
 pgconfig_dependencies = [
   gee_dep,
   gio_dep,
+  gstreamer_app_dep,
   gstreamer_dep,
   json_glib_dep,
   libsoup_dep,

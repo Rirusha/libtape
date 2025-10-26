@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-internal sealed class Tape.GstPlayer {
+internal sealed class Tape.GstPlayer : Object {
     const string SOURCE_NAME = "source";
 
     public double volume { get; set; default = 1.0; }
@@ -66,10 +66,6 @@ internal sealed class Tape.GstPlayer {
     Gst.Element audioconvert;
     Gst.Element audioresample;
     Gst.Element audiosink;
-
-    public LowPlayer () {
-        Object ();
-    }
 
     construct {
         init_gst_if_not ();

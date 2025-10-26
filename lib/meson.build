@@ -18,6 +18,7 @@ vala_sources = files(
   'player/mods/flow.vala',
   'player/mods/local.vala',
   'player/mods/track-list.vala',
+  'player/gst-player.vala',
   'player/mpris.vala',
   'player/player.vala',
 
