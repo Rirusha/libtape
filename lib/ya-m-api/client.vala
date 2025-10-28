@@ -102,7 +102,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     public async void init (
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
-    ) throws SoupError, JsonError, BadStatusCodeError {
+    ) throws SoupError, JsonError, BadStatusCodeError, CantUseError {
         if (auth_type != TOKEN) {
             var datalist = Datalist<string> ();
             with (datalist) {
@@ -145,6 +145,11 @@ public sealed class Tape.YaMAPI.Client : Object {
             );
 
             me = yield account_about (priority, cancellable);
+            if (me != null) {
+                if (!me.has_plus) {
+                    throw new CantUseError.NO_PLUS ("No Plus Subscription");
+                }
+            }
         } else {
             throw new SoupError.INTERNAL (_("No token provided"));
         }

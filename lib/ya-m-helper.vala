@@ -110,12 +110,6 @@ public sealed class Tape.YaMHelper : Object {
 
         _me = null;
 
-        if (me != null) {
-            if (!me.has_plus) {
-                throw new CantUseError.NO_PLUS ("No Plus Subscription");
-            }
-        }
-
         init_end ();
     }
 
