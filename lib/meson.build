@@ -102,6 +102,7 @@ lib = shared_library(
   vala_header: header_name,
   vala_vapi: vapi_name,
   vala_gir: gir_name,
+  link_args: ['-lm'],
   version: meson.project_version(),
   install: true,
   install_dir: [true, true, true, true],
