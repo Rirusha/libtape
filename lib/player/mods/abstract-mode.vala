@@ -32,7 +32,7 @@ public abstract class Tape.PlayerMode : Object {
      */
     public Player player { get; construct; }
 
-    public ArrayList<YaMAPI.Track> queue { get; construct; default = new ArrayList<YaMAPI.Track> (); }
+    public Serialize.Array<YaMAPI.Track> queue { get; construct; default = new Serialize.Array<YaMAPI.Track> (); }
 
     public string context_type { get; construct set; }
 

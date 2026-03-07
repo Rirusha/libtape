@@ -22,7 +22,7 @@ using Gee;
 public sealed class Tape.PlayerTrackList : PlayerShufflable {
 
     public PlayerTrackList (Player player,
-                            ArrayList<YaMAPI.Track> queue,
+                            Serialize.Array<YaMAPI.Track> queue,
                             string context_type,
                             string? context_id,
                             int current_index,

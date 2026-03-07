@@ -37,7 +37,7 @@ class ContentInfo : Object {
 // Контроллер состояния кэширования треков. Все отображалки состояния привязаны к этому контроллеру
 public class CacheController : Object {
 
-    ArrayList<ContentInfo?> loading_content = new ArrayList<ContentInfo?> ();
+    Serialize.Array<ContentInfo?> loading_content = new Serialize.Array<ContentInfo?> ();
 
     public signal void content_cache_state_changed (
         ContentType content_type,
@@ -160,13 +160,13 @@ public class CacheController : Object {
                 location = root.cachier.storager.audio_cache_location (content_id);
                 break;
 
-            case ContentType.PLAYLIST :
-                location = root.cachier.storager.object_cache_location (typeof (YaMAPI.Playlist), content_id);
-                break;
+            //  case ContentType.PLAYLIST :
+            //      location = root.cachier.storager.object_cache_location (typeof (YaMAPI.Playlist), content_id);
+            //      break;
 
-            case ContentType.ALBUM:
-                location = root.cachier.storager.object_cache_location (typeof (YaMAPI.Album), content_id);
-                break;
+            //  case ContentType.ALBUM:
+            //      location = root.cachier.storager.object_cache_location (typeof (YaMAPI.Album), content_id);
+            //      break;
 
             default:
                 assert_not_reached ();

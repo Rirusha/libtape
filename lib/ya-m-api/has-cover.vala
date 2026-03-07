@@ -27,5 +27,5 @@ public interface Tape.YaMAPI.HasCover : Serialize.DataObject {
      *
      * @return      covers array
      */
-    public abstract Gee.ArrayList<string> get_cover_items_by_size (int size);
+    public abstract Serialize.Array<string> get_cover_items_by_size (int size);
 }

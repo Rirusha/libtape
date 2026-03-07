@@ -32,7 +32,7 @@ public class Tape.YaMAPI.Rotor.Dashboard : Serialize.DataObject {
     /**
      * Station list
      */
-    public ArrayList<Station> stations { get; set; default = new ArrayList<Station> (); }
+    public Serialize.Array<Station> stations { get; set; default = new Serialize.Array<Station> (); }
 
     /**
      * You can only think of Halloween until

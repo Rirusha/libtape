@@ -32,7 +32,7 @@ public class Tape.YaMAPI.Rotor.StationTracks : Serialize.DataObject {
     /**
      *
      */
-    public ArrayList<Sequence> sequence { get; set; default = new ArrayList<Sequence> (); }
+    public Serialize.Array<Sequence> sequence { get; set; default = new Serialize.Array<Sequence> (); }
 
     /**
      *
@@ -54,7 +54,7 @@ public class Tape.YaMAPI.Rotor.StationTracks : Serialize.DataObject {
     /**
      *
      */
-    public ArrayList<Seed> accepted_seed { get; set; default = new ArrayList<Seed> (); }
+    public Serialize.Array<Seed> accepted_seed { get; set; default = new Serialize.Array<Seed> (); }
 
     /**
      *

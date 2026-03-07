@@ -21,7 +21,7 @@ using Gee;
 
 public class Tape.YaMAPI.PlaylistRecommendations : Serialize.DataObject {
 
-    public ArrayList<Track> tracks { get; set; default = new ArrayList<Track> (); }
+    public Serialize.Array<Track> tracks { get; set; default = new Serialize.Array<Track> (); }
 
     public string? batch_id { get; set; }
 }

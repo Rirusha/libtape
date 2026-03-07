@@ -39,9 +39,9 @@ public class Tape.YaMAPI.Album : Serialize.DataObject, HasCover, HasID {
 
     public int track_count { get; set; }
 
-    public ArrayList<Artist> artists { get; set; default = new ArrayList<Artist> (); }
+    public Serialize.Array<Artist> artists { get; set; default = new Serialize.Array<Artist> (); }
 
-    public ArrayList<Label> labels { get; set; default = new ArrayList<Label> (); }
+    public Serialize.Array<Label> labels { get; set; default = new Serialize.Array<Label> (); }
 
     public bool available { get; set; }
 
@@ -65,28 +65,28 @@ public class Tape.YaMAPI.Album : Serialize.DataObject, HasCover, HasID {
 
     public bool very_important { get; set; }
 
-    public ArrayList<int> bests { get; set; default = new ArrayList<int> (); }
+    public Serialize.Array<int> bests { get; set; default = new Serialize.Array<int> (); }
 
-    public ArrayList<Album> duplicates { get; set; default = new ArrayList<Album> (); }
+    public Serialize.Array<Album> duplicates { get; set; default = new Serialize.Array<Album> (); }
 
-    public ArrayList<ArrayList<Track> > volumes { get; set; default = new ArrayList<ArrayList<Track> > (); }
+    public Serialize.Array<Serialize.Array<Track> > volumes { get; set; default = new Serialize.Array<Serialize.Array<Track> > (); }
 
     public int year { get; set; }
 
     public string? release_date { get; set; }
 
-    public ArrayList<Album> albums { get; set; default = new ArrayList<Album> (); }
+    public Serialize.Array<Album> albums { get; set; default = new Serialize.Array<Album> (); }
 
     public int duration_ms { get; set; }
 
     public int likes_count { get; set; }
 
     construct {
-        volumes.add (new ArrayList<Track> ());
+        volumes.add (new Serialize.Array<Track> ());
     }
 
-    public ArrayList<string> get_cover_items_by_size (int size) {
-        ArrayList<string> cover_array = new ArrayList<string> ();
+    public Serialize.Array<string> get_cover_items_by_size (int size) {
+        Serialize.Array<string> cover_array = new Serialize.Array<string> ();
 
         if (cover_uri == null) {
             return cover_array;

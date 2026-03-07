@@ -27,11 +27,11 @@ public class Tape.YaMAPI.Lyrics : Serialize.DataObject {
 
     public string? external_lyric_id { get; set; }
 
-    public ArrayList<string> writers { get; set; default = new ArrayList<string> (); }
+    public Serialize.Array<string> writers { get; set; default = new Serialize.Array<string> (); }
 
     public LyricsMajor? major { get; set; }
 
-    public ArrayList<string> text { get; set; default = new ArrayList<string> (); }
+    public Serialize.Array<string> text { get; set; default = new Serialize.Array<string> (); }
 
     public bool is_sync { get; set; }
 

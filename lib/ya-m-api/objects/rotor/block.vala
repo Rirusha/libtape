@@ -33,5 +33,5 @@ public class Tape.YaMAPI.Rotor.Block : Serialize.DataObject {
     /**
      *
      */
-    public ArrayList<StationInfo> items { get; set; default = new ArrayList<StationInfo> (); }
+    public Serialize.Array<StationInfo> items { get; set; default = new Serialize.Array<StationInfo> (); }
 }

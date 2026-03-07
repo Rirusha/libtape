@@ -655,68 +655,68 @@ public class Tape.Storager : Object {
         return build_type.name () + "-" + oid;
     }
 
-    public async YaMAPI.HasTracks[] get_saved_objects () {
-        var obj_arr = new Array<YaMAPI.HasTracks> ();
+    //  public async YaMAPI.HasTracks[] get_saved_objects () {
+    //      var obj_arr = new Array<YaMAPI.HasTracks> ();
 
-        try {
-            FileEnumerator? enumerator = objects_datadir_file.enumerate_children (
-                "standard::*",
-                FileQueryInfoFlags.NONE,
-                null
-            );
+    //      try {
+    //          FileEnumerator? enumerator = objects_datadir_file.enumerate_children (
+    //              "standard::*",
+    //              FileQueryInfoFlags.NONE,
+    //              null
+    //          );
 
-            if (enumerator != null) {
-                FileInfo? file_info = null;
+    //          if (enumerator != null) {
+    //              FileInfo? file_info = null;
 
-                string filename;
-                File file;
-                string decoded_name;
-                Type obj_type;
+    //              string filename;
+    //              File file;
+    //              string decoded_name;
+    //              Type obj_type;
 
-                while ((file_info = enumerator.next_file ()) != null) {
-                    filename = file_info.get_name ();
-                    file = File.new_build_filename (objects_datadir_file.peek_path (), filename);
+    //              while ((file_info = enumerator.next_file ()) != null) {
+    //                  filename = file_info.get_name ();
+    //                  file = File.new_build_filename (objects_datadir_file.peek_path (), filename);
 
-                    decoded_name = (string) (Base64.decode (filename));
+    //                  decoded_name = (string) (Base64.decode (filename));
 
-                    if ((typeof (YaMAPI.Playlist)).name () in decoded_name) {
-                        obj_type = typeof (YaMAPI.Playlist);
-                    } else if ((typeof (YaMAPI.Album)).name () in decoded_name) {
-                        obj_type = typeof (YaMAPI.Album);
-                    } else {
-                        continue;
-                    }
+    //                  if ((typeof (YaMAPI.Playlist)).name () in decoded_name) {
+    //                      obj_type = typeof (YaMAPI.Playlist);
+    //                  } else if ((typeof (YaMAPI.Album)).name () in decoded_name) {
+    //                      obj_type = typeof (YaMAPI.Album);
+    //                  } else {
+    //                      continue;
+    //                  }
 
-                    uint8[] idata;
-                    yield file.load_contents_async (
-                        null,
-                        out idata,
-                        null
-                    );
+    //                  uint8[] idata;
+    //                  yield file.load_contents_async (
+    //                      null,
+    //                      out idata,
+    //                      null
+    //                  );
 
-                    simple_dencode (ref idata);
+    //                  simple_dencode (ref idata);
 
-                    var jsoner = new Serialize.Jsoner.from_data (idata);
+    //                  var jsoner = new Serialize.Jsoner.from_data (idata);
 
-                    try {
-                        obj_arr.append_val (yield jsoner.deserialize_object_async<YaMAPI.HasTracks> ());
+    //                  try {
+    //                      obj_arr.append_val (yield jsoner.deserialize_object_async<YaMAPI.HasTracks> ());
 
-                    } catch (Serialize.JsonError e) {
-                        warning ("Can't parse object. Error message: %s", e.message);
-                    }
-                }
-            }
+    //                  } catch (Serialize.JsonError e) {
+    //                      warning ("Can't parse object. Error message: %s", e.message);
+    //                  }
+    //              }
+    //          }
 
-        } catch (Error e) {
-            warning (
-                "Can't find '%s'. Error message: %s",
-                objects_datadir_file.peek_path (),
-                e.message
-            );
-        }
+    //      } catch (Error e) {
+    //          warning (
+    //              "Can't find '%s'. Error message: %s",
+    //              objects_datadir_file.peek_path (),
+    //              e.message
+    //          );
+    //      }
 
-        return obj_arr.data;
-    }
+    //      return obj_arr.data;
+    //  }
 
     File get_object_cache_file (
         Type obj_type,

@@ -19,7 +19,7 @@ using Gee;
 
 public class Tape.Jober : Object {
 
-    public ArrayList<Job> job_list { get; default = new ArrayList<Job> (); }
+    public Serialize.Array<Job> job_list { get; default = new Serialize.Array<Job> (); }
 
     public signal void job_created (Job job);
 

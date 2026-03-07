@@ -69,7 +69,7 @@ public sealed class Tape.LikesHandler : Object {
         _disliked_artists.set_iterator (filter_and_map (ids.artists, -1));
     }
 
-    Iterator<string> filter_and_map (HashMap<string, int> map, int filter_value) {
+    Iterator<string> filter_and_map (Serialize.Dict<int> map, int filter_value) {
         return map.filter ((pred) => {
             return pred.value == filter_value;
         }).map<string> ((pred) => {

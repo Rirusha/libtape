@@ -27,7 +27,7 @@ public sealed class Tape.PlayerEmpty : PlayerMode {
 
     construct {
         player.queue_changed (
-            new Gee.ArrayList<YaMAPI.Track> (),
+            new Serialize.Array<YaMAPI.Track> (),
             "various",
             null,
             -1,

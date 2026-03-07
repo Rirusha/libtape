@@ -31,7 +31,7 @@ public sealed class Tape.PlayerFlow : PlayerMode {
 
     public PlayerFlow (Player player,
                        string station_id,
-                       ArrayList<YaMAPI.Track> queue) {
+                       Serialize.Array<YaMAPI.Track> queue) {
         Object (
             player: player,
             station_id: station_id,
@@ -83,7 +83,7 @@ public sealed class Tape.PlayerFlow : PlayerMode {
     async YaMAPI.Track? get_next_track_async () throws CantUseError {
         YaMAPI.Track? next_track = null;
 
-        ArrayList<string> track_ids = new ArrayList<string> ();
+        Serialize.Array<string> track_ids = new Serialize.Array<string> ();
 
         foreach (var track_info in queue) {
             track_ids.add (track_info.id);

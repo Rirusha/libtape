@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class Tape.YaMAPI.SimilarTracks : Serialize.DataObject, HasID, HasTracks {
+public class Tape.YaMAPI.SimilarTracks : Serialize.DataObject, HasID {
 
     public string oid {
         owned get {
@@ -29,14 +29,14 @@ public class Tape.YaMAPI.SimilarTracks : Serialize.DataObject, HasID, HasTracks 
 
     public Track track { get; set; }
 
-    public ArrayList<Track> similar_tracks { get; set; default = new ArrayList<Track> (); }
+    public Serialize.Array<Track> similar_tracks { get; set; default = new Serialize.Array<Track> (); }
 
-    public Gee.ArrayList<YaMAPI.Track> get_filtered_track_list (
+    public Serialize.Array<YaMAPI.Track> get_filtered_track_list (
         bool with_explicit,
         bool with_child,
         string[] exception_tracks_ids = new string[0]
     ) {
-        var out_track_list = new ArrayList<Track> ();
+        var out_track_list = new Serialize.Array<Track> ();
 
         foreach (var similar_track in similar_tracks) {
             if ((similar_track.available &&

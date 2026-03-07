@@ -27,7 +27,7 @@ public class Tape.YaMAPI.Rotor.SessionNew : Serialize.DataObject {
     /**
      *
      */
-    public ArrayList<string> seeds { get; set; default = new ArrayList<string> (); }
+    public Serialize.Array<string> seeds { get; set; default = new Serialize.Array<string> (); }
 
     /**
      *

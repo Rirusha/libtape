@@ -127,8 +127,8 @@ public class Tape.YaMAPI.Account.About : Serialize.DataObject, HasCover, HasID {
         );
     }
 
-    public Gee.ArrayList<string> get_cover_items_by_size (int size) {
-        var uris = new Gee.ArrayList<string> ();
+    public Serialize.Array<string> get_cover_items_by_size (int size) {
+        var uris = new Serialize.Array<string> ();
 
         string avatar_uri = get_avatar_uri (size);
         if (avatar_uri != null) {

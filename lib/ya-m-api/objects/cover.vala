@@ -21,10 +21,10 @@ using Gee;
 
 public class Tape.YaMAPI.Cover : Serialize.DataObject {
 
-    public ArrayList<string> uris {
+    public Serialize.Array<string> uris {
         owned get {
             if (uri != null) {
-                return new ArrayList<string>.wrap ({ uri });
+                return new Serialize.Array<string>.wrap ({ uri });
             } else {
                 return items_uri;
             }
@@ -34,7 +34,7 @@ public class Tape.YaMAPI.Cover : Serialize.DataObject {
     [Description (nick = "type")]
     public string? type_ { get; set; }
 
-    public ArrayList<string> items_uri { get; set; default = new ArrayList<string> (); }
+    public Serialize.Array<string> items_uri { get; set; default = new Serialize.Array<string> (); }
 
     public string? uri { get; set; default = null; }
 

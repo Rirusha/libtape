@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class Tape.YaMAPI.Playlist : Serialize.DataObject, HasCover, HasID, HasTracks {
+public class Tape.YaMAPI.Playlist : Serialize.DataObject, HasCover, HasID {
 
     public bool is_public {
         get {
@@ -57,7 +57,7 @@ public class Tape.YaMAPI.Playlist : Serialize.DataObject, HasCover, HasID, HasTr
 
     public Cover cover { get; set; default = new Cover.empty (); }
 
-    public ArrayList<TrackShort> tracks { get; set; default = new ArrayList<TrackShort> (); }
+    public Serialize.Array<TrackShort> tracks { get; set; default = new Serialize.Array<TrackShort> (); }
 
     public MadeFor? made_for { get; set; }
 
@@ -79,9 +79,9 @@ public class Tape.YaMAPI.Playlist : Serialize.DataObject, HasCover, HasID, HasTr
 
     public int likes_count { get; set; }
 
-    public ArrayList<Playlist> similar_playlists { get; set; default = new ArrayList<Playlist> (); }
+    public Serialize.Array<Playlist> similar_playlists { get; set; default = new Serialize.Array<Playlist> (); }
 
-    public ArrayList<Playlist> last_owner_playlists { get; set; default = new ArrayList<Playlist> (); }
+    public Serialize.Array<Playlist> last_owner_playlists { get; set; default = new Serialize.Array<Playlist> (); }
 
     public string? generated_playlist_type { get; set; }
 
@@ -99,7 +99,7 @@ public class Tape.YaMAPI.Playlist : Serialize.DataObject, HasCover, HasID, HasTr
     }
 
     public void filter_by_track_type (TrackType track_type) {
-        var new_track_list = new ArrayList<TrackShort> ();
+        var new_track_list = new Serialize.Array<TrackShort> ();
 
         foreach (TrackShort track_short in tracks) {
             if (track_short.track.track_type == track_type) {
@@ -110,12 +110,12 @@ public class Tape.YaMAPI.Playlist : Serialize.DataObject, HasCover, HasID, HasTr
         tracks = new_track_list;
     }
 
-    public Gee.ArrayList<YaMAPI.Track> get_filtered_track_list (
+    public Serialize.Array<YaMAPI.Track> get_filtered_track_list (
         bool with_explicit,
         bool with_child,
         string[] exception_tracks_ids = new string[0]
     ) {
-        var out_track_list = new ArrayList<Track> ();
+        var out_track_list = new Serialize.Array<Track> ();
 
         foreach (TrackShort track_short in tracks) {
             if ((track_short.track.available &&
@@ -130,14 +130,14 @@ public class Tape.YaMAPI.Playlist : Serialize.DataObject, HasCover, HasID, HasTr
         return out_track_list;
     }
 
-    public void set_track_list (ArrayList<Track> track_list) {
+    public void set_track_list (Serialize.Array<Track> track_list) {
         for (int i = 0; i < track_list.size; i++) {
             tracks[i].track = track_list[i];
         }
     }
 
-    public ArrayList<Track> get_track_list () {
-        var track_list = new ArrayList<Track> ();
+    public Serialize.Array<Track> get_track_list () {
+        var track_list = new Serialize.Array<Track> ();
         foreach (TrackShort track_short in tracks) {
             track_list.add (track_short.track);
         }
@@ -145,7 +145,7 @@ public class Tape.YaMAPI.Playlist : Serialize.DataObject, HasCover, HasID, HasTr
         return track_list;
     }
 
-    public ArrayList<string> get_cover_items_by_size (int size) {
+    public Serialize.Array<string> get_cover_items_by_size (int size) {
         if (kind == "3") {
             cover = new Cover.liked ();
         }
@@ -154,7 +154,7 @@ public class Tape.YaMAPI.Playlist : Serialize.DataObject, HasCover, HasID, HasTr
             cover = new Cover.empty ();
         }
 
-        ArrayList<string> cover_array = new ArrayList<string> ();
+        Serialize.Array<string> cover_array = new Serialize.Array<string> ();
 
         foreach (string uri in cover.uris) {
             cover_array.add ("https://" + uri.replace ("%%", @"$(size)x$(size)"));

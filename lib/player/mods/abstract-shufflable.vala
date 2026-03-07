@@ -24,7 +24,7 @@ using Gee;
  */
 public abstract class Tape.PlayerShufflable : PlayerMode {
 
-    ArrayList<YaMAPI.Track> original_queue { get; set; default = new ArrayList<YaMAPI.Track> (); }
+    Serialize.Array<YaMAPI.Track> original_queue { get; set; default = new Serialize.Array<YaMAPI.Track> (); }
 
     public signal void sh_queue_changed ();
 
@@ -41,7 +41,7 @@ public abstract class Tape.PlayerShufflable : PlayerMode {
 
         var current_track = get_current_track_info ();
 
-        ArrayList<YaMAPI.Track> shuffled_queue = new ArrayList<YaMAPI.Track> ();
+        Serialize.Array<YaMAPI.Track> shuffled_queue = new Serialize.Array<YaMAPI.Track> ();
 
         shuffled_queue.add_all (queue);
         queue.clear ();
@@ -117,7 +117,7 @@ public abstract class Tape.PlayerShufflable : PlayerMode {
         sh_queue_changed ();
     }
 
-    public void add_many_end (ArrayList<YaMAPI.Track> track_list) {
+    public void add_many_end (Serialize.Array<YaMAPI.Track> track_list) {
         queue.add_all (track_list);
         original_queue.add_all (track_list);
 

@@ -164,8 +164,8 @@ public class Job : Object {
 
         //  var storager = root.cachier.storager;
 
-        //  var need_cache_track_ids = new Gee.ArrayList<string> ();
-        //  var need_uncache_tracks = new Gee.ArrayList<YaMAPI.Track> ();
+        //  var need_cache_track_ids = new Serialize.Array<string> ();
+        //  var need_uncache_tracks = new Serialize.Array<YaMAPI.Track> ();
 
         //  var track_list = yam_object.get_filtered_track_list (true, true);
 

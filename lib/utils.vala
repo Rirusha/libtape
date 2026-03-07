@@ -362,9 +362,9 @@ namespace Tape {
         /**
          * Shuffle list.
          *
-         * @param list   `Gee.ArrayList' need to shuffle
+         * @param list   `Serialize.Array' need to shuffle
          */
-        public void shuffle (ref Gee.ArrayList<T> list) {
+        public void shuffle (ref Serialize.Array<T> list) {
             for (int i = 0; i < list.size; i++) {
                 int random_index = Random.int_range (0, list.size);
                 T a = list[i];

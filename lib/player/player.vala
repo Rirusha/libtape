@@ -121,7 +121,7 @@ public sealed class Tape.Player : Object {
     }
 
     public signal void queue_changed (
-        ArrayList<YaMAPI.Track> queue,
+        Serialize.Array<YaMAPI.Track> queue,
         string context_type,
         string? context_id,
         int current_index,
@@ -313,7 +313,7 @@ public sealed class Tape.Player : Object {
 
     public async void start_flow (
         string station_id,
-        ArrayList<YaMAPI.Track> queue = new ArrayList<YaMAPI.Track> ()
+        Serialize.Array<YaMAPI.Track> queue = new Serialize.Array<YaMAPI.Track> ()
     ) throws CantUseError {
         stop ();
 
@@ -321,7 +321,7 @@ public sealed class Tape.Player : Object {
             repeat_mode = RepeatMode.OFF;
         }
 
-        var flow_queue = new ArrayList<YaMAPI.Track> ();
+        var flow_queue = new Serialize.Array<YaMAPI.Track> ();
 
         foreach (var track_info in queue) {
             if (!track_info.is_ugc) {
@@ -348,7 +348,7 @@ public sealed class Tape.Player : Object {
         }
     }
 
-    public void start_track_list (ArrayList<YaMAPI.Track> queue,
+    public void start_track_list (Serialize.Array<YaMAPI.Track> queue,
                                   string context_type,
                                   string? context_id,
                                   int current_index,
@@ -548,15 +548,15 @@ public sealed class Tape.Player : Object {
     void cache_next_track () {
         var next_track = mode.get_next_track_info (false);
 
-        if (next_track != mode.get_current_track_info () && next_track != null) {
-            Cachier.save_track.begin (next_track);
-        }
+        //  if (next_track != mode.get_current_track_info () && next_track != null) {
+        //      Cachier.save_track.begin (next_track);
+        //  }
     }
 
     public void add_track (YaMAPI.Track track_info,
                            bool is_next) {
         if (mode is PlayerEmpty) {
-            var track_list = new ArrayList<YaMAPI.Track> ();
+            var track_list = new Serialize.Array<YaMAPI.Track> ();
             track_list.add (track_info);
 
             add_many (track_list);
@@ -580,7 +580,7 @@ public sealed class Tape.Player : Object {
         }
     }
 
-    public void add_many (ArrayList<YaMAPI.Track> track_list) {
+    public void add_many (Serialize.Array<YaMAPI.Track> track_list) {
         if (mode is PlayerEmpty) {
             start_track_list (
                 track_list,

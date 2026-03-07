@@ -27,5 +27,5 @@ public class Tape.YaMAPI.Plays : Serialize.DataObject {
     /**
      *
      */
-    public ArrayList<Play> plays { get; set; default = new ArrayList<Play> (); }
+    public Serialize.Array<Play> plays { get; set; default = new Serialize.Array<Play> (); }
 }

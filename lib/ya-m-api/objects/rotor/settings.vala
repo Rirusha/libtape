@@ -32,7 +32,7 @@ public class Tape.YaMAPI.Rotor.Settings : Serialize.DataObject {
     /**
      *
      */
-    public ArrayList<Block> blocks { get; set; default = new ArrayList<Block> (); }
+    public Serialize.Array<Block> blocks { get; set; default = new Serialize.Array<Block> (); }
 
     /**
      *

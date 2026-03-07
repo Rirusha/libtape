@@ -18,22 +18,23 @@
  */
 
 using Gee;
+using Serialize;
 
 public class Tape.YaMAPI.Library.AllIds : Serialize.DataObject {
 
-    public HashMap<string, int> default_library { get; set; default = new HashMap<string, int> (); }
+    public Dict<int> default_library { get; set; default = new Dict<int> (); }
 
-    public HashMap<string, int> artists { get; set; default = new HashMap<string, int> (); }
+    public Dict<int> artists { get; set; default = new Dict<int> (); }
 
-    public HashMap<string, int> albums { get; set; default = new HashMap<string, int> (); }
+    public Dict<int> albums { get; set; default = new Dict<int> (); }
 
-    public HashMap<string, int> playlists { get; set; default = new HashMap<string, int> (); }
+    public Dict<int> playlists { get; set; default = new Dict<int> (); }
 
-    public HashMap<string, int> users { get; set; default = new HashMap<string, int> (); }
+    public Dict<int> users { get; set; default = new Dict<int> (); }
 
-    public HashMap<string, int> genres { get; set; default = new HashMap<string, int> (); }
+    public Dict<int> genres { get; set; default = new Dict<int> (); }
 
-    public HashMap<string, int> labels { get; set; default = new HashMap<string, int> (); }
+    public Dict<int> labels { get; set; default = new Dict<int> (); }
 
-    public HashMap<string, int> library { get; set; default = new HashMap<string, int> (); }
+    public Dict<int> library { get; set; default = new Dict<int> (); }
 }

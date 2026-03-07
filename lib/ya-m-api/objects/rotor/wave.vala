@@ -37,7 +37,7 @@ public class Tape.YaMAPI.Rotor.Wave : Serialize.DataObject {
     /**
      *
      */
-    public ArrayList<string> seeds { get; set; default = new ArrayList<string> (); }
+    public Serialize.Array<string> seeds { get; set; default = new Serialize.Array<string> (); }
 
     /**
      *

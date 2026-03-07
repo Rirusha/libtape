@@ -40,7 +40,7 @@ public class Tape.YaMAPI.Rotor.ValueHeap : Serialize.DataObject {
     /**
      * Possible values (for 'enum').
      */
-    public ArrayList<Rotor.Value> possible_values { get; set; default = new ArrayList<Rotor.Value> (); }
+    public Serialize.Array<Rotor.Value> possible_values { get; set; default = new Serialize.Array<Rotor.Value> (); }
 
     /**
      * Minimum value. (for 'discrete-scale')

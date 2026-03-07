@@ -375,8 +375,8 @@ public sealed class Tape.YaMHelper : Object {
     //      }
     //  }
 
-    //  public async Gee.ArrayList<Playlist>? get_playlist_list (string? uid = null) throws CantUseError {
-    //      Gee.ArrayList<Playlist>? playlist_list = null;
+    //  public async Serialize.Array<Playlist>? get_playlist_list (string? uid = null) throws CantUseError {
+    //      Serialize.Array<Playlist>? playlist_list = null;
 
     //      try {
     //          playlist_list = yield client.users_playlists_list (uid);
@@ -396,8 +396,8 @@ public sealed class Tape.YaMHelper : Object {
     //      return playlist_list;
     //  }
 
-    //  public async Gee.ArrayList<LikedPlaylist>? get_likes_playlist_list (string? uid = null) throws CantUseError {
-    //      Gee.ArrayList<LikedPlaylist>? playlist_list = null;
+    //  public async Serialize.Array<LikedPlaylist>? get_likes_playlist_list (string? uid = null) throws CantUseError {
+    //      Serialize.Array<LikedPlaylist>? playlist_list = null;
 
     //      try {
     //          playlist_list = yield client.users_likes_playlists (uid);
@@ -428,7 +428,7 @@ public sealed class Tape.YaMHelper : Object {
     //      try {
     //          lyrics = yield client.track_lyrics (track_id, is_sync);
     //          var txt = yield load_text (lyrics.download_url);
-    //          lyrics.text = new Gee.ArrayList<string>.wrap (txt.split ("\n"));
+    //          lyrics.text = new Serialize.Array<string>.wrap (txt.split ("\n"));
     //      } catch (Error e) {
     //          postrun_error_ignore_bad_code (e);
     //      }
@@ -597,8 +597,8 @@ public sealed class Tape.YaMHelper : Object {
     //      return new_playlist;
     //  }
 
-    //  async Gee.ArrayList<YaMAPI.TrackShort>? get_disliked_tracks_short () throws CantUseError {
-    //      Gee.ArrayList<YaMAPI.TrackShort>? trackshort_list = null;
+    //  async Serialize.Array<YaMAPI.TrackShort>? get_disliked_tracks_short () throws CantUseError {
+    //      Serialize.Array<YaMAPI.TrackShort>? trackshort_list = null;
 
     //      try {
     //          trackshort_list = yield client.users_dislikes_tracks (null);
@@ -675,7 +675,7 @@ public sealed class Tape.YaMHelper : Object {
 
     //  public async Rotor.StationTracks? get_session_tracks (
     //      string radio_session_id,
-    //      Gee.ArrayList<string> queue
+    //      Serialize.Array<string> queue
     //  ) throws CantUseError {
     //      Rotor.StationTracks? station_tracks = null;
 
@@ -704,8 +704,8 @@ public sealed class Tape.YaMHelper : Object {
     //      return dashboard;
     //  }
 
-    //  public async Gee.ArrayList<YaMAPI.Rotor.Station>? get_all_stations () throws CantUseError {
-    //      Gee.ArrayList<YaMAPI.Rotor.Station>? stations_list = null;
+    //  public async Serialize.Array<YaMAPI.Rotor.Station>? get_all_stations () throws CantUseError {
+    //      Serialize.Array<YaMAPI.Rotor.Station>? stations_list = null;
 
     //      try {
     //          stations_list = yield client.rotor_stations_list ();

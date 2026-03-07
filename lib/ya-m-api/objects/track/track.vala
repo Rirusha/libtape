@@ -81,9 +81,9 @@ public class Tape.YaMAPI.Track : Serialize.DataObject, HasCover {
 
     public bool available { get; set; }
 
-    public ArrayList<Artist> artists { get; set; default = new ArrayList<Artist> (); }
+    public Serialize.Array<Artist> artists { get; set; default = new Serialize.Array<Artist> (); }
 
-    public ArrayList<Album> albums { get; set; default = new ArrayList<Album> (); }
+    public Serialize.Array<Album> albums { get; set; default = new Serialize.Array<Album> (); }
 
     public bool available_for_premium_users { get; set; }
 
@@ -112,12 +112,12 @@ public class Tape.YaMAPI.Track : Serialize.DataObject, HasCover {
 
     public string track_source { get; set; }
 
-    public ArrayList<string> available_for_options { get; set; default = new ArrayList<string> (); }
+    public Serialize.Array<string> available_for_options { get; set; default = new Serialize.Array<string> (); }
 
     public LyricsInfo lyrics_info { get; set; }
 
-    public virtual ArrayList<string> get_cover_items_by_size (int size) {
-        var array = new ArrayList<string> ();
+    public virtual Serialize.Array<string> get_cover_items_by_size (int size) {
+        var array = new Serialize.Array<string> ();
         if (cover_uri != null) {
             array.add ("https://" + cover_uri.replace ("%%", @"$(size)x$(size)"));
         }

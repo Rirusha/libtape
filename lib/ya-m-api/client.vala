@@ -406,7 +406,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     /**
      *
      */
-    public async Gee.ArrayList<Playlist> users_playlists_list (
+    public async Serialize.Array<Playlist> users_playlists_list (
         string? uid = null,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null
@@ -737,7 +737,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //  /**
     //   *
     //   */
-    //  public async Gee.ArrayList<LikedPlaylist> users_likes_playlists (
+    //  public async Serialize.Array<LikedPlaylist> users_likes_playlists (
     //      string? uid = null,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
@@ -754,7 +754,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //      );
     //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
-    //      var playlist_array = new Gee.ArrayList<LikedPlaylist> ();
+    //      var playlist_array = new Serialize.Array<LikedPlaylist> ();
     //      yield jsoner.deserialize_array_into_async (playlist_array);
     //      return playlist_array;
     //  }
@@ -819,7 +819,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //      return 0;
     //  }
 
-    //  public async Gee.ArrayList<TrackShort> users_dislikes_tracks (
+    //  public async Serialize.Array<TrackShort> users_dislikes_tracks (
     //      string? uid,
     //      int if_modified_since_revision = 0,
     //      int priority = Priority.DEFAULT,
@@ -840,7 +840,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //      );
     //      var jsoner = new Jsoner.from_bytes (bytes, { "result", "library", "tracks" });
 
-    //      var our_array = new Gee.ArrayList<TrackShort> ();
+    //      var our_array = new Serialize.Array<TrackShort> ();
     //      yield jsoner.deserialize_array_into_async (our_array);
 
     //      return our_array;
@@ -1488,7 +1488,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //      return (Dashboard) yield jsoner.deserialize_object_async (typeof (Dashboard));
     //  }
 
-    //  public async Gee.ArrayList<Station> rotor_stations_list (
+    //  public async Serialize.Array<Station> rotor_stations_list (
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
     //  ) throws SoupError, JsonError, BadStatusCodeError {
@@ -1504,7 +1504,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //      );
     //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
-    //      var sl_array = new Gee.ArrayList<Station> ();
+    //      var sl_array = new Serialize.Array<Station> ();
     //      yield jsoner.deserialize_array_into_async (sl_array);
 
     //      return sl_array;
@@ -1677,7 +1677,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //      assert_not_reached ();
     //  }
 
-    public async Gee.ArrayList<Track> tracks (
+    public async Serialize.Array<Track> tracks (
         string[] id_list,
         bool with_positions = false,
         int priority = Priority.DEFAULT,
@@ -1736,7 +1736,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //      );
     //  }
 
-    //  public async Gee.ArrayList<DownloadInfo> tracks_download_info (
+    //  public async Serialize.Array<DownloadInfo> tracks_download_info (
     //      string track_id,
     //      int priority = Priority.DEFAULT,
     //      Cancellable? cancellable = null
@@ -1751,7 +1751,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //      );
     //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
-    //      var di_array = new Gee.ArrayList<DownloadInfo> ();
+    //      var di_array = new Serialize.Array<DownloadInfo> ();
     //      yield jsoner.deserialize_array_into_async (di_array);
 
     //      return di_array;

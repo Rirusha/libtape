@@ -53,14 +53,14 @@ public sealed class Tape.Cachier : Object {
 
 
 
-    public async static void save_track (YaMAPI.Track track_info) {
-        //  /**
-        //      Функция удобства, объединяющая сохранение аудио и изображения
-        //   */
+    //  public async static void save_track (YaMAPI.Track track_info) {
+    //      //  /**
+    //      //      Функция удобства, объединяющая сохранение аудио и изображения
+    //      //   */
 
-        //  download_audio_async.begin (track_info.id);
-        //  get_image.begin (track_info, CoverSize.SMALL);
-    }
+    //      //  download_audio_async.begin (track_info.id);
+    //      //  get_image.begin (track_info, CoverSize.SMALL);
+    //  }
 
     public async static void download_audio_async (
         string track_id,
@@ -150,7 +150,7 @@ public sealed class Tape.Cachier : Object {
         //      Если арт не был сохранен, то сохраняет его
         //   */
 
-        //  Gee.ArrayList<string> cover_uris = yam_object.get_cover_items_by_size (size);
+        //  Serialize.Array<string> cover_uris = yam_object.get_cover_items_by_size (size);
         //  if (cover_uris.size == 0) {
         //      return null;
         //  }

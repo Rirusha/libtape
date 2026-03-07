@@ -23,12 +23,12 @@ public class Tape.YaMAPI.InsertOperation : Object {
 
     public int at { get; construct; }
 
-    public ArrayList<Track> tracks { get; set; }
+    public Serialize.Array<Track> tracks { get; set; }
 
     public InsertOperation (int at, Track[] tracks) {
         Object (
             at: at,
-            tracks: new ArrayList<Track>.wrap (tracks)
+            tracks: new Serialize.Array<Track>.wrap (tracks)
         );
     }
 }
@@ -46,8 +46,8 @@ public class Tape.YaMAPI.DeleteOperation : Object {
 
 public class Tape.YaMAPI.DifferenceBuilder : Object {
 
-    ArrayList<DeleteOperation> delete_operations = new ArrayList<DeleteOperation> ();
-    ArrayList<InsertOperation> insert_operations = new ArrayList<InsertOperation> ();
+    Serialize.Array<DeleteOperation> delete_operations = new Serialize.Array<DeleteOperation> ();
+    Serialize.Array<InsertOperation> insert_operations = new Serialize.Array<InsertOperation> ();
 
     public void add_insert (int at, Track[] tracks) {
         insert_operations.add (new InsertOperation (at, tracks));

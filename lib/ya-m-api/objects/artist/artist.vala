@@ -39,7 +39,7 @@ public class Tape.YaMAPI.Artist : Serialize.DataObject, HasID {
 
     public bool composer { get; set; }
 
-    public ArrayList<string> genres { get; set; default = new ArrayList<string> (); }
+    public Serialize.Array<string> genres { get; set; default = new Serialize.Array<string> (); }
 
     public Counts? counts { get; set; }
 
@@ -47,24 +47,24 @@ public class Tape.YaMAPI.Artist : Serialize.DataObject, HasID {
 
     public Ratings? ratings { get; set; }
 
-    public ArrayList<Link> links { get; set; default = new ArrayList<Link> (); }
+    public Serialize.Array<Link> links { get; set; default = new Serialize.Array<Link> (); }
 
     public int likes_count { get; set; }
 
-    public ArrayList<Track> popular_tracks { get; set; default = new ArrayList<Track> (); }
+    public Serialize.Array<Track> popular_tracks { get; set; default = new Serialize.Array<Track> (); }
 
     public string? hand_made_description { get; set; }
 
     public string? description { get; set; }
 
-    public ArrayList<string> countries { get; set; default = new ArrayList<string> (); }
+    public Serialize.Array<string> countries { get; set; default = new Serialize.Array<string> (); }
 
     public string? en_wikipedia_link { get; set; }
 
     public string? ya_money_id { get; set; }
 
-    public ArrayList<string> get_cover_items_by_size (int size) {
-        ArrayList<string> cover_array = new ArrayList<string> ();
+    public Serialize.Array<string> get_cover_items_by_size (int size) {
+        Serialize.Array<string> cover_array = new Serialize.Array<string> ();
 
         if (cover == null) {
             return cover_array;
