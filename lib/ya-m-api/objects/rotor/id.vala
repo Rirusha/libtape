@@ -35,6 +35,7 @@ public class Tape.YaMAPI.Rotor.Id : Serialize.DataObject {
     /**
      * Тип станции
      */
+    [Description (nick = "type")]
     public string type_ { get; set; }
 
     /**

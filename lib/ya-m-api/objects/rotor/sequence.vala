@@ -25,6 +25,7 @@ public class Tape.YaMAPI.Rotor.Sequence : Serialize.DataObject {
     /**
      * Track type.
      */
+    [Description (nick = "type")]
     public string type_ { get; set; }
 
     /**

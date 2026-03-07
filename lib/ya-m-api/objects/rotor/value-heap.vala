@@ -29,6 +29,7 @@ public class Tape.YaMAPI.Rotor.ValueHeap : Serialize.DataObject {
      * Data type.
      * Can be: 'discrete-scale', 'enum'.
      */
+    [Description (nick = "type")]
     public string type_ { get; set; }
 
     /**

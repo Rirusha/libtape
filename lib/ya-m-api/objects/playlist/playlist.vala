@@ -87,6 +87,7 @@ public class Tape.YaMAPI.Playlist : Serialize.DataObject, HasCover, HasID, HasTr
 
     public string? description { get; set; }
 
+    [Description (nick = "type")]
     public string? type_ { get; set; }
 
     public Playlist.liked () {

@@ -99,6 +99,7 @@ public class Tape.YaMAPI.Track : Serialize.DataObject, HasCover {
 
     public MetaData? meta_data { get; set; }
 
+    [Description (nick = "type")]
     public string? type_ { get; set; }
 
     public string? content_warning { get; set; }

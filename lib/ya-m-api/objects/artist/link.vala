@@ -21,6 +21,7 @@ public class Tape.YaMAPI.Link : Serialize.DataObject {
 
     public string? href { get; set; }
 
+    [Description (nick = "type")]
     public string? type_ { get; set; }
 
     public string? social_network { get; set; }

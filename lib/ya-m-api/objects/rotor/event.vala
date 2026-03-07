@@ -27,6 +27,7 @@ public class Tape.YaMAPI.Rotor.Event : Serialize.DataObject {
     /**
      * Feedback type.
      */
+    [Description (nick = "type")]
     public string type_ { get; set; }
 
     public string from { get; set; default = API_FROM; }

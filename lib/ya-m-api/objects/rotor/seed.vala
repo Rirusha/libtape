@@ -37,5 +37,6 @@ public class Tape.YaMAPI.Rotor.Seed : Serialize.DataObject {
     /**
      *
      */
+    [Description (nick = "type")]
     public string type_ { get; set; }
 }

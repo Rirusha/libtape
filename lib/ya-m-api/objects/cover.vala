@@ -31,6 +31,7 @@ public class Tape.YaMAPI.Cover : Serialize.DataObject {
         }
     }
 
+    [Description (nick = "type")]
     public string? type_ { get; set; }
 
     public ArrayList<string> items_uri { get; set; default = new ArrayList<string> (); }
