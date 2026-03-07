@@ -18,6 +18,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+/**
+ * Handle content of playlists, arti
+ */
 public sealed class Tape.ContentHandler : Object {
     
 }

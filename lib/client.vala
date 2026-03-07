@@ -56,6 +56,9 @@ public class Tape.Client : Object {
     }
 
     public async bool init (string? yam_token = null) throws CantUseError, ApiBase.BadStatusCodeError, ApiBase.SoupError {
+        var ser_settings = Serialize.get_settings ();
+        ser_settings.names_case = Serialize.Case.CAMEL;
+
         string? token = yam_token;
         string? cookies_path = null;
 
@@ -80,7 +83,7 @@ public class Tape.Client : Object {
 
         try {
             yield yam_helper.init ();
-        } catch (ApiBase.JsonError e) {
+        } catch (Serialize.JsonError e) {
             error (e.message);
         } catch (ApiBase.BadStatusCodeError e) {
             if (e is ApiBase.BadStatusCodeError.UNAUTHORIZED) {

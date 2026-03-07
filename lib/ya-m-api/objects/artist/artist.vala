@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class Tape.YaMAPI.Artist : ApiBase.DataObject, HasID {
+public class Tape.YaMAPI.Artist : Serialize.DataObject, HasID {
 
     public string oid {
         owned get {

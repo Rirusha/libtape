@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class Tape.YaMAPI.Library.AllIds : ApiBase.DataObject {
+public class Tape.YaMAPI.Library.AllIds : Serialize.DataObject {
 
     public HashMap<string, int> default_library { get; set; default = new HashMap<string, int> (); }
 

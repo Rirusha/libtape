@@ -19,6 +19,7 @@
 
 using Tape.YaMAPI.Rotor;
 using ApiBase;
+using Serialize;
 
 public sealed class Tape.YaMAPI.Client : Object {
 
@@ -47,7 +48,9 @@ public sealed class Tape.YaMAPI.Client : Object {
 
     public Client.with_token (string token) {
         Object (
-            session: new Session (USER_AGENT),
+            session: new Session () {
+                user_agent = USER_AGENT
+            },
             token: token,
             auth_type: AuthType.TOKEN
         );
@@ -69,7 +72,9 @@ public sealed class Tape.YaMAPI.Client : Object {
         }
 
         Object (
-            session: new Session (USER_AGENT),
+            session: new Session () {
+                user_agent = USER_AGENT
+            },
             cookie_jar_type: cookie_jar_type,
             cookies_path: cookie_path,
             auth_type: auth_type
@@ -112,15 +117,19 @@ public sealed class Tape.YaMAPI.Client : Object {
                 set_data ("host", "oauth.yandex.ru");
             }
 
-            PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
+            Content post_content = { ApiBase.ContentType.X_WWW_FORM_URLENCODED };
             post_content.set_datalist (datalist);
 
             var request = new Request.POST ("https://oauth.yandex.ru/token");
-            request.add_post_content (post_content);
+            request.add_content (post_content);
 
             var bytes = yield session.exec_async (request, priority, cancellable);
 
-            var jsoner = new Jsoner.from_bytes (bytes, { "access_token" }, Case.SNAKE);
+            var jsoner = new Jsoner.from_bytes (
+                bytes,
+                { "access_token" },
+                new Serialize.Settings () { names_case = Serialize.Case.SNAKE }
+            );
 
             var val = jsoner.deserialize_value ();
 
@@ -219,7 +228,7 @@ public sealed class Tape.YaMAPI.Client : Object {
             cancellable
         );
 
-        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
         return yield jsoner.deserialize_object_async<Account.About> ();
     }
@@ -258,7 +267,7 @@ public sealed class Tape.YaMAPI.Client : Object {
             priority,
             cancellable
         );
-        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
         return yield jsoner.deserialize_object_async<Playlist> ();
     }
@@ -413,7 +422,7 @@ public sealed class Tape.YaMAPI.Client : Object {
             priority,
             cancellable
         );
-        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
         return yield jsoner.deserialize_array_async<Playlist> ();
     }
@@ -441,7 +450,7 @@ public sealed class Tape.YaMAPI.Client : Object {
             priority,
             cancellable
         );
-        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
         return yield jsoner.deserialize_object_async<Playlist> ();
     }
@@ -477,7 +486,7 @@ public sealed class Tape.YaMAPI.Client : Object {
             cancellable
         );
 
-        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" });
         //  FIXME: Fix it
         //  if (jsoner.root != null) {
         //      return true;
@@ -502,13 +511,13 @@ public sealed class Tape.YaMAPI.Client : Object {
             set_data ("diff", diff);
         }
 
-        PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
+        Content post_content = { ApiBase.ContentType.X_WWW_FORM_URLENCODED };
         post_content.set_datalist (datalist);
 
         var request = new Request.POST (@"$(YAM_BASE_URL)/users/$real_uid/playlists/$kind/change");
         with (request) {
             presets = { "default" };
-            add_post_content (post_content);
+            add_content (post_content);
         }
 
         Bytes bytes = yield session.exec_async (
@@ -517,7 +526,7 @@ public sealed class Tape.YaMAPI.Client : Object {
             cancellable
         );
 
-        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
         return yield jsoner.deserialize_object_async<Playlist> ();
     }
@@ -537,13 +546,13 @@ public sealed class Tape.YaMAPI.Client : Object {
             set_data ("visibility", visibility.to_string ());
         }
 
-        PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
+        Content post_content = { ApiBase.ContentType.X_WWW_FORM_URLENCODED };
         post_content.set_datalist (datalist);
 
         var request = new Request.POST (@"$(YAM_BASE_URL)/users/$real_uid/playlists/create");
         with (request) {
             presets = { "default" };
-            add_post_content (post_content);
+            add_content (post_content);
         }
 
         Bytes bytes = yield session.exec_async (
@@ -552,7 +561,7 @@ public sealed class Tape.YaMAPI.Client : Object {
             cancellable
         );
 
-        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
         return yield jsoner.deserialize_object_async<Playlist> ();
     }
@@ -569,13 +578,13 @@ public sealed class Tape.YaMAPI.Client : Object {
         var datalist = Datalist<string> ();
         datalist.set_data ("value", new_name);
 
-        PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
+        Content post_content = { ApiBase.ContentType.X_WWW_FORM_URLENCODED };
         post_content.set_datalist (datalist);
 
         var request = new Request.POST (@"$(YAM_BASE_URL)/users/$real_uid/playlists/$kind/name");
         with (request) {
             presets = { "default" };
-            add_post_content (post_content);
+            add_content (post_content);
         }
 
         Bytes bytes = yield session.exec_async (
@@ -584,7 +593,7 @@ public sealed class Tape.YaMAPI.Client : Object {
             cancellable
         );
 
-        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
         return yield jsoner.deserialize_object_async<Playlist> ();
     }
@@ -607,7 +616,7 @@ public sealed class Tape.YaMAPI.Client : Object {
             cancellable
         );
 
-        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
         return yield jsoner.deserialize_object_async<PlaylistRecommendations> ();
     }
@@ -637,7 +646,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          cancellable
     //      );
 
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      return (Playlist) yield jsoner.deserialize_object_async (typeof (Playlist));
     //  }
@@ -674,7 +683,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          cancellable
     //      );
 
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      return (Playlist) yield jsoner.deserialize_object_async (typeof (Playlist));
     //  }
@@ -698,7 +707,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          cancellable
     //      );
 
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      return (Playlist) yield jsoner.deserialize_object_async (typeof (Playlist));
     //  }
@@ -743,7 +752,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      var playlist_array = new Gee.ArrayList<LikedPlaylist> ();
     //      yield jsoner.deserialize_array_into_async (playlist_array);
@@ -770,7 +779,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result", "revision" });
 
     //      var value = jsoner.deserialize_value ();
 
@@ -800,7 +809,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result", "revision" });
 
     //      var value = jsoner.deserialize_value ();
 
@@ -829,7 +838,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result", "library", "tracks" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result", "library", "tracks" });
 
     //      var our_array = new Gee.ArrayList<TrackShort> ();
     //      yield jsoner.deserialize_array_into_async (our_array);
@@ -859,7 +868,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result", "revision" });
 
     //      var value = jsoner.deserialize_value ();
 
@@ -889,7 +898,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result", "revision" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result", "revision" });
 
     //      var value = jsoner.deserialize_value ();
 
@@ -921,7 +930,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      var value = jsoner.deserialize_value ();
 
@@ -951,7 +960,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      var value = jsoner.deserialize_value ();
 
@@ -983,7 +992,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      var value = jsoner.deserialize_value ();
 
@@ -1013,7 +1022,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      var value = jsoner.deserialize_value ();
 
@@ -1045,7 +1054,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      var value = jsoner.deserialize_value ();
 
@@ -1075,7 +1084,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      var value = jsoner.deserialize_value ();
 
@@ -1111,7 +1120,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      var value = jsoner.deserialize_value ();
 
@@ -1141,7 +1150,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      var value = jsoner.deserialize_value ();
 
@@ -1211,7 +1220,7 @@ public sealed class Tape.YaMAPI.Client : Object {
             cancellable
         );
 
-        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
         return yield jsoner.deserialize_object_async<Library.AllIds> ();
     }
@@ -1312,7 +1321,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //  ) throws SoupError, JsonError, BadStatusCodeError {
     //      PostContent post_content = {
     //          PostContentType.JSON,
-    //          yield ApiBase.Jsoner.serialize_async (session_new, Case.CAMEL)
+    //          yield ApiBase.Jsoner.serialize_async (session_new)
     //      };
 
     //      Bytes bytes = yield session.post_async (
@@ -1325,7 +1334,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          cancellable
     //      );
 
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      return (StationTracks) yield jsoner.deserialize_object_async (typeof (StationTracks));
     //  }
@@ -1341,7 +1350,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //  ) throws SoupError, JsonError, BadStatusCodeError {
     //      PostContent post_content = {
     //          PostContentType.JSON,
-    //          yield ApiBase.Jsoner.serialize_async (queue, Case.CAMEL)
+    //          yield ApiBase.Jsoner.serialize_async (queue)
     //      };
 
     //      Bytes bytes = yield session.post_async (
@@ -1354,7 +1363,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          cancellable
     //      );
 
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      return (StationTracks) yield jsoner.deserialize_object_async (typeof (StationTracks));
     //  }
@@ -1370,7 +1379,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //  ) throws SoupError, JsonError, BadStatusCodeError {
     //      PostContent post_content = {
     //          PostContentType.JSON,
-    //          yield ApiBase.Jsoner.serialize_async (feedback, Case.CAMEL)
+    //          yield ApiBase.Jsoner.serialize_async (feedback)
     //      };
 
     //      yield session.post_async (
@@ -1404,7 +1413,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          cancellable
     //      );
 
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      return (Rotor.Settings) yield jsoner.deserialize_object_async (typeof (Rotor.Settings));
     //  }
@@ -1427,7 +1436,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          cancellable
     //      );
 
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      return (Wave) yield jsoner.deserialize_object_async (typeof (Wave));
     //  }
@@ -1451,7 +1460,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          cancellable
     //      );
 
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      if (jsoner.root == null) {
     //          return false;
@@ -1474,7 +1483,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      return (Dashboard) yield jsoner.deserialize_object_async (typeof (Dashboard));
     //  }
@@ -1493,7 +1502,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      var sl_array = new Gee.ArrayList<Station> ();
     //      yield jsoner.deserialize_array_into_async (sl_array);
@@ -1547,7 +1556,7 @@ public sealed class Tape.YaMAPI.Client : Object {
 
     //      PostContent post_content = {
     //          PostContentType.JSON,
-    //          yield ApiBase.Jsoner.serialize_async (plays_obj, Case.CAMEL)
+    //          yield ApiBase.Jsoner.serialize_async (plays_obj)
     //      };
 
     //      Bytes bytes = yield session.post_async (
@@ -1562,7 +1571,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          cancellable
     //      );
 
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      if (jsoner.root == null) {
     //          return false;
@@ -1680,13 +1689,13 @@ public sealed class Tape.YaMAPI.Client : Object {
             set_data ("with-positions", with_positions.to_string ());
         }
 
-        PostContent post_content = { PostContentType.X_WWW_FORM_URLENCODED };
+        Content post_content = { ApiBase.ContentType.X_WWW_FORM_URLENCODED };
         post_content.set_datalist (datalist);
 
         var request = new Request.POST (@"$(YAM_BASE_URL)/tracks");
         with (request) {
             presets = { "default" };
-            add_post_content (post_content);
+            add_content (post_content);
         }
 
         var bytes = yield session.exec_async (
@@ -1694,7 +1703,7 @@ public sealed class Tape.YaMAPI.Client : Object {
             priority,
             cancellable
         );
-        var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+        var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
         return yield jsoner.deserialize_array_async<Track> ();
     }
@@ -1740,7 +1749,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      var di_array = new Gee.ArrayList<DownloadInfo> ();
     //      yield jsoner.deserialize_array_into_async (di_array);
@@ -1813,7 +1822,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      var lyrics = (Lyrics) yield jsoner.deserialize_object_async (typeof (Lyrics));
     //      lyrics.is_sync = is_sync;
@@ -1834,7 +1843,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     //          priority,
     //          cancellable
     //      );
-    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" }, Case.CAMEL);
+    //      var jsoner = new Jsoner.from_bytes (bytes, { "result" });
 
     //      return (SimilarTracks) yield jsoner.deserialize_object_async (typeof (SimilarTracks));
     //  }

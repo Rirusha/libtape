@@ -37,7 +37,7 @@ namespace Tape {
     }
 
     public struct ParseUriResult {
-        public ApiBase.DataObject root_object;
+        public Serialize.DataObject root_object;
         public YaMAPI.Track? track;
     }
 
@@ -187,7 +187,7 @@ namespace Tape {
      *          object from the api. And a similar track, if the
      *          uri contained one.
      */
-    public ParseUriResult? parse_uri (string uri) throws ApiBase.JsonError {
+    public ParseUriResult? parse_uri (string uri) throws Serialize.JsonError {
         string[] uri_parts = {};
         string[] args = {};
 
@@ -267,7 +267,7 @@ namespace Tape {
         return null;
     }
 
-    public string get_share_link (ApiBase.DataObject yam_obj) {
+    public string get_share_link (Serialize.DataObject yam_obj) {
         if (yam_obj is YaMAPI.Track) {
             var track_info = (YaMAPI.Track) yam_obj;
 

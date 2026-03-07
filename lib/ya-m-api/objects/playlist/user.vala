@@ -19,7 +19,7 @@
 
 using Gee;
 
-public class Tape.YaMAPI.User : ApiBase.DataObject {
+public class Tape.YaMAPI.User : Serialize.DataObject {
 
     public string uid { get; set; }
 

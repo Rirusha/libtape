@@ -103,7 +103,7 @@ lib = shared_library(
   vala_vapi: vapi_name,
   vala_gir: gir_name,
   link_args: ['-lm'],
-  version: meson.project_version(),
+  version: libversion,
   install: true,
   install_dir: [true, true, true, true],
 )
@@ -133,7 +133,7 @@ if get_option('introspection')
       g_ir_compiler,
       '--shared-library', '@PLAINNAME@',
       '--output', '@OUTPUT@',
-      '--includedir', gee_girdir,
+      '--includedir', gee_dep.get_variable('datadir') / 'gir-1.0',
       meson.current_build_dir() / gir_name,
     ],
     input: lib,
@@ -150,6 +150,6 @@ pkgconfig.generate(
   requires: pgconfig_dependencies,
   subdirs: [ versioned_name ],
   description: pkgc_description,
-  version: meson.project_version(),
+  version: libversion,
   url: pkgc_url,
 )

@@ -696,12 +696,12 @@ public class Tape.Storager : Object {
 
                     simple_dencode (ref idata);
 
-                    var jsoner = new ApiBase.Jsoner.from_data (idata);
+                    var jsoner = new Serialize.Jsoner.from_data (idata);
 
                     try {
                         obj_arr.append_val (yield jsoner.deserialize_object_async<YaMAPI.HasTracks> ());
 
-                    } catch (ApiBase.JsonError e) {
+                    } catch (Serialize.JsonError e) {
                         warning ("Can't parse object. Error message: %s", e.message);
                     }
                 }
@@ -764,14 +764,14 @@ public class Tape.Storager : Object {
 
                 simple_dencode (ref object_data);
 
-                var jsoner = new ApiBase.Jsoner.from_data (object_data);
+                var jsoner = new Serialize.Jsoner.from_data (object_data);
 
                 YaMAPI.HasID? des_obj = null;
 
                 try {
                     des_obj = yield jsoner.deserialize_object_async<YaMAPI.HasID> ();
 
-                } catch (ApiBase.JsonError e) {
+                } catch (Serialize.JsonError e) {
                     warning ("Can't parse object. Error message: %s", e.message);
                 }
 
@@ -811,14 +811,14 @@ public class Tape.Storager : Object {
 
                 simple_dencode (ref object_data);
 
-                var jsoner = new ApiBase.Jsoner.from_data (object_data);
+                var jsoner = new Serialize.Jsoner.from_data (object_data);
 
                 YaMAPI.HasID? des_obj = null;
 
                 try {
                     des_obj = jsoner.deserialize_object<YaMAPI.HasID> ();
 
-                } catch (ApiBase.JsonError e) {
+                } catch (Serialize.JsonError e) {
                     warning ("Can't parse object. Error message: %s", e.message);
                 }
 

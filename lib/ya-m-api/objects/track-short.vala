@@ -22,7 +22,7 @@ using Gee;
 /**
  * Short representation of track.
  */
-public class Tape.YaMAPI.TrackShort : ApiBase.DataObject {
+public class Tape.YaMAPI.TrackShort : Serialize.DataObject {
 
     /**
      * Track id

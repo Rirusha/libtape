@@ -18,6 +18,7 @@
  */
 
 using ApiBase;
+using Serialize;
 using Tape.YaMAPI;
 
 /**

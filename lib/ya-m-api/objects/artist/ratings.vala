@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-public class Tape.YaMAPI.Ratings : ApiBase.DataObject {
+public class Tape.YaMAPI.Ratings : Serialize.DataObject {
 
     public int month { get; set; }
 

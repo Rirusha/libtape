@@ -18,7 +18,7 @@
 /**
  * `Object` that has cover.
  */
-public interface Tape.YaMAPI.HasCover : ApiBase.DataObject {
+public interface Tape.YaMAPI.HasCover : Serialize.DataObject {
 
     /**
      * Get all `Object` covers.

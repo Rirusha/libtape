@@ -20,7 +20,7 @@
 /**
  *
  */
-public class Tape.YaMAPI.Rotor.Queue : ApiBase.DataObject {
+public class Tape.YaMAPI.Rotor.Queue : Serialize.DataObject {
 
     public Gee.ArrayList<string> queue { get; set; default = new Gee.ArrayList<string> (); }
 }

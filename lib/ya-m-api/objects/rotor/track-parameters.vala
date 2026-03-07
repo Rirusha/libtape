@@ -20,7 +20,7 @@
 /**
  * Track parameters object
  */
-public class Tape.YaMAPI.Rotor.TrackParameters : ApiBase.DataObject {
+public class Tape.YaMAPI.Rotor.TrackParameters : Serialize.DataObject {
 
     /**
      * Bits per minutes.

@@ -22,7 +22,7 @@ using Gee;
 /**
  * Dashboard with user stations
  */
-public class Tape.YaMAPI.Rotor.Dashboard : ApiBase.DataObject {
+public class Tape.YaMAPI.Rotor.Dashboard : Serialize.DataObject {
 
     /**
      * Dashboard id

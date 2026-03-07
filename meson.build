@@ -6,7 +6,9 @@ project(
   license: 'GPL-3.0-or-later',
 )
 
-api_version = '0.2'
+libversion = meson.project_version().replace('.rc', '')
+
+api_version = libversion.split('.')[0]
 glib_min_version = '2.76'
 
 lib_name = 'tape'
@@ -32,8 +34,7 @@ deps_pkgs = [
   'gee-0.8',
   'gio-2.0',
   'gstreamer-1.0',
-  'json-glib-1.0',
-  'libsoup-3.0',
+  'libapi-base-7',
   'libxml-2.0',
   'sqlite3',
 ]
@@ -42,9 +43,7 @@ gee_dep = dependency('gee-0.8')
 gio_dep = dependency('gio-2.0')
 gstreamer_app_dep = dependency('gstreamer-app-1.0')
 gstreamer_dep = dependency('gstreamer-1.0')
-json_glib_dep = dependency('json-glib-1.0')
-libapi_base_dep = dependency('libapi-base-4', fallback : ['libapi-base', 'lib_dep'])
-libsoup_dep = dependency('libsoup-3.0')
+libapi_base_dep = dependency('libapi-base-7', fallback : ['libapi-base', 'api_base_lib'])
 libxml_dep = dependency('libxml-2.0')
 sqlite3_dep = dependency('sqlite3')
 
@@ -53,8 +52,6 @@ pgconfig_dependencies = [
   gio_dep,
   gstreamer_app_dep,
   gstreamer_dep,
-  json_glib_dep,
-  libsoup_dep,
   libxml_dep,
   sqlite3_dep,
 ]
@@ -65,8 +62,6 @@ dependencies = pgconfig_dependencies + [
 if libapi_base_dep.type_name() == 'pkgconfig'
   pgconfig_dependencies += libapi_base_dep
 endif
-
-gee_girdir = gee_dep.get_variable('datadir') / 'gir-1.0'
 
 add_project_arguments(
   '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),

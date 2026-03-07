@@ -20,7 +20,7 @@
 /**
  * Класс Id станции
  */
-public class Tape.YaMAPI.Rotor.Feedback : ApiBase.DataObject {
+public class Tape.YaMAPI.Rotor.Feedback : Serialize.DataObject {
 
     public Event event { get; set; }
 

@@ -20,7 +20,7 @@
 /**
  * Класс Id станции
  */
-public class Tape.YaMAPI.Rotor.Id : ApiBase.DataObject {
+public class Tape.YaMAPI.Rotor.Id : Serialize.DataObject {
 
     /**
      * Normalozation of station id.
