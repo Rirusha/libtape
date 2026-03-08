@@ -20,7 +20,7 @@
 /**
  * Account information.
  */
-public class Tape.YaMAPI.Account.About : Serialize.DataObject, HasCover, HasID {
+public class Tape.YaMAPI.Account.About : Serialize.DataObject, HasID {
 
     public string oid {
         owned get {
@@ -127,14 +127,13 @@ public class Tape.YaMAPI.Account.About : Serialize.DataObject, HasCover, HasID {
         );
     }
 
-    public Serialize.Array<string> get_cover_items_by_size (int size) {
-        var uris = new Serialize.Array<string> ();
+    public async Bytes? get_avatar (int size = 200) throws ApiBase.SoupError, ApiBase.BadStatusCodeError {
+        var avatar_uri = get_avatar_uri (size);
 
-        string avatar_uri = get_avatar_uri (size);
-        if (avatar_uri != null) {
-            uris.add (avatar_uri);
+        if (avatar_uri == null) {
+            return null;
         }
 
-        return uris;
+        return yield root.yam_helper.client.get_content_of (avatar_uri);
     }
 }
