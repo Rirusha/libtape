@@ -80,7 +80,6 @@ add_project_arguments(
 
 conf = configuration_data()
 conf.set_quoted('LIBRARY_NAME', gir_name)
-conf.set_quoted('G_LOG_DOMAIN', gir_name)
 conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
 conf.set_quoted('DATADIR', get_option('prefix') / get_option('datadir'))
 conf.set_quoted('GNOMELOCALEDIR', get_option('prefix') / get_option('localedir'))
