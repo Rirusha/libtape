@@ -171,7 +171,7 @@ public sealed class Tape.YaMAPI.Client : Object {
      *
      * @return      контент в байтах
      */
-    public async Bytes get_content_of (
+    public async Bytes? get_content_of (
         string url,
         int priority = Priority.DEFAULT,
         Cancellable? cancellable = null

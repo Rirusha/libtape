@@ -127,13 +127,13 @@ public class Tape.YaMAPI.Account.About : Serialize.DataObject, HasID {
         );
     }
 
-    public async Bytes? get_avatar (int size = 200) throws ApiBase.SoupError, ApiBase.BadStatusCodeError {
+    public async Bytes? get_avatar (int size = 200) {
         var avatar_uri = get_avatar_uri (size);
 
         if (avatar_uri == null) {
             return null;
         }
 
-        return yield root.yam_helper.client.get_content_of (avatar_uri);
+        return yield root.cachier.load_image_by_uri (avatar_uri, Priority.LOW);
     }
 }

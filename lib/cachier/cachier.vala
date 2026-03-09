@@ -28,6 +28,27 @@ public sealed class Tape.Cachier : Object {
 
     //  public Jober jober { get; default = new Jober (); }
 
+    public async Bytes? load_image_by_uri (
+        string uri,
+        int priority = Priority.DEFAULT,
+        Cancellable? cancellable = null
+    ) {
+        var image = yield storager.load_image (uri);
+
+        if (image == null) {
+            try {
+                image = yield root.yam_helper.client.get_content_of (uri, priority, cancellable);
+            } catch (Error e) {
+                warning ("Can't load image by uri '%s': %s", uri, e.message);
+            }
+        }
+
+        if (image != null && root.settings.can_cache) {
+            yield storager.save_image (image, uri, true);
+        }
+
+        return image;
+    }
 
 
 
@@ -143,8 +164,8 @@ public sealed class Tape.Cachier : Object {
     }
 
     // Получение изображения ямобъекта, если есть, иначе получение из сети и сохранение
-    public async static Bytes? get_image (YaMAPI.HasCover yam_object, int size) {
-        return null;
+    //  public async static Bytes? get_image (YaMAPI.HasCover yam_object, int size) {
+    //      return null;
         //  /**
         //      Выдает объект Pixbuf с артом трека. Если изображение не найдено локально, загружает его.
         //      Если арт не был сохранен, то сохраняет его
@@ -296,5 +317,5 @@ public sealed class Tape.Cachier : Object {
         //          255);
         //  }
         //  return pixbuf;
-    }
+    //  }
 }
