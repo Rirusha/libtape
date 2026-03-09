@@ -22,6 +22,7 @@ lib = shared_library(
   vala_header: header_name,
   vala_vapi: vapi_name,
   vala_gir: gir_name,
+  c_args: '-DG_LOG_DOMAIN="@0@"'.format(meson.project_name()),
   link_args: ['-lm'],
   version: libversion,
   install: true,
