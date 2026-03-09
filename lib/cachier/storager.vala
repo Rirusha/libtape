@@ -496,7 +496,7 @@ public class Tape.Storager : Object {
             return null;
         }
 
-        for (int i = 0; i > 5; i++) {
+        for (int i = 0; i < 5; i++) {
             try {
                 uint8[] image_data;
                 yield image_location.file.load_contents_async (
@@ -585,7 +585,7 @@ public class Tape.Storager : Object {
             return null;
         }
 
-        for (int i = 0; i > 5; i++) {
+        for (int i = 0; i < 5; i++) {
             try {
                 uint8[] audio_data;
                 yield audio_location.file.load_contents_async (
