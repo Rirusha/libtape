@@ -489,7 +489,7 @@ public class Tape.Storager : Object {
         return Location.none ();
     }
 
-    public async uint8[]? load_image (string image_uri) {
+    public async Bytes? load_image (string image_uri) {
         Location image_location = image_cache_location (image_uri);
 
         if (image_location.file == null) {
@@ -507,7 +507,7 @@ public class Tape.Storager : Object {
 
                 simple_dencode (ref image_data);
 
-                return image_data;
+                return new Bytes (image_data);
 
             } catch (Error e) {
                 warning (
@@ -527,14 +527,14 @@ public class Tape.Storager : Object {
     }
 
     public async void save_image (
-        uint8[] image_data,
+        Bytes image_data,
         string image_url,
         bool is_tmp = true
     ) {
         File image_file = get_image_cache_file (image_url, is_tmp);
 
         try {
-            var dencoded_image_data = image_data.copy ();
+            var dencoded_image_data = image_data.get_data ().copy ();
             simple_dencode (ref dencoded_image_data);
 
             yield image_file.replace_contents_async (
@@ -578,7 +578,7 @@ public class Tape.Storager : Object {
         return Location.none ();
     }
 
-    public async uint8[]? load_audio_data (string track_id) {
+    public async Bytes? load_audio (string track_id) {
         Location audio_location = audio_cache_location (track_id);
 
         if (audio_location.file == null) {
@@ -596,7 +596,7 @@ public class Tape.Storager : Object {
 
                 simple_dencode (ref audio_data);
 
-                return audio_data;
+                return new Bytes (audio_data);
 
             } catch (Error e) {
                 warning (
