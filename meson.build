@@ -43,7 +43,7 @@ gee_dep = dependency('gee-0.8')
 gio_dep = dependency('gio-2.0')
 gstreamer_app_dep = dependency('gstreamer-app-1.0')
 gstreamer_dep = dependency('gstreamer-1.0')
-libapi_base_dep = dependency('libapi-base-7', fallback : ['libapi-base', 'api_base_lib'])
+libapi_base_dep = dependency('libapi-base-7', fallback : ['libapi-base', 'api_base_lib_dep'])
 libxml_dep = dependency('libxml-2.0')
 sqlite3_dep = dependency('sqlite3')
 
