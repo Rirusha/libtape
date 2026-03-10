@@ -50,6 +50,11 @@ public sealed class Tape.Cachier : Object {
         return image;
     }
 
+    internal async void white_list () {
+        yield storager.remove_dir_file (storager.datadir_file);
+        yield storager.remove_dir_file (storager.cachedir_file);
+    }
+
 
 
 

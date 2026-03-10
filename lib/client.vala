@@ -101,4 +101,9 @@ public class Tape.Client : Object {
 
         return true;
     }
+
+    public async void logout () {
+        yield cachier.white_list ();
+        quit ();
+    }
 }

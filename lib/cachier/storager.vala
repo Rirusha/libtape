@@ -323,7 +323,7 @@ public class Tape.Storager : Object {
         yield remove_file (File.new_for_path (file_path));
     }
 
-    async void remove_dir_file (File dir_file) {
+    internal async void remove_dir_file (File dir_file) {
 
         try {
             FileEnumerator? enumerator = dir_file.enumerate_children (
@@ -412,13 +412,6 @@ public class Tape.Storager : Object {
         if (!keep_datadir) {
             yield remove_dir_file (datadir_file);
         }
-    }
-
-    /**
-     * Remove diractory with cached files
-     */
-    public async void delete_cache_dir () {
-        yield remove_dir_file (cachedir_file);
     }
 
     /**
