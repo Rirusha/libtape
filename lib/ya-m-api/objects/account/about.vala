@@ -38,6 +38,12 @@ public class Tape.YaMAPI.Account.About : Serialize.DataObject, HasID {
      */
     public bool has_plus { get; set; default = false; }
 
+    public bool has_music_subscription { get; set; }
+
+    public string email { get; set; }
+
+    public string[] options { get; set; }
+
     /**
      * User login.
      */
