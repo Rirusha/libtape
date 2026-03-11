@@ -99,6 +99,14 @@ internal sealed class Tape.GstPlayer : Object {
         bind_property ("mute", volume_el, "mute", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
     }
 
+    void init_gst_if_not () {
+        weak string[]? gst_args = null;
+
+        if (!Gst.is_initialized ()) {
+            Gst.init (ref gst_args);
+        }
+    }
+
     void init_source (AudioSourceType source_type) {
         stop ();
 

@@ -17,14 +17,6 @@
 
 namespace Tape {
 
-    internal void init_gst_if_not () {
-        weak string[]? gst_args = null;
-
-        if (!Gst.is_initialized ()) {
-            Gst.init (ref gst_args);
-        }
-    }
-
     internal enum AudioSourceType {
         HTTP,
         FILE,

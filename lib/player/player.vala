@@ -31,15 +31,15 @@ public sealed class Tape.Player : Object {
 
             switch (_state) {
                 case PlayerState.NONE:
-                    playbin.set_state (Gst.State.NULL);
+                    gst_player.stop ();
                     break;
 
                 case PlayerState.PLAYING:
-                    playbin.set_state (Gst.State.PLAYING);
+                    gst_player.play ();
                     break;
 
                 case PlayerState.PAUSED:
-                    playbin.set_state (Gst.State.PAUSED);
+                    gst_player.pause ();
                     break;
             }
         }
@@ -92,9 +92,10 @@ public sealed class Tape.Player : Object {
      */
     public int64 position {
         get {
-            int64 cur;
-            playbin.query_position (Gst.Format.TIME, out cur);
-            return cur / Gst.MSECOND;
+            //  int64 cur;
+            //  playbin.query_position (Gst.Format.TIME, out cur);
+            //  return cur / Gst.MSECOND;
+            return 0;
         }
     }
 
@@ -103,9 +104,10 @@ public sealed class Tape.Player : Object {
      */
     public double position_sec {
         get {
-            int64 cur;
-            playbin.query_position (Gst.Format.TIME, out cur);
-            return ((double) cur) / Gst.SECOND;
+            //  int64 cur;
+            //  playbin.query_position (Gst.Format.TIME, out cur);
+            //  return ((double) cur) / Gst.SECOND;
+            return 0;
         }
     }
 
@@ -114,9 +116,10 @@ public sealed class Tape.Player : Object {
      */
     public int64 position_us {
         get {
-            int64 cur;
-            playbin.query_position (Gst.Format.TIME, out cur);
-            return cur / Gst.USECOND;
+            //  int64 cur;
+            //  playbin.query_position (Gst.Format.TIME, out cur);
+            //  return cur / Gst.USECOND;
+            return 0;
         }
     }
 
@@ -223,50 +226,46 @@ public sealed class Tape.Player : Object {
 
     string play_id { get; set; default = ""; }
 
-    Gst.Element playbin;
+    GstPlayer gst_player = new GstPlayer ();
 
     construct {
-        init (null);
-
         mode = new PlayerEmpty (this);
 
-        playbin = Gst.ElementFactory.make ("playbin", null);
-        var bus = playbin.get_bus ();
 
-        bus.add_signal_watch ();
-        bus.message["eos"].connect ((bus, message) => {
-            next_natural.begin ();
-        });
+        //  bus.add_signal_watch ();
+        //  bus.message["eos"].connect ((bus, message) => {
+        //      next_natural.begin ();
+        //  });
 
-        root.settings.bind_property ("repeat-mode", this, "repeat-mode");
-        root.settings.bind_property ("shuffle-mode", this, "shuffle-mode");
+        //  root.settings.bind_property ("repeat-mode", this, "repeat-mode");
+        //  root.settings.bind_property ("shuffle-mode", this, "shuffle-mode");
 
-        current_track_start_loading.connect (() => {
-            current_track_loading = true;
-        });
-        current_track_finish_loading.connect (() => {
-            current_track_loading = false;
-        });
+        //  current_track_start_loading.connect (() => {
+        //      current_track_loading = true;
+        //  });
+        //  current_track_finish_loading.connect (() => {
+        //      current_track_loading = false;
+        //  });
 
-        bind_property ("volume", playbin, "volume", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
-        root.settings.bind_property ("volume", this, "volume");
+        //  bind_property ("volume", playbin, "volume", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
+        //  root.settings.bind_property ("volume", this, "volume");
 
-        bind_property ("mute", playbin, "mute", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
-        root.settings.bind_property ("mute", this, "mute");
+        //  bind_property ("mute", playbin, "mute", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
+        //  root.settings.bind_property ("mute", this, "mute");
 
-        next_track_loaded.connect (() => {
-            update_player ();
-        });
+        //  next_track_loaded.connect (() => {
+        //      update_player ();
+        //  });
 
-        mode_inited.connect (update_player);
+        //  mode_inited.connect (update_player);
 
-        Timeout.add ((int) (PLAY_CALLBACK_STEP * 1000.0), () => {
-            send_callback ();
+        //  Timeout.add ((int) (PLAY_CALLBACK_STEP * 1000.0), () => {
+        //      send_callback ();
 
-            total_played_seconds += PLAY_CALLBACK_STEP;
+        //      total_played_seconds += PLAY_CALLBACK_STEP;
 
-            return Source.CONTINUE;
-        });
+        //      return Source.CONTINUE;
+        //  });
     }
 
     void send_callback () {
@@ -308,7 +307,7 @@ public sealed class Tape.Player : Object {
         }
 
         update_player ();
-        playbin.seek_simple (Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, ms * Gst.MSECOND);
+        //  playbin.seek_simple (Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, ms * Gst.MSECOND);
     }
 
     public async void start_flow (
@@ -414,7 +413,7 @@ public sealed class Tape.Player : Object {
     }
 
     void track_stop (bool natural) {
-        playbin.set_property ("uri", Value (Type.STRING));
+        //  playbin.set_property ("uri", Value (Type.STRING));
 
         state = PlayerState.NONE;
 
@@ -519,16 +518,16 @@ public sealed class Tape.Player : Object {
                 );
         }
 
-        string? track_uri = yield Cachier.get_track_uri (current_track.id);
+        //  string? track_uri = yield Cachier.get_track_uri (current_track.id);
 
-        if (track_uri == null) {
-            playbin.set_property ("uri", Value (Type.STRING));
-        } else {
-            playbin.set_property ("uri", track_uri);
+        //  if (track_uri == null) {
+        //      playbin.set_property ("uri", Value (Type.STRING));
+        //  } else {
+        //      playbin.set_property ("uri", track_uri);
 
-            play ();
-            //  root.cachier.storager.clear_temp_track ();
-        }
+        //      play ();
+        //      //  root.cachier.storager.clear_temp_track ();
+        //  }
 
         current_track_finish_loading (current_track);
 

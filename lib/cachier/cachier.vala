@@ -24,8 +24,6 @@ public sealed class Tape.Cachier : Object {
 
     public Storager storager { get; default = new Storager (); }
 
-    public CacheController controller { get; default = new CacheController (); }
-
     //  public Jober jober { get; default = new Jober (); }
 
     public async Bytes? load_image_by_uri (
@@ -88,49 +86,49 @@ public sealed class Tape.Cachier : Object {
     //      //  get_image.begin (track_info, CoverSize.SMALL);
     //  }
 
-    public async static void download_audio_async (
-        string track_id,
-        owned string? track_uri = null,
-        bool is_tmp = true
-    ) {
-        /**
-            Скачивание аудио по его id. Если не передан uri трека, то uri будет самостоятельно загружен.
-            Аргумент is_tmp определяет место, куда будет загружено аудио
-         */
+    //  public async static void download_audio_async (
+    //      string track_id,
+    //      owned string? track_uri = null,
+    //      bool is_tmp = true
+    //  ) {
+    //      /**
+    //          Скачивание аудио по его id. Если не передан uri трека, то uri будет самостоятельно загружен.
+    //          Аргумент is_tmp определяет место, куда будет загружено аудио
+    //       */
 
-        if (root.cachier.storager.audio_cache_location (track_id).file != null) {
-            root.cachier.controller.stop_loading (ContentType.TRACK, track_id, null);
-            return;
-        }
+    //      if (root.cachier.storager.audio_cache_location (track_id).file != null) {
+    //          root.cachier.controller.stop_loading (ContentType.TRACK, track_id, null);
+    //          return;
+    //      }
 
-        root.cachier.controller.start_loading (ContentType.TRACK, track_id);
+    //      root.cachier.controller.start_loading (ContentType.TRACK, track_id);
 
-        CacheingState? cacheing_state = null;
+    //      CacheingState? cacheing_state = null;
 
-        if (track_uri == null) {
-            //  track_uri = yield root.yam_talker.get_download_uri (
-            //      track_id,
-            //      root.settings.is_hq
-            //  );
-        }
+    //      if (track_uri == null) {
+    //          //  track_uri = yield root.yam_talker.get_download_uri (
+    //          //      track_id,
+    //          //      root.settings.is_hq
+    //          //  );
+    //      }
 
-        if (track_uri != null && (root.settings.can_cache || !is_tmp)) {
-            //  Bytes audio_bytes = yield root.yam_talker.load_track (track_uri);
-            //  if (audio_bytes != null) {
-            //      yield root.cachier.storager.save_audio (audio_bytes, track_id, is_tmp);
-            //      if (is_tmp) {
-            //          cacheing_state = CacheingState.TEMP;
-            //      } else {
-            //          cacheing_state = CacheingState.PERM;
-            //      }
-            //  }
-        }
+    //      if (track_uri != null && (root.settings.can_cache || !is_tmp)) {
+    //          //  Bytes audio_bytes = yield root.yam_talker.load_track (track_uri);
+    //          //  if (audio_bytes != null) {
+    //          //      yield root.cachier.storager.save_audio (audio_bytes, track_id, is_tmp);
+    //          //      if (is_tmp) {
+    //          //          cacheing_state = CacheingState.TEMP;
+    //          //      } else {
+    //          //          cacheing_state = CacheingState.PERM;
+    //          //      }
+    //          //  }
+    //      }
 
-        root.cachier.controller.stop_loading (ContentType.TRACK, track_id, cacheing_state);
-    }
+    //      root.cachier.controller.stop_loading (ContentType.TRACK, track_id, cacheing_state);
+    //  }
 
-    public async static string? get_track_uri (string track_id) {
-        return null;
+    //  public async static string? get_track_uri (string track_id) {
+    //      return null;
         //  /**
         //      Выдает uri трека: локальный, если трек сохранен; интернет ссылку в ином случае.
         //      Если трек не был сохранен, то сохраняет его
@@ -166,7 +164,7 @@ public sealed class Tape.Cachier : Object {
         //  }
 
         //  return track_uri;
-    }
+    //  }
 
     // Получение изображения ямобъекта, если есть, иначе получение из сети и сохранение
     //  public async static Bytes? get_image (YaMAPI.HasCover yam_object, int size) {
