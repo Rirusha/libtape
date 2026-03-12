@@ -23,7 +23,7 @@ namespace Tape {
         DATA,
     }
 
-    errordomain PlayerError {
+    public errordomain PlayerError {
         WRONG_SCHEME,
         NO_SUCH_FILE,
     }

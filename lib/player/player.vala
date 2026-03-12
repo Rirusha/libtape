@@ -268,6 +268,26 @@ public sealed class Tape.Player : Object {
         //  });
     }
 
+    public void play_file (File file) throws PlayerError {
+        gst_player.set_file (file);
+        gst_player.play ();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     void send_callback () {
         if (position_sec > 0.0 && state == PlayerState.PLAYING) {
             playback_callback (position_sec);
