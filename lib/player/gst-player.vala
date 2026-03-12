@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Vladimir Romanov
+ * Copyright (C) 2025-2026 Vladimir Romanov <rirusha@altlinux.org>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,8 @@ internal sealed class Tape.GstPlayer : Object {
         }
     }
 
+    public signal void eos (Gst.Bus bus, Gst.Message message);
+
     Gst.Pipeline pipeline;
 
     Gst.Element source;
@@ -71,6 +73,13 @@ internal sealed class Tape.GstPlayer : Object {
         init_gst_if_not ();
 
         pipeline = new Gst.Pipeline (Uuid.string_random ());
+
+        var bus = pipeline.get_bus ();
+
+        bus.add_signal_watch ();
+        bus.message["eos"].connect ((bus, message) => {
+            eos (bus, message);
+        });
 
         decodebin = Gst.ElementFactory.make ("decodebin", "decodebin");
         audioconvert = Gst.ElementFactory.make ("audioconvert", "audioconvert");

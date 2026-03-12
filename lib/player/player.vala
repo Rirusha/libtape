@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Vladimir Romanov
+ * Copyright (C) 2024-2026 Vladimir Romanov <rirusha@altlinux.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -226,7 +226,7 @@ public sealed class Tape.Player : Object {
 
     string play_id { get; set; default = ""; }
 
-    GstPlayer gst_player = new GstPlayer ();
+    internal GstPlayer gst_player = new GstPlayer ();
 
     construct {
         mode = new PlayerEmpty (this);
