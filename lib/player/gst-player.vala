@@ -79,7 +79,7 @@ internal sealed class Tape.GstPlayer : Object {
         audiosink = Gst.ElementFactory.make ("autoaudiosink", "audiosink");
 
         if (decodebin == null || audioconvert == null || audioresample == null || audiosink == null) {
-            warning ("Failed to create elements for pipeline.");
+            error ("Failed to create elements for pipeline.");
         }
 
         pipeline.add_many (decodebin, audioconvert, audioresample, volume_el, audiosink);
