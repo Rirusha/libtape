@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Vladimir Romanov
+ * Copyright (C) 2024-2026 Vladimir Romanov <rirusha@altlinux.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,11 @@ public sealed class Tape.Cachier : Object {
 
         if (image == null) {
             try {
-                image = yield root.yam_helper.client.get_content_of (uri, priority, cancellable);
+                if (root.network_available) {
+                    image = yield root.yam_helper.client.get_content_of (uri, priority, cancellable);
+                } else {
+                    return image;
+                }
             } catch (Error e) {
                 warning ("Can't load image by uri '%s': %s", uri, e.message);
             }

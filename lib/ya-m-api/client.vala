@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Vladimir Romanov
+ * Copyright (C) 2024-2026 Vladimir Romanov <rirusha@altlinux.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ public sealed class Tape.YaMAPI.Client : Object {
 
     public AuthType auth_type { get; construct; }
 
-    public string token { internal get; set construct; default = ""; }
+    public string token { internal get; private set construct; default = ""; }
 
     public Account.About? me { get; private set; default = null; }
 
