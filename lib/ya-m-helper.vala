@@ -115,7 +115,7 @@ public sealed class Tape.YaMHelper : Object {
     }
 
     public bool can_be_offline () {
-        return me != null;
+        return me.uid != "";
     }
 
     // TODO: remove this
