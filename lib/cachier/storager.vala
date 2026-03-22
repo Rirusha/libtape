@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Vladimir Romanov
+ * Copyright (C) 2024-2026 Vladimir Romanov <rirusha@altlinux.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -745,7 +745,7 @@ public class Tape.Storager : Object {
             return null;
         }
 
-        for (int i = 0; i > 5; i++) {
+        for (int i = 0; i < 5; i++) {
             try {
                 uint8[] object_data;
 
@@ -762,7 +762,7 @@ public class Tape.Storager : Object {
                 YaMAPI.HasID? des_obj = null;
 
                 try {
-                    des_obj = yield jsoner.deserialize_object_async<YaMAPI.HasID> ();
+                    des_obj = (YaMAPI.HasID) yield jsoner.deserialize_object_by_type_async (obj_type);
 
                 } catch (Serialize.JsonError e) {
                     warning ("Can't parse object. Error message: %s", e.message);
@@ -792,7 +792,7 @@ public class Tape.Storager : Object {
             return null;
         }
 
-        for (int i = 0; i > 5; i++) {
+        for (int i = 0; i < 5; i++) {
             try {
                 uint8[] object_data;
 
@@ -809,7 +809,7 @@ public class Tape.Storager : Object {
                 YaMAPI.HasID? des_obj = null;
 
                 try {
-                    des_obj = jsoner.deserialize_object<YaMAPI.HasID> ();
+                    des_obj = (YaMAPI.HasID) jsoner.deserialize_object_by_type (obj_type);
 
                 } catch (Serialize.JsonError e) {
                     warning ("Can't parse object. Error message: %s", e.message);
