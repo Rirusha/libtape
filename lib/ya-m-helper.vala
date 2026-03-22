@@ -47,8 +47,6 @@ public sealed class Tape.YaMHelper : Object {
         }
     }
 
-    public signal void init_end ();
-
     Account.About? _me = null;
     public Account.About me {
         owned get {
@@ -91,27 +89,23 @@ public sealed class Tape.YaMHelper : Object {
         Object (client: c);
     }
 
-    public bool is_me (string? uid) {
-        return uid == null || uid == me.uid;
-    }
-
-    public bool is_my_liked (string? uid, string kind) {
-        return is_me (uid) && kind == "3";
-    }
-
     public async void init () throws JsonError, SoupError, CantUseError, BadStatusCodeError {
         assert (!client.is_init_complete);
 
         yield client.init ();
 
+        _me = client.me;
+
         root.cachier.storager.db.set_additional_data ("me", me.oid);
         yield root.cachier.storager.save_object (me, false);
 
         likes_handler.full_update (yield client.library_all_ids ());
+    }
 
-        _me = null;
-
-        init_end ();
+    void ensure_init () {
+        if (root.network_available && !client.is_init_complete) {
+            init ();
+        }
     }
 
     public bool can_be_offline () {
