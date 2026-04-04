@@ -102,10 +102,14 @@ public sealed class Tape.YaMHelper : Object {
         likes_handler.full_update (yield client.library_all_ids ());
     }
 
-    void ensure_init () {
+    async void ensure_init () {
         if (root.network_available && !client.is_init_complete) {
-            init ();
+            yield init ();
         }
+    }
+
+    internal void abort () {
+        client.abort ();
     }
 
     public bool can_be_offline () {

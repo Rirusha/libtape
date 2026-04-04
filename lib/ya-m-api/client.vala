@@ -98,6 +98,10 @@ public sealed class Tape.YaMAPI.Client : Object {
         );
     }
 
+    public void abort () {
+        session.abort ();
+    }
+
     public void reload_cookies () {
         if (cookies_path != null && cookie_jar_type != NONE) {
             session.init_cookies (cookie_jar_type, cookies_path);
