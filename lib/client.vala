@@ -45,7 +45,7 @@ public class Tape.Client : Object {
 
     public signal void mpris_uri_open (string uri);
 
-    public bool network_available { get; private set; }
+    public bool network_available { get; protected set; }
 
     NetworkMonitor monitor = NetworkMonitor.get_default ();
 
@@ -57,9 +57,7 @@ public class Tape.Client : Object {
         root = this;
 
         cachier = new Cachier ();
-        monitor.network_changed.connect ((is_available) => {
-            network_available = is_available;
-        });
+        monitor.bind_property ("network-available", this, "network-available", SYNC_CREATE);
     }
 
     public async bool init (string? yam_token = null) throws CantUseError, ApiBase.BadStatusCodeError, ApiBase.SoupError {
@@ -118,6 +116,7 @@ public class Tape.Client : Object {
     }
 
     public async void logout () {
+        yam_helper.abort ();
         yield cachier.white_list ();
         quit ();
     }
