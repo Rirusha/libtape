@@ -115,8 +115,12 @@ public class Tape.Client : Object {
         return true;
     }
 
-    public async void logout () {
+    public void abort () {
         yam_helper.abort ();
+    }
+
+    public async void logout () {
+        abort ();
         yield cachier.white_list ();
         quit ();
     }
