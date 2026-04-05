@@ -60,7 +60,7 @@ public class Tape.Client : Object {
         monitor.bind_property ("network-available", this, "network-available", SYNC_CREATE);
     }
 
-    public async bool init (string? yam_token = null) throws CantUseError, ApiBase.BadStatusCodeError, ApiBase.SoupError {
+    public async bool init (string? yam_token = null) throws CantUseError, ApiBase.BadStatusCodeError, TapeError {
         var ser_settings = Serialize.get_settings ();
         ser_settings.names_case = Serialize.Case.CAMEL;
 
@@ -88,8 +88,6 @@ public class Tape.Client : Object {
 
         try {
             yield yam_helper.init ();
-        } catch (Serialize.JsonError e) {
-            error (e.message);
         } catch (ApiBase.BadStatusCodeError e) {
             if (e is ApiBase.BadStatusCodeError.UNAUTHORIZED) {
                 return false;
@@ -99,7 +97,7 @@ public class Tape.Client : Object {
                 }
                 throw e;
             }
-        } catch (ApiBase.SoupError e) {
+        } catch (TapeError e) {
             if (yam_helper.can_be_offline ()) {
                 return true;
             }

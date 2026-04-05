@@ -82,6 +82,7 @@ vala_sources = files(
   'client.vala',
   'content-handler.vala',
   'enums.vala',
+  'errors.vala',
   'hash-store.vala',
   'likes-controller.vala',
   'settings.vala',

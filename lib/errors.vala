@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025-2026 Vladimir Romanov <rirusha@altlinux.org>
+ * Copyright (C) 2026 Vladimir Romanov <rirusha@altlinux.org>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,54 +20,24 @@
 
 namespace Tape {
 
-    internal enum AudioSourceType {
-        HTTP,
-        FILE,
-        DATA,
+    public errordomain PlayerError {
+        WRONG_SCHEME,
+        NO_SUCH_FILE,
     }
 
-    public enum UriObjectType {
-        PLAYLIST,
-        ALBUM,
-        TRACK,
-        ARTIST,
-        FILE,
+    /**
+     * Errors containing reasons why using the client is not possible
+     */
+    public errordomain CantUseError {
+
+        /**
+         * User hasn't Plus Subscription
+         */
+        NO_PLUS
     }
 
-    public enum PlayerState {
-        NONE,
-        PLAYING,
-        PAUSED
-    }
-
-    public enum RepeatMode {
-        OFF,
-        ONE,
-        QUEUE
-    }
-
-    public enum MusicQuality {
-        LQ,
-        NQ,
-        LOSSLESS;
-    }
-
-    public enum ShuffleMode {
-        OFF,
-        ON
-    }
-
-    public enum ContentType {
-        TRACK,
-        PLAYLIST,
-        ALBUM,
-        IMAGE
-    }
-
-    public enum CacheingState {
-        NONE,
-        LOADING,
-        TEMP,
-        PERM
+    public errordomain TapeError {
+        INTERNAL,
+        CANCELLED;
     }
 }

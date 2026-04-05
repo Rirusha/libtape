@@ -17,31 +17,9 @@
 
 namespace Tape {
 
-    internal enum AudioSourceType {
-        HTTP,
-        FILE,
-        DATA,
-    }
-
-    public errordomain PlayerError {
-        WRONG_SCHEME,
-        NO_SUCH_FILE,
-    }
-
     public struct ParseUriResult {
         public Serialize.DataObject root_object;
         public YaMAPI.Track? track;
-    }
-
-    /**
-     * Errors containing reasons why using the client is not possible
-     */
-    public errordomain CantUseError {
-
-        /**
-         * User hasn't Plus Subscription
-         */
-        NO_PLUS
     }
 
     namespace Filenames {
@@ -60,53 +38,8 @@ namespace Tape {
      * obtaining images from the api.
      */
     namespace CoverSize {
-        public const int SMALL = 75;
-        public const int BIG = 400;
-    }
-
-    public enum UriObjectType {
-        PLAYLIST,
-        ALBUM,
-        TRACK,
-        ARTIST,
-        FILE,
-    }
-
-    public enum PlayerState {
-        NONE,
-        PLAYING,
-        PAUSED
-    }
-
-    public enum RepeatMode {
-        OFF,
-        ONE,
-        QUEUE
-    }
-
-    public enum MusicQuality {
-        LQ,
-        NQ,
-        LOSSLESS;
-    }
-
-    public enum ShuffleMode {
-        OFF,
-        ON
-    }
-
-    public enum ContentType {
-        TRACK,
-        PLAYLIST,
-        ALBUM,
-        IMAGE
-    }
-
-    public enum CacheingState {
-        NONE,
-        LOADING,
-        TEMP,
-        PERM
+        internal const int SMALL = 75;
+        internal const int BIG = 400;
     }
 
     internal async void wait (uint seconds) {

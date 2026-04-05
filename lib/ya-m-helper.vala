@@ -89,7 +89,7 @@ public sealed class Tape.YaMHelper : Object {
         Object (client: c);
     }
 
-    public async void init () throws JsonError, SoupError, CantUseError, BadStatusCodeError {
+    public async void init () throws TapeError, CantUseError, BadStatusCodeError {
         assert (!client.is_init_complete);
 
         yield client.init ();
@@ -102,7 +102,7 @@ public sealed class Tape.YaMHelper : Object {
         likes_handler.full_update (yield client.library_all_ids ());
     }
 
-    async void ensure_init () {
+    async void ensure_init () throws TapeError, CantUseError, BadStatusCodeError {
         if (root.network_available && !client.is_init_complete) {
             yield init ();
         }
