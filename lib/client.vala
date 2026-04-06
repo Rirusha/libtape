@@ -63,6 +63,7 @@ public class Tape.Client : Object {
     public async bool init (string? yam_token = null) throws CantUseError, ApiBase.BadStatusCodeError, TapeError {
         var ser_settings = Serialize.get_settings ();
         ser_settings.names_case = Serialize.Case.CAMEL;
+        Serialize.set_settings (ser_settings);
 
         string? token = yam_token;
         string? cookies_path = null;
