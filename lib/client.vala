@@ -115,7 +115,7 @@ public class Tape.Client : Object {
     }
 
     public void abort () {
-        yam_helper.abort ();
+        yam_helper?.abort ();
     }
 
     public async void logout () {
