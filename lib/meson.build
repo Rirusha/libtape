@@ -11,7 +11,7 @@ vala_sources = files(
   'likes-controller.vala',
   'settings.vala',
   'utils.vala',
-  'ya-m-helper.vala',
+  'yandex-music.vala',
 )
 
 subdir('cache-manager')

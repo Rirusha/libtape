@@ -49,9 +49,9 @@ vala_sources += files(
   'objects/track/meta-data.vala',
   'objects/track/track.vala',
 
+  'client.vala',
   'difference-builder.vala',
   'has-cover.vala',
   'has-id.vala',
   'utils.vala',
-  'yandex-music.vala',
 )
