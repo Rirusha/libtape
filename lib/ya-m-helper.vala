@@ -56,9 +56,9 @@ public sealed class Tape.YaMHelper : Object {
 
             _me = client.me;
             if (_me == null) {
-                string my_uid = root.cachier.storager.db.get_additional_data ("me");
+                string my_uid = root.cm.storager.db.get_additional_data ("me");
                 if (my_uid != null) {
-                    _me = (Account.About) root.cachier.storager.load_object_sync (typeof (Account.About), my_uid);
+                    _me = (Account.About) root.cm.storager.load_object_sync (typeof (Account.About), my_uid);
                 }
 
                 if (_me == null) {
@@ -96,8 +96,8 @@ public sealed class Tape.YaMHelper : Object {
 
         _me = client.me;
 
-        root.cachier.storager.db.set_additional_data ("me", me.oid);
-        yield root.cachier.storager.save_object (me, false);
+        root.cm.storager.db.set_additional_data ("me", me.oid);
+        yield root.cm.storager.save_object (me, false);
 
         likes_handler.full_update (yield client.library_all_ids ());
     }

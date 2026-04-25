@@ -140,6 +140,6 @@ public class Tape.YaMAPI.Account.About : Serialize.DataObject, HasID {
             return null;
         }
 
-        return yield root.cachier.load_image_by_uri (avatar_uri, Priority.LOW);
+        return yield root.cm.load_image_by_uri (avatar_uri, Priority.LOW);
     }
 }

@@ -52,7 +52,7 @@ namespace Tape {
 
     internal static void check_client_initted () {
         if (root.player == null ||
-            root.cachier == null ||
+            root.cm == null ||
             root.yam_helper == null
         ) {
             error (_("Client not initted"));

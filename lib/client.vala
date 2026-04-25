@@ -27,7 +27,7 @@ public class Tape.Client : Object {
     /**
      * Cachier module.
      */
-    public CacheManager cachier { get; private set; }
+    public CacheManager cm { get; private set; }
 
     /**
      * YaMTalker module.
@@ -56,7 +56,7 @@ public class Tape.Client : Object {
     construct {
         root = this;
 
-        cachier = new CacheManager ();
+        cm = new CacheManager ();
         monitor.bind_property ("network-available", this, "network-available", SYNC_CREATE);
     }
 
@@ -69,10 +69,10 @@ public class Tape.Client : Object {
         string? cookies_path = null;
 
         if (token == null) {
-            if (cachier.storager.cookies_file.query_exists ()) {
-                cookies_path = cachier.storager.cookies_file.peek_path ();
+            if (cm.storager.cookies_file.query_exists ()) {
+                cookies_path = cm.storager.cookies_file.peek_path ();
             } else {
-                token = cachier.storager.load_token ();
+                token = cm.storager.load_token ();
             }
         }
 
@@ -108,7 +108,7 @@ public class Tape.Client : Object {
         Mpris.init (this);
 
         if (yam_helper.client.auth_type == TOKEN) {
-            cachier.storager.save_token (yam_helper.client.token);
+            cm.storager.save_token (yam_helper.client.token);
         }
 
         return true;
@@ -120,7 +120,7 @@ public class Tape.Client : Object {
 
     public async void logout () {
         abort ();
-        yield cachier.white_list ();
+        yield cm.white_list ();
         quit ();
     }
 }
