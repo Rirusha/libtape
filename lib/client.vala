@@ -32,7 +32,7 @@ public class Tape.Client : Object {
     /**
      * YaMTalker module.
      */
-    public YaMHelper yam_helper { get; private set; }
+    public YandexMusic ym { get; private set; }
 
     /**
      * Player module.
@@ -80,7 +80,7 @@ public class Tape.Client : Object {
             return false;
         }
 
-        yam_helper = new YaMHelper (
+        ym = new YandexMusic (
             cookies_path,
             token
         );
@@ -88,18 +88,18 @@ public class Tape.Client : Object {
         player = new Player ();
 
         try {
-            yield yam_helper.init ();
+            yield ym.init ();
         } catch (ApiBase.BadStatusCodeError e) {
             if (e is ApiBase.BadStatusCodeError.UNAUTHORIZED) {
                 return false;
             } else {
-                if (yam_helper.can_be_offline ()) {
+                if (ym.can_be_offline ()) {
                     return true;
                 }
                 throw e;
             }
         } catch (TapeError e) {
-            if (yam_helper.can_be_offline ()) {
+            if (ym.can_be_offline ()) {
                 return true;
             }
             throw e;
@@ -107,15 +107,15 @@ public class Tape.Client : Object {
 
         Mpris.init (this);
 
-        if (yam_helper.client.auth_type == TOKEN) {
-            cm.storager.save_token (yam_helper.client.token);
+        if (ym.client.auth_type == TOKEN) {
+            cm.storager.save_token (ym.client.token);
         }
 
         return true;
     }
 
     public void abort () {
-        yam_helper?.abort ();
+        ym?.abort ();
     }
 
     public async void logout () {

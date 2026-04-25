@@ -16,7 +16,7 @@ vala_sources = files(
 
 subdir('cache-manager')
 subdir('player')
-subdir('ya-m-api')
+subdir('yandex-music')
 
 sources = [
   vapi_sources,

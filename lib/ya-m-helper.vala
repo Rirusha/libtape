@@ -24,7 +24,7 @@ using Tape.YaMAPI;
 /**
  * Class with helper methods. It may include auto saving some of the objects.
  */
-public sealed class Tape.YaMHelper : Object {
+public sealed class Tape.YandexMusic : Object {
 
     public YaMAPI.Client client { get; construct; }
     public LikesHandler likes_handler { get; default = new LikesHandler (); }
@@ -70,7 +70,7 @@ public sealed class Tape.YaMHelper : Object {
         }
     }
 
-    internal YaMHelper (
+    internal YandexMusic (
         string? cookies_path = null,
         string? token = null
     ) {
