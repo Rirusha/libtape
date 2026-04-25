@@ -3,8 +3,6 @@ vapi_sources = files(
 )
 
 vala_sources = files(
-
-
   'client.vala',
   'content-handler.vala',
   'enums.vala',
@@ -16,7 +14,7 @@ vala_sources = files(
   'ya-m-helper.vala',
 )
 
-subdir('cachier')
+subdir('cache-manager')
 subdir('player')
 subdir('ya-m-api')
 

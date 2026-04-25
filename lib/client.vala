@@ -27,7 +27,7 @@ public class Tape.Client : Object {
     /**
      * Cachier module.
      */
-    public Cachier cachier { get; private set; }
+    public CacheManager cachier { get; private set; }
 
     /**
      * YaMTalker module.
@@ -56,7 +56,7 @@ public class Tape.Client : Object {
     construct {
         root = this;
 
-        cachier = new Cachier ();
+        cachier = new CacheManager ();
         monitor.bind_property ("network-available", this, "network-available", SYNC_CREATE);
     }
 

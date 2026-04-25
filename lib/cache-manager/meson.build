@@ -1,5 +1,5 @@
 vala_sources += files(
-  'cachier.vala',
+  'cache-manager.vala',
   # 'controller.vala',
   'humanity-size.vala',
   'info-db.vala',

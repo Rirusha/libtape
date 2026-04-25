@@ -20,7 +20,7 @@
 using Gee;
 
 [SingleInstance]
-public sealed class Tape.Cachier : Object {
+public sealed class Tape.CacheManager : Object {
 
     public Storager storager { get; default = new Storager (); }
 
