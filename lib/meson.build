@@ -4,17 +4,16 @@ vapi_sources = files(
 
 vala_sources = files(
   'client.vala',
-  'content-handler.vala',
   'enums.vala',
   'errors.vala',
   'hash-store.vala',
-  'likes-controller.vala',
   'settings.vala',
   'utils.vala',
   'yandex-music.vala',
 )
 
 subdir('cache-manager')
+subdir('model-manager')
 subdir('player')
 subdir('yandex-music')
 
@@ -23,7 +22,7 @@ sources = [
   vala_sources,
 ]
 
-lib = shared_library(
+lib = library(
   lib_name,
   sources,
   dependencies: dependencies,
@@ -34,6 +33,7 @@ lib = shared_library(
   c_args: '-DG_LOG_DOMAIN="@0@"'.format(meson.project_name()),
   link_args: ['-lm'],
   version: libversion,
+  soversion: libversion,
   install: true,
   install_dir: [true, true, true, true],
 )

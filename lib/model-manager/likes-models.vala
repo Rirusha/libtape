@@ -19,7 +19,7 @@
 
 using Gee;
 
-public sealed class Tape.LikesHandler : Object {
+internal sealed class Tape.LikesModels : Object {
 
     HashModel _liked_tracks = new HashModel ();
     HashModel liked_tracks {

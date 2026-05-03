@@ -27,8 +27,7 @@ using Tape.YaMAPI;
 public sealed class Tape.YandexMusic : Object {
 
     public YaMAPI.Client client { get; construct; }
-    public LikesHandler likes_handler { get; default = new LikesHandler (); }
-    public ContentHandler content_handler { get; default = new ContentHandler (); }
+    internal LikesModels likes_handler { get; default = new LikesModels (); }
 
     public signal void track_likes_start_change (string track_id);
     public signal void track_likes_end_change (string track_id, bool is_liked);
