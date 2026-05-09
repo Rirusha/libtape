@@ -32,6 +32,7 @@ BuildRequires: gir(ApiBase) = 7
 BuildRequires: gir(Serialize) = 7
 BuildRequires: pkgconfig(gee-0.8)
 BuildRequires: pkgconfig(gio-2.0)
+BuildRequires: pkgconfig(gstreamer-app-1.0)
 BuildRequires: pkgconfig(gstreamer-1.0)
 BuildRequires: pkgconfig(libapi-base-7)
 BuildRequires: pkgconfig(libxml-2.0)
