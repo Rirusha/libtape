@@ -1,0 +1,13 @@
+#!/usr/bin/bash -ex
+
+mkdir -p .gear
+cp -a build-aux/altlinux/rules ./.gear/
+
+version=$(./build-aux/get_meson_version)
+release=1.$(date +%s)
+
+sed -e "s/@VERSION@/${version}/g" \
+    -e "s/@RELEASE@/${release}/g" \
+    build-aux/altlinux/libtape.spec.in > libtape.spec
+
+add_changelog libtape.spec -e '- Regular build.'

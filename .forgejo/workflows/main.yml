@@ -1,0 +1,92 @@
+name: Main
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  lint-vala:
+    name: Check vala files
+    runs-on: als-tiny
+    container:
+      image: altlinux.space/alt-gnome/coding-style-image:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check files
+        uses: alt-gnome/coding-style-actions/vala@main
+
+  test-build:
+    name: Test Build
+    runs-on: als-tiny
+    container:
+      image: altlinux.space/actions/runner/containers:sisyphus
+    needs:
+      - lint-vala
+
+    steps:
+      - name: Install libs on container
+        run: |
+          apt-get update
+          apt-get install -y git meson vala "pkgconfig(gee-0.8)" "pkgconfig(gio-2.0)" "pkgconfig(gstreamer-app-1.0)" "pkgconfig(gstreamer-1.0)" "pkgconfig(libapi-base-7)" "pkgconfig(libxml-2.0)" "pkgconfig(sqlite3)" gobject-introspection-devel valadoc /usr/bin/gtkdoc-scan
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      # - name: Check ABI
+      #   run: |
+      #     .forgejo/check-abi $(git tag --merged HEAD --sort=-creatordate | head -n 1) $(git rev-parse HEAD)
+
+      - name: Setup
+        run: meson setup _build -Ddocumentation=true
+
+      - name: Build
+        run: meson compile -C _build
+
+      - name: Deploy pages
+        if: github.event_name != 'pull_request'
+        uses: actions/deploy-pages@v1
+        with:
+          directory: ./_build/doc/libtape-vala
+
+  build-altlinux-nightly:
+    name: Build Nightly RPM for altlinux
+
+    runs-on: als-tiny
+    container:
+      image: altlinux.space/alt-gnome/hasherc:latest
+    needs:
+      - test-build
+
+    steps:
+      - name: Install utils
+        run: |
+          apt-get update
+          apt-get install -y meson jq /usr/bin/add_changelog
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare RPM build
+        run: |
+          ./build-aux/altlinux/prepare
+          git add .
+
+      - uses: alt-gnome/build-rpm-action@main
+        name: Build RPMs
+
+      - uses: alt-gnome/upload-rpm-action@main
+        name: Upload RPMs
+        if: github.event_name != 'pull_request'
+        with:
+          directory: ~/.cache/hasherc/libapi-base/out/RPMS
+          token: ${{ secrets.TOKEN }}
+          group: libapi-base-nightly/${{ matrix.branch }}
