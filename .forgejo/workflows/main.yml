@@ -87,6 +87,6 @@ jobs:
         name: Upload RPMs
         if: github.event_name != 'pull_request'
         with:
-          directory: ~/.cache/hasherc/libapi-base/out/RPMS
+          directory: ~/.cache/hasherc/libtape/out/RPMS
           token: ${{ secrets.TOKEN }}
-          group: libapi-base-nightly/${{ matrix.branch }}
+          group: libtape-nightly/${{ matrix.branch }}
