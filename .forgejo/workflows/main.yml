@@ -39,7 +39,7 @@ jobs:
             "pkgconfig(gstreamer-app-1.0)" \
             "pkgconfig(gstreamer-1.0)" \
             "pkgconfig(libapi-base-7)" \
-            "gir(Seralize)=7" \
+            "gir(Serialize)=7" \
             "gir(ApiBase)=7" \
             "gir(Gee)=0.8" \
             "pkgconfig(libxml-2.0)" \
