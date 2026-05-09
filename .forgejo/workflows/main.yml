@@ -96,8 +96,8 @@ jobs:
 
       - uses: alt-gnome/upload-rpm-action@main
         name: Upload RPMs
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref_name == 'main'
         with:
           directory: ~/.cache/hasherc/libtape/out/RPMS
           token: ${{ secrets.TOKEN }}
-          group: libtape-nightly/${{ matrix.branch }}
+          group: libtape-nightly
