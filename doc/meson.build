@@ -5,7 +5,7 @@ foreach deps_pkg : deps_pkgs
   pkgs += '--pkg=' + deps_pkg
 endforeach
 
-valadoc_vala_dir = versioned_name + '-vala'
+valadoc_vala_dir = meson.project_name() + '-vala'
 custom_target(
   'valadoc',
   command: [ valadoc ] + pkgs +
@@ -41,6 +41,6 @@ custom_target(
   ],
 
   build_by_default: true,
-  output: versioned_name,
+  output: meson.project_name(),
   depends: lib,
 )
