@@ -33,6 +33,7 @@ gnome = import('gnome')
 deps_pkgs = [
   'gee-0.8',
   'gio-2.0',
+  'gstreamer-app-1.0',
   'gstreamer-1.0',
   'libapi-base-7',
   'libxml-2.0',
