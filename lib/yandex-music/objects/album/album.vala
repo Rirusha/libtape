@@ -69,7 +69,10 @@ public class Tape.YaMAPI.Album : Serialize.DataObject, HasCover, HasID {
 
     public Serialize.Array<Album> duplicates { get; set; default = new Serialize.Array<Album> (); }
 
-    public Serialize.Array<Serialize.Array<Track> > volumes { get; set; default = new Serialize.Array<Serialize.Array<Track> > (); }
+    public Serialize.Array<Serialize.Array<Track> > volumes {
+        get; set;
+        default = new Serialize.Array<Serialize.Array<Track> > ();
+    }
 
     public int year { get; set; }
 
