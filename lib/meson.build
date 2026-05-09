@@ -23,7 +23,7 @@ sources = [
 ]
 
 lib = library(
-  lib_name,
+  versioned_lib_name,
   sources,
   dependencies: dependencies,
   include_directories: config_h_dir,

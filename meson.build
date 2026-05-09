@@ -18,10 +18,11 @@ pkgc_description = 'Unofficial Yandex Music client library'
 pkgc_url = 'https://altlinux.space/rirusha/libtape'
 
 versioned_name = meson.project_name() + '-' + api_version
+versioned_lib_name = lib_name + '-' + api_version
 versioned_gir_name = gir_name + '-' + api_version
 
 deps_name = versioned_name + '.deps'
-header_name = meson.project_name() + '.h'
+header_name = versioned_name + '.h'
 vapi_name = versioned_name + '.vapi'
 gir_name = versioned_gir_name + '.gir'
 typelib_name = versioned_gir_name + '.typelib'
