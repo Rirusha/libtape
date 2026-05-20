@@ -47,7 +47,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     Client () {}
 
     [NoReturn]
-    void handle_error (Error e) throws TapeError, BadStatusCodeError {
+    void handle_error (GLib.Error e) throws TapeError, BadStatusCodeError {
         if (e is BadStatusCodeError) {
             throw (BadStatusCodeError) e;
         }
@@ -141,7 +141,7 @@ public sealed class Tape.YaMAPI.Client : Object {
             try {
                 var bytes = yield session.send_and_read_async (request, priority, cancellable);
 
-                var jsoner = new Jsoner.from_bytes (
+                var jsoner = new JsonWorker.from_bytes (
                     bytes,
                     { "access_token" },
                     new Serialize.Settings () { names_case = Serialize.Case.SNAKE }
@@ -152,7 +152,7 @@ public sealed class Tape.YaMAPI.Client : Object {
                 if (val.type () == Type.STRING) {
                     token = val.get_string ();
                 }
-            } catch (Error e) {
+            } catch (GLib.Error e) {
                 handle_error (e);
             }
         }
@@ -197,7 +197,7 @@ public sealed class Tape.YaMAPI.Client : Object {
     ) throws TapeError, BadStatusCodeError {
         try {
             return yield session.send_and_read_async (new Request.GET (url), priority, cancellable);
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             handle_error (e);
         }
     }
@@ -252,10 +252,10 @@ public sealed class Tape.YaMAPI.Client : Object {
                 cancellable
             );
 
-            var jsoner = new Jsoner.from_bytes (bytes, { "result" });
+            var jsoner = new JsonWorker.from_bytes (bytes, { "result" });
 
             return yield jsoner.deserialize_object_async<Account.About> ();
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             handle_error (e);
         }
     }
@@ -293,10 +293,10 @@ public sealed class Tape.YaMAPI.Client : Object {
                 priority,
                 cancellable
             );
-            var jsoner = new Jsoner.from_bytes (bytes, { "result" });
+            var jsoner = new JsonWorker.from_bytes (bytes, { "result" });
 
             return yield jsoner.deserialize_object_async<Playlist> ();
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             handle_error (e);
         }
     }
@@ -452,10 +452,10 @@ public sealed class Tape.YaMAPI.Client : Object {
                 priority,
                 cancellable
             );
-            var jsoner = new Jsoner.from_bytes (bytes, { "result" });
+            var jsoner = new JsonWorker.from_bytes (bytes, { "result" });
 
             return yield jsoner.deserialize_array_async<Playlist> ();
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             handle_error (e);
         }
     }
@@ -482,10 +482,10 @@ public sealed class Tape.YaMAPI.Client : Object {
                 priority,
                 cancellable
             );
-            var jsoner = new Jsoner.from_bytes (bytes, { "result" });
+            var jsoner = new JsonWorker.from_bytes (bytes, { "result" });
 
             return yield jsoner.deserialize_object_async<Playlist> ();
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             handle_error (e);
         }
     }
@@ -520,13 +520,13 @@ public sealed class Tape.YaMAPI.Client : Object {
                 cancellable
             );
 
-            var jsoner = new Jsoner.from_bytes (bytes, { "result" });
+            var jsoner = new JsonWorker.from_bytes (bytes, { "result" });
             //  FIXME: Fix it
             //  if (jsoner.root != null) {
             //      return true;
             //  }
             return false;
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             handle_error (e);
         }
     }
@@ -560,10 +560,10 @@ public sealed class Tape.YaMAPI.Client : Object {
                 cancellable
             );
 
-            var jsoner = new Jsoner.from_bytes (bytes, { "result" });
+            var jsoner = new JsonWorker.from_bytes (bytes, { "result" });
 
             return yield jsoner.deserialize_object_async<Playlist> ();
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             handle_error (e);
         }
     }
@@ -595,10 +595,10 @@ public sealed class Tape.YaMAPI.Client : Object {
                 cancellable
             );
 
-            var jsoner = new Jsoner.from_bytes (bytes, { "result" });
+            var jsoner = new JsonWorker.from_bytes (bytes, { "result" });
 
             return yield jsoner.deserialize_object_async<Playlist> ();
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             handle_error (e);
         }
     }
@@ -629,10 +629,10 @@ public sealed class Tape.YaMAPI.Client : Object {
                 cancellable
             );
 
-            var jsoner = new Jsoner.from_bytes (bytes, { "result" });
+            var jsoner = new JsonWorker.from_bytes (bytes, { "result" });
 
             return yield jsoner.deserialize_object_async<Playlist> ();
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             handle_error (e);
         }
     }
@@ -655,10 +655,10 @@ public sealed class Tape.YaMAPI.Client : Object {
                 cancellable
             );
 
-            var jsoner = new Jsoner.from_bytes (bytes, { "result" });
+            var jsoner = new JsonWorker.from_bytes (bytes, { "result" });
 
             return yield jsoner.deserialize_object_async<PlaylistRecommendations> ();
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             handle_error (e);
         }
     }
@@ -1263,10 +1263,10 @@ public sealed class Tape.YaMAPI.Client : Object {
                 cancellable
             );
 
-            var jsoner = new Jsoner.from_bytes (bytes, { "result" });
+            var jsoner = new JsonWorker.from_bytes (bytes, { "result" });
 
             return yield jsoner.deserialize_object_async<Library.AllIds> ();
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             handle_error (e);
         }
     }
@@ -1746,10 +1746,10 @@ public sealed class Tape.YaMAPI.Client : Object {
                 priority,
                 cancellable
             );
-            var jsoner = new Jsoner.from_bytes (bytes, { "result" });
+            var jsoner = new JsonWorker.from_bytes (bytes, { "result" });
 
             return yield jsoner.deserialize_array_async<Track> ();
-        } catch (Error e) {
+        } catch (GLib.Error e) {
             handle_error (e);
         }
     }
