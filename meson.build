@@ -7,8 +7,8 @@ project(
 )
 
 libversion = meson.project_version().replace('.rc', '')
+soversion = libversion.split('.')[0]
 
-api_version = libversion.split('.')[0]
 glib_min_version = '2.76'
 
 lib_name = 'tape'
@@ -17,9 +17,9 @@ gir_name = 'Tape'
 pkgc_description = 'Unofficial Yandex Music client library'
 pkgc_url = 'https://altlinux.space/rirusha/libtape'
 
-versioned_name = meson.project_name() + '-' + api_version
-versioned_lib_name = lib_name + '-' + api_version
-versioned_gir_name = gir_name + '-' + api_version
+versioned_name = meson.project_name() + '-' + soversion
+versioned_lib_name = lib_name + '-' + soversion
+versioned_gir_name = gir_name + '-' + soversion
 
 deps_name = versioned_name + '.deps'
 header_name = versioned_name + '.h'

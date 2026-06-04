@@ -33,7 +33,7 @@ lib = library(
   c_args: '-DG_LOG_DOMAIN="@0@"'.format(meson.project_name()),
   link_args: ['-lm'],
   version: libversion,
-  soversion: libversion,
+  soversion: soversion,
   install: true,
   install_dir: [true, true, true, true],
 )
