@@ -24,23 +24,3 @@ custom_target(
   output: valadoc_vala_dir,
   depends: lib,
 )
-
-custom_target(
-  'cdocs',
-  command: [ valadoc ] + pkgs +
-  [
-    sources,
-    '--target-glib=' + glib_min_version,
-    '--package-name=' + versioned_name,
-    '--package-version=' + libversion,
-    '--verbose',
-    '--force',
-    '-o', meson.current_build_dir() / versioned_name,
-    '--doclet-arg=lib/' + header_name,
-    '--doclet=gtkdoc',
-  ],
-
-  build_by_default: true,
-  output: meson.project_name(),
-  depends: lib,
-)
