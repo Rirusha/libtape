@@ -3,6 +3,10 @@
 
 Unofficial Yandex Music Client library on Vala.
 
+## Documentation
+
+[Documentation here](https://rirusha.altlinux.team/libtape/)
+
 ## Thanks
 to [MarshalX](https://github.com/MarshalX). Library [yandex-music-api](https://github.com/MarshalX/yandex-music-api) was used as documentation.
 
